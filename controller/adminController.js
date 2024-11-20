@@ -21,6 +21,7 @@ const onlinepaymentModel = require('../models/onlinePaymentModel');
 const onlineVideoModel= require('../models/onlineVideoModel');
 const analyticsModel = require('../models/analyticsModel');
 const subscribeModel = require('../models/subscribeModel');
+const webinarUser = require('../models/webinarRegiserUserModel');
 const fs = require('fs');
 const path = require('path');
 const handlebars = require('handlebars')
@@ -235,6 +236,18 @@ module.exports ={
         const course = await courseModel.find({isActive:true}).skip(query.skip).limit(query.limit);
         res.status(200).json({data:course,total:totalCourse.length});
     },
+
+    getAllWebinarRegistration: async function (req, res) {
+        let size = req.body.size || 10;
+        let pageNo = req.body.pageNo || 1; 
+        const query={};
+        query.skip = Number(size * (pageNo - 1));
+        query.limit = Number(size) || 0;
+        const sort = { _id: -1 };
+        const totalUsers = await webinarUser.find();
+        const users = await webinarUser.find().skip(query.skip).limit(query.limit);
+        res.status(200).json({data:users,total:totalUsers.length});
+    },
     getAllCourseV2: async function (req, res) {
         try{
             let documentIds = ["63c3f26c461e531f3c3452e1","63c4de4a2bce43a907211c74","63c4e12f2bce43a907211c76","63c4e7e72bce43a907211c78","63c4eea32bce43a907211c7a","644f9dfc499ffcfb45df35cd","63fc3fdc6d203300eae38625"]
@@ -285,6 +298,60 @@ module.exports ={
     
         } catch(err){
             res.status(500).json({ msg:'Internal Server error' }) 
+        }
+    },
+
+    registerWebinarUser: async function (req, res) {
+        const { name, email, phone, city, company } = req.body;
+        let mailOptions;
+        // Validate required fields
+        if (!name || !email || !phone || !city) {
+          return res.status(400).json({ message: 'Name, email, phone, and city are required.' });
+        }
+      
+        try {
+          // Create new user
+          const newUser = new webinarUser({
+            name,
+            email,
+            phone,
+            city,
+            company
+          });
+      
+          // Save user to database
+          await newUser.save();
+          // Send mail 
+          const filePath = path.join(__dirname, '/emailTemplate/registerWebinar.html');
+          const source = fs.readFileSync(filePath, 'utf-8').toString();
+          const template = handlebars.compile(source);
+          const replacements = {
+              "name":name
+          };
+          const htmlToSend = template(replacements);
+  
+          mailOptions = {
+              from: "Yoga Vidya School info@yogavidyaschool.com",
+              to: email,
+              subject: `Webinar Registration Confirmation`,
+              replyTo: 'info@yogavidyaschool.com',
+              html: htmlToSend
+          }
+          transporter.sendMail(mailOptions, async (err, result) => {
+            if (err) {
+                res.status(400).json('Opps error occured')
+            } else {
+                res.status(201).json({ message: 'User registered successfully!', user: newUser });
+            }
+         });
+          
+        } catch (error) {
+          if (error.code === 11000) {
+            // Duplicate email error
+            res.status(400).json({ message: 'Email already registered.' });
+          } else {
+            res.status(500).json({ message: 'Server error', error });
+          }
         }
     },
     createCategory: async function (req, res) {
@@ -815,7 +882,7 @@ module.exports ={
             const user = await adminModel.findOne({ email: email, password: password });          
             if (user) {
             const token = createToken(user._id);
-            res.json({ status: "ok",token, msg: "succesfully logged in"});
+            res.json({ status: "ok",token,user, msg: "succesfully logged in"});
             } else {
               res.json({ msg: "User not found" });
             }

@@ -153,6 +153,8 @@ router.post("/getAllPayment", adminController.getAllPayment);
 router.post("/getAllOnlinePayment", adminController.getAllOnlinePayment);
 router.get("/exportInquiry", adminController.exportInquiry);
 router.post("/stripe", adminController.checkoutStripe);
+router.post("/registerWebinarUser", adminController.registerWebinarUser);
+router.post("/getAllWebinarRegistration", adminController.getAllWebinarRegistration);
 router.post(
   "/stripeWithoutProduct",
   adminController.checkoutStripeWithoutProduct
@@ -238,19 +240,19 @@ async function getPresignedUrl(bucket, key) {
   return url;
 }
 
-const imageStorage = multer.diskStorage({
-  // Destination to store image
-  // console.log('test');
-  destination: "public/images",
-  filename: (req, file, cb) => {
-    cb(
-      null,
-      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
-    );
-    // file.fieldname is name of the field (image)
-    // path.extname get the uploaded file extension
-  },
-});
+// const imageStorage = multer.diskStorage({
+//   // Destination to store image
+//   // console.log('test');
+//   destination: "public/images",
+//   filename: (req, file, cb) => {
+//     cb(
+//       null,
+//       file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+//     );
+//     // file.fieldname is name of the field (image)
+//     // path.extname get the uploaded file extension
+//   },
+// });
 
 const imageStorages3 = multerS3({
   s3: s3,
