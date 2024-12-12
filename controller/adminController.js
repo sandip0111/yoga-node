@@ -28,6 +28,7 @@ const handlebars = require('handlebars')
 const transporter = require('../helpers/nodemail');
 const mongoose = require('mongoose');
 const XLSX = require('xlsx');
+const liveCoursesCustomermodel = require('../models/liveCoursesCustomerModel');
 const stripe = require('stripe')('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');
 const jwt = require('jsonwebtoken');
 // const stripe = require('stripe')('sk_test_51LTjKYSDnZBoIVm7EqcwQWYWStbdS5gufmBl3BLFKAReBHCSJharwcKHURUMEv3gq4oFCuDnDAO59WnKmpMPqi0100n0lg3QtG');
@@ -1241,37 +1242,78 @@ module.exports ={
         // success_url: 'http://localhost:4200/confirmation',
         // cancel_url: 'http://localhost:4200/confirmation',
       },
-      checkoutStripeWithoutProduct: async function(req, res) {
+
+      checkoutStripeForLiveClasses: async function(req, res) {
+        try {
             let paymentData= {
                 name:req.body.name,
                 email:req.body.email,
                 paymentStatus:"unpaid",
                 price:req.body.price,
-                currency:req.body.currency
+                currency:req.body.currency,
+                phone: req.body.phone,
+                courses: req.body.courses
             }
-            const pay =  await onlinepaymentModel.create(paymentData);
+            const pay =  await liveCoursesCustomermodel.create(paymentData);
             const session = await stripe.checkout.sessions.create({
-              payment_method_types: ['card'],
-              line_items: [
-                {
-                    price_data: {
-                        currency: req.body.currency,
-                        unit_amount: req.body.price * 100, // Amount in cents
-                        product_data: {
-                          name: 'Custom Payment',
+                payment_method_types: ['card'],
+                line_items: [
+                  {
+                      price_data: {
+                          currency: req.body.currency,
+                          unit_amount: req.body.price * 100, // Amount in cents
+                          product_data: {
+                            name: 'Custom Payment',
+                          },
                         },
-                      },
-                  quantity: 1,
-                },
-              ],
-              mode: 'payment',
-              success_url: 'https://www.yogavidyaschool.com/confirmation',
-              cancel_url: 'https://www.yogavidyaschool.com/confirmation',
-              customer_email: req.body.email
-            });
+                    quantity: 1,
+                  },
+                ],
+                mode: 'payment',
+                success_url: 'https://www.yogavidyaschool.com/confirmation',
+                cancel_url: 'https://www.yogavidyaschool.com/confirmation',
+                customer_email: req.body.email
+              });
+          
         
             res.status(200).json({ sessionId: session.id,payDbId:pay._id,url:session.url});
+          } catch (error) {
+            console.error(error);
+            res.status(500).send('Internal Server Error');
+          }
       },
+
+      checkoutStripeWithoutProduct: async function(req, res) {
+        let paymentData= {
+            name:req.body.name,
+            email:req.body.email,
+            paymentStatus:"unpaid",
+            price:req.body.price,
+            currency:req.body.currency
+        }
+        const pay =  await onlinepaymentModel.create(paymentData);
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items: [
+            {
+                price_data: {
+                    currency: req.body.currency,
+                    unit_amount: req.body.price * 100, // Amount in cents
+                    product_data: {
+                      name: 'Custom Payment',
+                    },
+                  },
+              quantity: 1,
+            },
+          ],
+          mode: 'payment',
+          success_url: 'https://www.yogavidyaschool.com/confirmation',
+          cancel_url: 'https://www.yogavidyaschool.com/confirmation',
+          customer_email: req.body.email
+        });
+    
+        res.status(200).json({ sessionId: session.id,payDbId:pay._id,url:session.url});
+  },
       checkoutStripeNewPranaarabha: async function(req, res) {
         try{
 
@@ -1462,6 +1504,125 @@ module.exports ={
             res.status(500).json("Internal server error");
           }
       },
+
+      getPaymentResultAndSendMailForLiveClass:async function (req, res){
+        try {
+             const session = await stripe.checkout.sessions.retrieve(req.body.sessionId);
+             if(session.payment_status == "paid")
+                {
+                    let val = {
+                    paymentStatus: "paid",
+                    payDbId:req.body.dbPay,
+                    paymentId: session.payment_intent
+                    }
+
+                    try
+                    {
+                        updatePaymentOnlineLiveClasses(val);
+                        try{
+ 
+                          var {name, email, courses} = await liveCoursesCustomermodel.findOne({_id:val.payDbId});
+                          
+                          let mailOptions;
+                          const courseList = courses.reduce((acc, course) => {
+                            acc.push({ title: course.title, price: course.priceInfo, shortDescription: course.shortDescription });
+                            return acc;
+                           }, []);
+                          const filePath = path.join(__dirname, '/emailTemplate/OrderConfirmationForLiveClasses.html');
+                          const source = fs.readFileSync(filePath, 'utf-8').toString();
+                          const template = handlebars.compile(source);
+                          const replacements = {
+                             
+                              "name":name,
+                              "items":courseList
+                          };
+                          const htmlToSend = template(replacements);
+                        
+                          mailOptions = {
+                              from: "Yoga Vidya School info@yogavidyaschool.com",
+                              to: email,
+                              subject: `Purchase Confirmation for online classes`,
+                              // text: body,
+                              replyTo: 'info@yogavidyaschool.com',
+                              html: htmlToSend
+                          }
+                        
+                          transporter.sendMail(mailOptions, async (err, result) => {
+                              if (err) {
+                               
+                              } else {
+                                
+                              }
+                          })
+        
+                        }
+                        catch(e){
+                            console.log('Customer email send error!');
+                        }
+        
+                        try{
+         
+                          var {name, email, phone, currency, price, courses, paymentStatus, paymentId} = await liveCoursesCustomermodel.findOne({_id:val.payDbId});
+                          let mailOptions;
+                          const courseList = courses.reduce((acc, course) => {
+                            acc.push({ title: course.title, price: course.priceInfo, shortDescription: course.shortDescription });
+                            return acc;
+                           }, []);
+                          const filePath = path.join(__dirname, '/emailTemplate/adminOrdersForLiveClasses.html');
+                          const source = fs.readFileSync(filePath, 'utf-8').toString();
+                          const template = handlebars.compile(source);
+                          const replacements = {
+                             
+                              "name":name,
+                              "phoneNo":phone,
+                              "email":email,
+                              "price":price,
+                              "payId":paymentId,
+                              "currency":currency,
+                              "status": paymentStatus,
+                              "items": courseList
+                          };
+                          const htmlToSend = template(replacements);
+                        
+                          mailOptions = {
+                              from: "Yoga Vidya School info@yogavidyaschool.com",
+                              to: 'info@yogavidyaschool.com',
+                              //to:email,
+                              subject: `Admin Purchase Confirmation for online classes`,
+                              // text: body,
+                              replyTo: 'info@yogavidyaschool.com',
+                              html: htmlToSend
+                          }
+                        
+                          transporter.sendMail(mailOptions, async (err, result) => {
+                              if (err) {
+                                
+                              } else {
+                                  
+                              }
+                          })
+                          res.status(200).json({"status":"success",sessionId:req.body.sessionId,paymtId:session.payment_intent,amount: (session.amount_total / 100),currency: session.currency,});
+                        }
+                        catch(e){
+                            console.log('admin email send error!');
+                        }
+                      
+                    }
+                    catch(err)
+                    {
+                        console.log('internal error');
+                    }  
+                }             
+             else 
+             {
+                res.status(200).json({"status":"failed",sessionId:req.body.sessionId});
+             }
+            } 
+            catch (error) 
+            {
+              res.status(500).json("Internal server error");
+            }
+       },
       getPaymentResultV2:async function (req, res){
         try {
             const session = await stripe.checkout.sessions.retrieve(req.body.sessionId);
@@ -1703,6 +1864,15 @@ let updatePayment = async function (data){
     }
     catch(error) {
         // res.staus(500).json("Internal server error");
+    }
+  }
+
+  let updatePaymentOnlineLiveClasses = async function (data){
+    try{
+     const pay = await liveCoursesCustomermodel.findOneAndUpdate({_id:data.payDbId},{paymentId: data.paymentId,paymentStatus:data.paymentStatus});
+    }
+    catch(error) {
+        res.staus(500).json("Internal server error");
     }
   }
 
