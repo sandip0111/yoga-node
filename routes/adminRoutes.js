@@ -198,7 +198,7 @@ router.post("/getCourseVideosById", async (req, res) => {
     let arr = [];
     if (response.Contents) {
       for (const item of response.Contents) {
-        if (item.Key.endsWith(".mp4") || item.Key.endsWith(".MOV")) {
+        if (item.Key.endsWith(".mp4") || item.Key.endsWith(".mov") || item.Key.endsWith(".MOV")) {
           // console.log(item,'---');
           const key = item.Key;
           const id = key.substring(
