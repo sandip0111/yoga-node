@@ -15,8 +15,10 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   city: {
-    type: String,
-    required: true
+    type: String
+  },
+  webinar:{
+    type: String
   },
   company: {
     type: String,

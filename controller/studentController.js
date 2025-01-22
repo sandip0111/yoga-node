@@ -26,7 +26,7 @@ module.exports ={
                         const student = await Student.create(req.body);
                         res.status(201).json({status:"ok", msg:"Student Registerd Success",studentId:student._id});
                         if(req.body.source == "web"){
-                            sendRegistrationEmailV2(student._id);
+                            //sendRegistrationEmailV2(student._id);
                         }
                         else if(req.body.source == "admin"){
                             // sendRegistrationEmail(student._id);
