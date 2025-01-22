@@ -303,11 +303,11 @@ module.exports ={
     },
 
     registerWebinarUser: async function (req, res) {
-        const { name, email, phone, city, company } = req.body;
+        const { name, email, phone, city, company, webinar } = req.body;
         let mailOptions;
         // Validate required fields
-        if (!name || !email || !phone || !city) {
-          return res.status(400).json({ message: 'Name, email, phone, and city are required.' });
+        if (!name || !email) {
+          return res.status(400).json({ message: 'Name, email are required.' });
         }
       
         try {
@@ -317,7 +317,8 @@ module.exports ={
             email,
             phone,
             city,
-            company
+            company,
+            webinar
           });
       
           // Save user to database
@@ -327,14 +328,15 @@ module.exports ={
           const source = fs.readFileSync(filePath, 'utf-8').toString();
           const template = handlebars.compile(source);
           const replacements = {
-              "name":name
+              "name":name,
+              "webinar": webinar
           };
           const htmlToSend = template(replacements);
   
           mailOptions = {
               from: "Yoga Vidya School info@yogavidyaschool.com",
               to: email,
-              subject: `Webinar Registration Confirmation`,
+              subject: `${webinar} webinar registration confirmation`,
               replyTo: 'info@yogavidyaschool.com',
               html: htmlToSend
           }
