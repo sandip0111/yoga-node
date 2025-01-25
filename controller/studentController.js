@@ -96,17 +96,17 @@ module.exports ={
     
             const student = await Student.findOne({_id:studentId});
             if (!student) {
-                res.status(404).json({msg:`No User Found`});
+                res.status(404).json({status:"404",msg:`No User Found`});
             }
             if (student.password != oldPassword) {
-                res.status(500).json({msg:`Old password does not match`});
+                res.status(500).json({status:"500",msg:`Old password does not match`});
             }
             // update password
             student.password = newPassword;
             //update database
             await student.save();
 
-            res.status(200).json({msg:`Password Changed Successfully`});
+            res.status(200).json({status:"200", msg:`Password Changed Successfully`});
     
         } catch(err){
             res.status(500).json({ msg:err }) 
