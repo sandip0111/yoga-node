@@ -92,20 +92,21 @@ module.exports ={
 
     changeStudentPasswordById: async function (req, res) {
         try{
-            const { studentId, newPassword } = req.body;
-            const updatedStudent = await Student.findByIdAndUpdate(
-                studentId, 
-                { password: newPassword }, 
-                { new: true } 
-            );
-    
-            if (!updatedStudent) {
-                throw new Error('Student not found');
-            }
+            const { studentId, newPassword, oldPassword } = req.body;           
     
             const student = await Student.findOne({_id:studentId});
-    
-            res.status(200).json({"Data":student});
+            if (!student) {
+                res.status(404).json({msg:`No User Found`});
+            }
+            if (student.password != oldPassword) {
+                res.status(500).json({msg:`Old password does not match`});
+            }
+            // update password
+            student.password = newPassword;
+            //update database
+            await student.save();
+
+            res.status(200).json({msg:`Password Changed Successfully`});
     
         } catch(err){
             res.status(500).json({ msg:err }) 
