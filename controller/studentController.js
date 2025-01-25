@@ -90,6 +90,28 @@ module.exports ={
         }
     },
 
+    changeStudentPasswordById: async function (req, res) {
+        try{
+            const { studentId, newPassword } = req.body;
+            const updatedStudent = await Student.findByIdAndUpdate(
+                studentId, 
+                { password: newPassword }, 
+                { new: true } 
+            );
+    
+            if (!updatedStudent) {
+                throw new Error('Student not found');
+            }
+    
+            const student = await Student.findOne({_id:studentId});
+    
+            res.status(200).json({"Data":student});
+    
+        } catch(err){
+            res.status(500).json({ msg:err }) 
+        }
+    },
+
     deleteStudentById: async function (req, res) {
         try{
             const user = await Student.findOneAndUpdate({_id:req.body._id},req.body);

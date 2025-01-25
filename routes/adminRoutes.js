@@ -144,6 +144,7 @@ router.post("/getValidation", adminController.getValidation);
 router.post("/createFeedback", adminController.createFeedback);
 router.post("/createSubscriber", adminController.createSubscriber);
 router.post("/getFeedbackByCourse", adminController.getFeedbackByCourse);
+router.post("/changePassword", studentController.changeStudentPasswordById);
 
 router.post("/createAccessLog", adminController.createAccessLog);
 router.post("/getAccessLog", adminController.getAccessLog);
