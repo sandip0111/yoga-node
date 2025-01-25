@@ -94,12 +94,14 @@ module.exports ={
         try{
             const { studentId, newPassword, oldPassword } = req.body;           
     
-            const student = await Student.findOne({_id:studentId});
+            const student = await Student.findById({_id:studentId});
             if (!student) {
                 res.status(404).json({status:"404",msg:`No User Found`});
+                return;
             }
             if (student.password != oldPassword) {
-                res.status(500).json({status:"500",msg:`Old password does not match`});
+                res.status(400).json({status:"400",msg:`Old password does not match`});
+                return;
             }
             // update password
             student.password = newPassword;
