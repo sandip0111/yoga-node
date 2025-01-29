@@ -195,11 +195,30 @@ router.post("/getCourseVideosById", async (req, res) => {
       Prefix: `upCourses/${req.body.courseId}/`,
       Delimiter: "/",
     };
-    const response = await s3.listObjectsV2(params);
+    let allObjects = [];
+    let continuationToken = null;
+    do 
+    {
+      if (continuationToken) {
+        params.ContinuationToken = continuationToken; // Set pagination token
+      }
+      const response = await s3.listObjectsV2(params);
+
+      const filteredObjects = response.Contents.filter(obj => !obj.Key.endsWith(".ts"));
+
+      allObjects = allObjects.concat(filteredObjects);
+      if (allObjects.length >= 1000) {
+        allObjects = allObjects.slice(0, 1000); 
+        break;
+      }
+      continuationToken = response.NextContinuationToken;
+
+    } while (continuationToken);
+ 
     let arr = [];
-    if (response.Contents) {
-      for (const item of response.Contents) {
-        if (item.Key.endsWith(".mp4") || item.Key.endsWith(".mov") || item.Key.endsWith(".MOV")) {
+    if (allObjects) {
+      for (const item of allObjects) {
+        if (item.Key.endsWith(".mp4") || item.Key.endsWith(".mov") || item.Key.endsWith(".MOV") || item.Key.endsWith(".m3u8")) {
           // console.log(item,'---');
           const key = item.Key;
           const id = key.substring(
@@ -214,6 +233,7 @@ router.post("/getCourseVideosById", async (req, res) => {
           // console.log(urlv3,'id');
           const getObj = getVideoData.filter((e) => e.videoName == id);
           //  console.log(getObj,'filte rdata');
+          if(getObj.length != 0){
           let val = {
             updateId: getObj[0]._id,
             title: getObj[0].title,
@@ -221,6 +241,8 @@ router.post("/getCourseVideosById", async (req, res) => {
             url: newUrl,
           };
           arr.push(val);
+        }
+         
         }
       }
       // console.log(arr,'--');
