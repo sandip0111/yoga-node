@@ -5,6 +5,9 @@ const handlebars = require('handlebars')
 const transporter = require('../helpers/nodemail');
 const mongoose = require('mongoose');
 const courseModel = require('../models/courseModel');
+const paymentModel = require('../models/paymentModel');
+const onlinePaymentModel = require('../models/onlinePaymentModel');
+const liveCoursesCustomerModel = require('../models/liveCoursesCustomerModel');
 module.exports ={
     createUpdateStudent: async function (req, res) {
         {
@@ -41,6 +44,126 @@ module.exports ={
             }
     
             
+        }
+    },
+
+    getAllParayanamStudent: async function (req, res) {
+        try {
+            let courseId = '644f9dfc499ffcfb45df35cd';
+            let size = req.body.size || 10;
+            let pageNo = req.body.pageNo || 1;           
+            const skip = Number(size * (pageNo - 1));
+            const limit = Number(size) || 0; 
+
+            const studentList = await Student.aggregate([
+                // Filter students who have the specified courseId in the course array
+                { $match: { course: courseId } },
+                { $sort: { created: -1 } },
+                // Left Join with Payments (Match studentId)
+                {
+                    $lookup: {
+                        from: "payments",
+                        localField: "_id",
+                        foreignField: "studentId",
+                        as: "paymentDetails",
+                    },
+                },
+    
+                // Left Join with Online Payments (Match email)
+                {
+                    $lookup: {
+                        from: "onlinepayments",
+                        localField: "email",
+                        foreignField: "email",
+                        as: "onlinePayments",
+                    },
+                },
+                {
+                    $set: {
+                        latestOnlinePayment: {
+                            $arrayElemAt: [
+                                { $filter: { input: "$onlinePayments", as: "payment", cond: {} } },
+                                0
+                            ]
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        onlinePayments: 0, 
+                    },
+                },
+                { $skip: skip }, 
+                { $limit: limit },
+            ]);
+            res.status(200).json({data:studentList,total:studentList.length});
+          
+          } catch (err) {
+            res.status(500).json({error:err});
+          } 
+    },
+
+    getAllLiveClassStudent: async function (req, res) {
+        try {
+            let size = req.body.size || 10;
+            let pageNo = req.body.pageNo || 1;           
+            const skip = Number(size * (pageNo - 1));
+            const limit = Number(size) || 0; 
+            const studentList = await liveCoursesCustomerModel.aggregate([
+                // Unwind the courses array to treat each course as a separate document
+                { $unwind: "$courses" },
+    
+                // Group by courses.title and keep all customer details
+                {
+                    $group: {
+                        _id: "$courses.title",
+                        totalCustomers: { $sum: 1 }, // Count customers per course
+                        customers: {
+                            $push: {
+                                _id: "$_id",
+                                name: "$name",
+                                email: "$email",
+                                phone: "$phone",
+                                currency: "$currency",
+                                price: "$price",
+                                paymentStatus: "$paymentStatus",
+                                created: "$created",
+                                courses: {
+                                    _id: "$courses._id",
+                                    title: "$courses.title",
+                                    shortDescription: "$courses.shortDescription",
+                                    priceINR: "$courses.priceINR",
+                                    priceUSD: "$courses.priceUSD",
+                                    quantity: "$courses.quantity",
+                                    priceInfo: "$courses.priceInfo"
+                                }
+                            }
+                        }
+                    }
+                },
+    
+                // Sort by totalCustomers in descending order
+                { $sort: { totalCustomers: -1 } },
+    
+                // Pagination: Skip and Limit
+                { $skip: skip },
+                { $limit: limit }
+            ]);
+           
+            res.status(200).json({data:studentList,total:studentList.length});
+          
+          } catch (err) {
+            res.status(500).json({error:err});
+          } 
+    },
+
+    getKundaliniParichayRefferalCode: async function (req, res) {
+        try {
+            let code = 'swarayoga@prashantji';
+            res.status(200).json({data:code});        
+        }
+        catch(ex){
+            res.status(500).json({error:err});
         }
     },
 
@@ -516,3 +639,25 @@ let sendRegistrationEmail = async function (id) {
         }
     })
   }
+
+  //helpers
+
+  function mergeArrays(results, result, students) {
+    const uniqueMap = new Map();
+
+    function addToMap(array) {
+        for (const item of array) {
+            const id = item.studentDetails?._id || item._id; // Handle nested structure
+            if (!uniqueMap.has(id)) {
+                uniqueMap.set(id, item);
+            }
+        }
+    }
+
+    // Priority order: results → result → students
+    addToMap(results);
+    addToMap(result);
+    addToMap(students);
+
+    return Array.from(uniqueMap.values());
+}
