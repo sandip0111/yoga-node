@@ -172,7 +172,11 @@ router.get(
   "/getCourseVideoDataById/:id",
   adminController.getCourseVideoDataById
 );
+//Dashboard
 
+router.get('/getAllParayanamStudent', studentController.getAllParayanamStudent);
+router.get('/getAllLiveClassStudent', studentController.getAllLiveClassStudent);
+router.get('/getKundaliniParichayRefferalCode', studentController.getKundaliniParichayRefferalCode);
 //anaylytics
 router.post("/createAnalytics", adminController.createAnalytics);
 router.post("/getAnalyticsByDate", adminController.getAnalyticsByDate);
@@ -255,6 +259,75 @@ router.post("/getCourseVideosById", async (req, res) => {
   }
 });
 
+router.post("/getWebinarVideosByName", async (req, res) => {
+  try {
+   
+    // console.log(getVideoData,'---');
+    if(req.body.name == 'swar-sadhana'){
+      req.body.name = 'SWAR SADHANA'
+    }
+    const params = {
+      Bucket: "yogacourses",
+      Prefix: `upCourses/${req.body.name}/`,
+      Delimiter: "/",
+    };
+    let allObjects = [];
+    let continuationToken = null;
+    do 
+    {
+      if (continuationToken) {
+        params.ContinuationToken = continuationToken; // Set pagination token
+      }
+      const response = await s3.listObjectsV2(params);
+
+      const filteredObjects = response.Contents.filter(obj => !obj.Key.endsWith(".ts"));
+
+      allObjects = allObjects.concat(filteredObjects);
+      if (allObjects.length >= 1000) {
+        allObjects = allObjects.slice(0, 1000); 
+        break;
+      }
+      continuationToken = response.NextContinuationToken;
+
+    } while (continuationToken);
+ 
+    let arr = [];
+    if (allObjects) {
+      for (const item of allObjects) {
+        if (item.Key.endsWith(".mp4") || item.Key.endsWith(".mov") || item.Key.endsWith(".MOV") || item.Key.endsWith(".m3u8")) {
+          // console.log(item,'---');
+          const key = item.Key;
+          const id = key.substring(
+            key.lastIndexOf("/") + 1,
+            key.lastIndexOf(".")
+          );
+          const url = await getPresignedUrl("yogacourses", key);
+          const newUrl = url.replace(
+            "yogacourses.s3.us-east-1.amazonaws.com",
+            "d3mzqk1fxuwngx.cloudfront.net"
+          );
+         
+          //  console.log(getObj,'filte rdata');
+         var number = extractNumber(id);
+          let val = {
+            title: 'Part'+ number,
+            sortBy: number,
+            url: newUrl,
+          };
+          arr.push(val);
+        }
+      }
+      // console.log(arr,'--');
+      arr.sort((a, b) => a.sortBy - b.sortBy);
+      res.status(200).json(arr);
+    } else {
+      res.status(200).json(arr);
+    }
+  } catch (err) {
+    res.status(400).json({ err });
+  }
+});
+
 async function getPresignedUrl(bucket, key) {
   const command = new GetObjectCommand({
     Bucket: bucket,
@@ -278,6 +351,11 @@ async function getPresignedUrl(bucket, key) {
 //     // path.extname get the uploaded file extension
 //   },
 // });
+
+function extractNumber(str) {
+  const match = str.match(/\d+/); // Finds the first number in the string
+  return match ? parseInt(match[0], 10) : null; // Convert to integer
+}
 
 const imageStorages3 = multerS3({
   s3: s3,

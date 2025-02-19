@@ -303,11 +303,12 @@ module.exports ={
     },
 
     registerWebinarUser: async function (req, res) {
-        const { name, email, phone, city, company, webinar } = req.body;
+        const { name, email, phone, city, company, webinar, refferalCode, password } = req.body;
         let mailOptions;
+        let created = new Date();
         // Validate required fields
-        if (!name || !email) {
-          return res.status(400).json({ message: 'Name, email are required.' });
+        if (!name || !email || !refferalCode) {
+          return res.status(400).json({ message: 'Name, email, refferal Code are required.' });
         }
       
         try {
@@ -318,7 +319,10 @@ module.exports ={
             phone,
             city,
             company,
-            webinar
+            webinar,
+            refferalCode,
+            password,
+            created
           });
       
           // Save user to database
@@ -329,7 +333,9 @@ module.exports ={
           const template = handlebars.compile(source);
           const replacements = {
               "name":name,
-              "webinar": webinar
+              "webinar": webinar,
+              "email": email,
+              "password":password,
           };
           const htmlToSend = template(replacements);
   
@@ -903,9 +909,33 @@ module.exports ={
             const user = await studentModel.findOne({ isActive:true, email: email, password: password });
     
             if (user) {
-              res.status(200).json({ status: "ok", user: {"id":user._id}, msg: "succesfully logged in" });
+              res.status(200).json({ status: "ok", user: {"id":user._id, "isWebinarUser": false}, msg: "succesfully logged in" });
             } else {
-              res.status(200).json({status: "ok", msg: "User not found" });
+             const webinarUserData = await webinarUser.findOne({ email: email, password: password });
+             if(webinarUserData){
+                if (!webinarUserData.lastTimeLoggedIn) 
+                {
+                    webinarUserData.lastTimeLoggedIn = new Date(); // Set current timestamp
+                    await webinarUserData.save(); // Save the updated document
+                }
+                else 
+                {
+                    const currentTime = new Date();
+                    // If lastTimeLoggedIn has a value, check if 48 hours have passed
+                    const lastLoggedInTime = new Date(webinarUserData.lastTimeLoggedIn);
+                    const timeAfter48Hours = new Date(lastLoggedInTime.getTime() + 48 * 60 * 60 * 1000); // Add 48 hours
+                
+                    if (currentTime > timeAfter48Hours) 
+                    {
+                        res.status(200).json({ status: "ok", msg: "You exceed the 48 hours time after logged in" });
+                        return;
+                    }
+                }
+                res.status(200).json({ status: "ok", user: {"id":webinarUserData._id, "isWebinarUser": true}, msg: "succesfully logged in" });
+             }else{
+                res.status(200).json({status: "ok", msg: "User not found" });
+             }
+              
             }
     
             // res.json(user);
