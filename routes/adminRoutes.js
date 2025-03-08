@@ -176,6 +176,8 @@ router.get(
 
 router.get('/getAllParayanamStudent', studentController.getAllParayanamStudent);
 router.get('/getAllLiveClassStudent', studentController.getAllLiveClassStudent);
+router.get('/getAllBreathDetoxStudent', studentController.getAllBreathDetoxStudent);
+router.get('/getAllFoundationOfSpiritualityStudent', studentController.getAllFoundationOfSpiritualityStudent);
 router.get('/getKundaliniParichayRefferalCode', studentController.getKundaliniParichayRefferalCode);
 //anaylytics
 router.post("/createAnalytics", adminController.createAnalytics);

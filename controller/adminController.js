@@ -923,11 +923,11 @@ module.exports ={
                     const currentTime = new Date();
                     // If lastTimeLoggedIn has a value, check if 48 hours have passed
                     const lastLoggedInTime = new Date(webinarUserData.lastTimeLoggedIn);
-                    const timeAfter48Hours = new Date(lastLoggedInTime.getTime() + 48 * 60 * 60 * 1000); // Add 48 hours
+                    const timeAfter96Hours = new Date(lastLoggedInTime.getTime() + 2 * 48 * 60 * 60 * 1000); // Add 96 hours
                 
-                    if (currentTime > timeAfter48Hours) 
+                    if (currentTime > timeAfter96Hours) 
                     {
-                        res.status(200).json({ status: "ok", msg: "You exceed the 48 hours time after logged in" });
+                        res.status(200).json({ status: "ok", msg: "You exceed the 96 hours time after logged in" });
                         return;
                     }
                 }

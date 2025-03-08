@@ -54,7 +54,7 @@ module.exports ={
             let pageNo = req.body.pageNo || 1;           
             const skip = Number(size * (pageNo - 1));
             const limit = Number(size) || 0; 
-
+            const totalStudent = await Student.countDocuments({ course: courseId });
             const studentList = await Student.aggregate([
                 // Filter students who have the specified courseId in the course array
                 { $match: { course: courseId } },
@@ -96,7 +96,7 @@ module.exports ={
                 { $skip: skip }, 
                 { $limit: limit },
             ]);
-            res.status(200).json({data:studentList,total:studentList.length});
+            res.status(200).json({data:studentList,total:totalStudent});
           
           } catch (err) {
             res.status(500).json({error:err});
@@ -151,6 +151,72 @@ module.exports ={
             ]);
            
             res.status(200).json({data:studentList,total:studentList.length});
+          
+          } catch (err) {
+            res.status(500).json({error:err});
+          } 
+    },
+
+    getAllBreathDetoxStudent: async function (req, res) {
+        try {
+            let courseId = '63c3f26c461e531f3c3452e1';
+            let size = req.body.size || 10;
+            let pageNo = req.body.pageNo || 1;           
+            const skip = Number(size * (pageNo - 1));
+            const limit = Number(size) || 0; 
+            var totalStudent = await Student.countDocuments({ course: courseId });
+            const studentList = await Student.aggregate([
+                // Filter students who have the specified courseId in the course array
+                { $match: { course: courseId } },
+                { $sort: { created: -1 } },
+                // Left Join with Payments (Match studentId)
+                {
+                    $lookup: {
+                        from: "payments",
+                        localField: "_id",
+                        foreignField: "studentId",
+                        as: "paymentDetails",
+                    },
+                },
+    
+                
+                { $skip: skip }, 
+                { $limit: limit },
+            ]);
+            res.status(200).json({data:studentList,total:totalStudent});
+          
+          } catch (err) {
+            res.status(500).json({error:err});
+          } 
+    },
+
+    getAllFoundationOfSpiritualityStudent: async function (req, res) {
+        try {
+            let courseId = '63c4de4a2bce43a907211c74';
+            let size = req.body.size || 10;
+            let pageNo = req.body.pageNo || 1;           
+            const skip = Number(size * (pageNo - 1));
+            const limit = Number(size) || 0; 
+            var totalStudent = await Student.countDocuments({ course: courseId });
+            const studentList = await Student.aggregate([
+                // Filter students who have the specified courseId in the course array
+                { $match: { course: courseId } },
+                { $sort: { created: -1 } },
+                // Left Join with Payments (Match studentId)
+                {
+                    $lookup: {
+                        from: "payments",
+                        localField: "_id",
+                        foreignField: "studentId",
+                        as: "paymentDetails",
+                    },
+                },
+    
+                
+                { $skip: skip }, 
+                { $limit: limit },
+            ]);
+            res.status(200).json({data:studentList,total:totalStudent});
           
           } catch (err) {
             res.status(500).json({error:err});
