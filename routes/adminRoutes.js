@@ -174,10 +174,10 @@ router.get(
 );
 //Dashboard
 
-router.get('/getAllParayanamStudent', studentController.getAllParayanamStudent);
-router.get('/getAllLiveClassStudent', studentController.getAllLiveClassStudent);
-router.get('/getAllBreathDetoxStudent', studentController.getAllBreathDetoxStudent);
-router.get('/getAllFoundationOfSpiritualityStudent', studentController.getAllFoundationOfSpiritualityStudent);
+router.post('/getAllParayanamStudent', studentController.getAllParayanamStudent);
+router.post('/getAllLiveClassStudent', studentController.getAllLiveClassStudent);
+router.post('/getAllBreathDetoxStudent', studentController.getAllBreathDetoxStudent);
+router.post('/getAllFoundationOfSpiritualityStudent', studentController.getAllFoundationOfSpiritualityStudent);
 router.get('/getKundaliniParichayRefferalCode', studentController.getKundaliniParichayRefferalCode);
 //anaylytics
 router.post("/createAnalytics", adminController.createAnalytics);
