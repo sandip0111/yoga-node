@@ -51,33 +51,49 @@ module.exports ={
         try {
             let courseId = '644f9dfc499ffcfb45df35cd';
             let size = req.body.size || 10;
-            let pageNo = req.body.pageNo || 1;           
+            let pageNo = req.body.pageNo || 1;  
+            let searchText = req.body.searchText;    
             const skip = Number(size * (pageNo - 1));
             const limit = Number(size) || 0; 
-            const totalStudent = await Student.countDocuments({ course: courseId });
-            const studentList = await Student.aggregate([
-                // Filter students who have the specified courseId in the course array
+            const filterCondition = {
+                course: courseId,
+                ...(searchText && {
+                  $or: [
+                    { firstName: { $regex: searchText, $options: "i" } },
+                    { email: { $regex: searchText, $options: "i" } }
+                  ]
+                })
+              };
+              
+            const totalStudent = await Student.countDocuments(filterCondition);
+              
+            const pipeline = [
+                // Filter by courseId
                 { $match: { course: courseId } },
+            
+                // Sort by creation date
                 { $sort: { created: -1 } },
+            
                 // Left Join with Payments (Match studentId)
                 {
                     $lookup: {
                         from: "payments",
                         localField: "_id",
                         foreignField: "studentId",
-                        as: "paymentDetails",
-                    },
+                        as: "paymentDetails"
+                    }
                 },
-    
+            
                 // Left Join with Online Payments (Match email)
                 {
                     $lookup: {
                         from: "onlinepayments",
                         localField: "email",
                         foreignField: "email",
-                        as: "onlinePayments",
-                    },
+                        as: "onlinePayments"
+                    }
                 },
+            
                 {
                     $set: {
                         latestOnlinePayment: {
@@ -88,14 +104,32 @@ module.exports ={
                         }
                     }
                 },
+            
+                // Remove the onlinePayments array
                 {
                     $project: {
-                        onlinePayments: 0, 
-                    },
+                        onlinePayments: 0
+                    }
                 },
-                { $skip: skip }, 
-                { $limit: limit },
-            ]);
+            
+                { $skip: skip },
+                { $limit: limit }
+            ];
+            
+            // Add filter only when searchText is not empty
+            if (searchText) {
+                pipeline.splice(1, 0, {
+                    $match: {
+                        $or: [
+                            { firstName: { $regex: searchText, $options: "i" } },
+                            { email: { $regex: searchText, $options: "i" } }
+                        ]
+                    }
+                });
+            }
+            
+            const studentList = await Student.aggregate(pipeline);            
+            
             res.status(200).json({data:studentList,total:totalStudent});
           
           } catch (err) {
@@ -163,26 +197,52 @@ module.exports ={
             let size = req.body.size || 10;
             let pageNo = req.body.pageNo || 1;           
             const skip = Number(size * (pageNo - 1));
+            let searchText = req.body.searchText;
             const limit = Number(size) || 0; 
-            var totalStudent = await Student.countDocuments({ course: courseId });
+            const filterCondition = {
+                course: courseId,
+                ...(searchText && {
+                    $or: [
+                        { firstName: { $regex: searchText, $options: "i" } },
+                        { lastName: { $regex: searchText, $options: "i" } },
+                        { email: { $regex: searchText, $options: "i" } },
+                        { city: { $regex: searchText, $options: "i" } },
+                        {
+                            $expr: {
+                                $regexMatch: {
+                                    input: { $toString: "$phoneNumber" }, // Convert phoneNumber to string
+                                    regex: searchText,
+                                    options: "i"
+                                }
+                            }
+                        }
+                    ]
+                })
+            };
+            
+            // Count total students with filter
+            const totalStudent = await Student.countDocuments(filterCondition);
+            
+            // Fetch student list with filter
             const studentList = await Student.aggregate([
-                // Filter students who have the specified courseId in the course array
-                { $match: { course: courseId } },
+                { $match: filterCondition },
+            
                 { $sort: { created: -1 } },
+            
                 // Left Join with Payments (Match studentId)
                 {
                     $lookup: {
                         from: "payments",
                         localField: "_id",
                         foreignField: "studentId",
-                        as: "paymentDetails",
-                    },
+                        as: "paymentDetails"
+                    }
                 },
-    
-                
-                { $skip: skip }, 
-                { $limit: limit },
+            
+                { $skip: skip },
+                { $limit: limit }
             ]);
+            
             res.status(200).json({data:studentList,total:totalStudent});
           
           } catch (err) {
@@ -194,28 +254,44 @@ module.exports ={
         try {
             let courseId = '63c4de4a2bce43a907211c74';
             let size = req.body.size || 10;
-            let pageNo = req.body.pageNo || 1;           
+            let pageNo = req.body.pageNo || 1;  
+            let searchText = req.body.searchText;         
             const skip = Number(size * (pageNo - 1));
             const limit = Number(size) || 0; 
-            var totalStudent = await Student.countDocuments({ course: courseId });
+            const filterCondition = {
+                course: courseId,
+                ...(searchText && {
+                    $or: [
+                        { firstName: { $regex: searchText, $options: "i" } },
+                        { lastName: { $regex: searchText, $options: "i" } },
+                        { email: { $regex: searchText, $options: "i" } }
+                    ]
+                })
+            };
+            
+            // Count total students with filter
+            const totalStudent = await Student.countDocuments(filterCondition);
+            
+            // Fetch student list with filter
             const studentList = await Student.aggregate([
-                // Filter students who have the specified courseId in the course array
-                { $match: { course: courseId } },
+                { $match: filterCondition },
+            
                 { $sort: { created: -1 } },
+            
                 // Left Join with Payments (Match studentId)
                 {
                     $lookup: {
                         from: "payments",
                         localField: "_id",
                         foreignField: "studentId",
-                        as: "paymentDetails",
-                    },
+                        as: "paymentDetails"
+                    }
                 },
-    
-                
-                { $skip: skip }, 
-                { $limit: limit },
+            
+                { $skip: skip },
+                { $limit: limit }
             ]);
+            
             res.status(200).json({data:studentList,total:totalStudent});
           
           } catch (err) {
