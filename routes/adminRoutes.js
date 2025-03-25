@@ -165,6 +165,11 @@ router.post(
 router.post("/getPaymentResponse", adminController.getPaymentResult);
 router.post("/getPaymentResponseV2", adminController.getPaymentResultV2);
 
+router.post("/registerSwarSadhanaWebinarUser", adminController.registerSwarSadhanaWebinarUser);
+router.post("/checkoutSwarSadhanaStripe", adminController.checkoutSwarSadhanaStripe);
+router.post("/getPaymentResultSwarSadhana", adminController.getPaymentResultSwarSadhana);
+router.post("/getAllTimeSlot", adminController.getAllTimeSlot);
+
 //video Aws
 
 router.post("/createVideo", adminController.createOnlineVideo);
@@ -178,6 +183,7 @@ router.post('/getAllParayanamStudent', studentController.getAllParayanamStudent)
 router.post('/getAllLiveClassStudent', studentController.getAllLiveClassStudent);
 router.post('/getAllBreathDetoxStudent', studentController.getAllBreathDetoxStudent);
 router.post('/getAllFoundationOfSpiritualityStudent', studentController.getAllFoundationOfSpiritualityStudent);
+router.post('/getAllStudentCourseListAndCount', studentController.getAllStudentCourseListAndCount);
 router.get('/getKundaliniParichayRefferalCode', studentController.getKundaliniParichayRefferalCode);
 //anaylytics
 router.post("/createAnalytics", adminController.createAnalytics);
@@ -404,7 +410,11 @@ router.post(
 const videoStorage = multer.diskStorage({
   // Destination to store image
   // console.log('test');
-  destination: "public/video",
+  destination: function (req, file, cb) {
+    // Adjust the path to go up from 'routes' folder to the project root
+    const uploadPath = path.join(__dirname, "..", "public/video");
+    cb(null, uploadPath);
+  },
   filename: (req, file, cb) => {
     cb(
       null,
@@ -498,8 +508,8 @@ router.post("/uploadReview", videoUpload.single("video"), async (req, res) => {
   console.log(result);
 
   if (result.$metadata.httpStatusCode == 200) {
-    // const fullPath = path.resolve(__dirname, filePath);
-    let fullPath = __dirname + "/../"+ filePath;
+    const fullPath = path.resolve(filePath);
+    //let fullPath = __dirname + "/../"+ filePath;
     fs.unlink(fullPath, (err) => {
       if (err) {
           console.error(`Error deleting file ${filePath}:`, err);

@@ -28,6 +28,8 @@ const handlebars = require('handlebars')
 const transporter = require('../helpers/nodemail');
 const mongoose = require('mongoose');
 const XLSX = require('xlsx');
+
+const timeSlots = require('../models/TimeSlots');
 const liveCoursesCustomermodel = require('../models/liveCoursesCustomerModel');
 const stripe = require('stripe')('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');
 const jwt = require('jsonwebtoken');
@@ -363,6 +365,131 @@ module.exports ={
           }
         }
     },
+
+    checkoutSwarSadhanaStripe: async function(req, res) {
+        try {
+            let paymentData= {
+                priceId:req.body.priceId,
+                userId:req.body.userId                
+            }
+            const pay = await webinarUser.findOneAndUpdate({_id:paymentData.userId},{priceId: paymentData.priceId});
+            const session = await stripe.checkout.sessions.create({
+              payment_method_types: ['card'],
+              line_items: [
+                {
+                  price:req.body.priceId,
+                  quantity: 1,
+                },
+              ],
+              mode: 'payment',
+              success_url: 'https://swaryoga.yogavidyaschool.com/success.html',
+              cancel_url: 'https://swaryoga.yogavidyaschool.com/failed.html',
+              customer_email: req.body.custEmail
+            });
+        
+            res.status(200).json({ sessionId: session.id,payDbId:pay._id,url:session.url});
+          } catch (error) {
+            console.error(error);
+            res.status(500).send('Internal Server Error');
+          }
+
+      },
+
+    getPaymentResultSwarSadhana:async function (req, res){
+    try {
+        const session = await stripe.checkout.sessions.retrieve(req.body.sessionId);
+            if(session.payment_status == "paid"){
+            let val = {
+                userId:req.body.userId,
+            }
+            try{
+            try{
+                const pay = await webinarUser.findOneAndUpdate({_id:val.userId},{paymentStatus: "paid", paymentId: session.payment_intent});
+            } catch(e){
+                console.log('paymnet update error');
+            }
+            
+
+            try{
+
+                const dbTimeSlot = await timeSlots.findOne({_id:pay.timeSlot}); 
+            }
+            catch(e){
+                console.log('email send error!');
+            }
+            }
+            catch(err){
+                console.log('internal error');
+            }
+            res.status(200).json({'status':"success",sessionId:req.body.sessionId,paymtId:session.payment_intent});
+
+            }
+            else {
+            const pay = await webinarUser.findOneAndUpdate({_id:req.body.userId},{paymentStatus: "failed"});
+            res.status(200).json({"status":"failed",sessionId:req.body.sessionId});
+            }
+        } catch (error) {
+        res.status(500).json("Internal server error");
+        }
+    },
+    
+    registerSwarSadhanaWebinarUser: async function (req, res) {
+        const { name, email, phone, city, company, webinar, timeSlot , password } = req.body;
+     
+        let created = new Date();
+        // Validate required fields
+        if (!name || !email || !timeSlot) {
+          return res.status(400).json({ message: 'Name, email, TimeSlot are required.' });
+        }
+      
+        try {
+          // Create new user
+          const newUser = new webinarUser({
+            name,
+            email,
+            phone,
+            city,
+            company,
+            webinar,
+            timeSlot,
+            password,
+            created
+          });
+
+          if (timeSlot) {
+                if (!mongoose.Types.ObjectId.isValid(timeSlot)) {
+                    return res.status(400).json({ error: "Invalid timeSlot ID format." });
+                }
+
+                const existingSlot = await timeSlots.findById(timeSlot);
+                if (!existingSlot) {
+                    return res.status(400).json({ error: "Invalid timeSlot ID. Time slot does not exist." });
+                }
+            }
+          // Save user to database
+          const savedUser = await newUser.save();
+          res.status(200).json({ status: "ok", message: 'User registered successfully!', userId: savedUser._id });
+       
+          
+        } catch (error) {
+          if (error.code === 11000) {
+            // Duplicate email error
+            res.status(400).json({ message: 'Email already registered.' });
+          } else {
+            res.status(500).json({ message: 'Server error', error });
+          }
+        }
+    },
+
+    getAllTimeSlot: async function(req,res){
+        try {
+            const allTimeSlot = await timeSlots.find({}, 'slotDuration _id'); // Fetch only slotDuration and _id
+            res.status(200).json(allTimeSlot);
+        } catch (error) {
+            res.status(500).json({ error: "Error fetching time slots", details: error.message });
+        }
+    },
+
     createCategory: async function (req, res) {
         {
             

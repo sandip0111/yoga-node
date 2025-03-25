@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
   },
   refferalCode:{
     type: String,
-    required: true
+    required: false
   },
   password:{
     type: String,
@@ -39,6 +39,26 @@ const userSchema = new mongoose.Schema({
     type: Date,
     required: false
   },
+  timeSlot: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TimeSlots', 
+    required: false
+  },
+  priceId: {
+    type: String, 
+    required: false 
+  },
+  paymentStatus: {
+    type: String, 
+    enum: ['pending', 'paid', 'failed'], 
+    required: false, // Nullable
+    default: 'pending' 
+  },
+  paymentId: {
+    type: String, 
+    required: false 
+  },
+
 });
 
 module.exports = mongoose.model('WebinarRegisterUser', userSchema);

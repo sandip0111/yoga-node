@@ -299,6 +299,165 @@ module.exports ={
           } 
     },
 
+    getAllStudentCourseListAndCount: async function (req, res) {
+        try {
+           
+            let size = req.body.size || 10;
+            let pageNo = req.body.pageNo || 1;           
+            const skip = Number(size * (pageNo - 1));
+            let search = req.body.searchText;
+            const limit = Number(size) || 0; 
+            const courseMapping = {
+                "644f9dfc499ffcfb45df35cd": "Pranayama",
+                "63c3f26c461e531f3c3452e1": "Breath Detox",
+                "63c4de4a2bce43a907211c74": "Foundation Of Spirituality"
+            };
+             // Global Search Filter (Regex for partial matching)
+            const searchFilter = search
+            ? {
+                $or: [
+                    { firstName: { $regex: search, $options: "i" } },
+                    { lastName: { $regex: search, $options: "i" } },
+                    { city: { $regex: search, $options: "i" } },
+                    { phoneNumber: { $regex: search, $options: "i" } }
+                ]
+            }
+            : {};
+
+        const studentData = await Student.aggregate([
+            { $match: searchFilter },
+            { $unwind: { path: "$course", preserveNullAndEmptyArrays: true } },
+            {
+                $group: {
+                    _id: { email: "$email", courseId: "$course" },
+                    firstName: { $first: "$firstName" },
+                    lastName: { $first: "$lastName" },
+                    city: { $first: "$city" },
+                    phoneNumber: { $first: "$phoneNumber" },
+                    created: { $first: "$created" },
+                    isActive: { $first: "$isActive" },
+                    source: { $first: "$source" },
+                    enrollmentDate: { $first: "$enrollmentDate" },
+                    sentEmail: { $first: "$sentEmail" },
+                    courseCount: { $sum: 1 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.email",
+                    firstName: { $first: "$firstName" },
+                    lastName: { $first: "$lastName" },
+                    city: { $first: "$city" },
+                    phoneNumber: { $first: "$phoneNumber" },
+                    created: { $first: "$created" },
+                    isActive: { $first: "$isActive" },
+                    source: { $first: "$source" },
+                    enrollmentDate: { $first: "$enrollmentDate" },
+                    sentEmail: { $first: "$sentEmail" },
+                    courses: {
+                        $push: {
+                            id: "$_id.courseId",
+                            name: { $literal: "" },
+                            count: "$courseCount"
+                        }
+                    }
+                }
+            }
+        ]);
+
+        
+        const liveCoursesData = await liveCoursesCustomerModel.aggregate([
+            { $match: searchFilter },
+            { $unwind: { path: "$courses", preserveNullAndEmptyArrays: true } },
+            {
+                $group: {
+                    _id: { email: "$email", title: "$courses.title" },
+                    firstName: { $first: "$name" },
+                    phoneNumber: { $first: "$phone" },
+                    created: { $first: "$created" },
+                    courseCount: { $sum: { $toInt: "$courses.quantity" } }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.email",
+                    firstName: { $first: "$firstName" },
+                    phoneNumber: { $first: "$phoneNumber" },
+                    created: { $first: "$created" },
+                    courses: {
+                        $push: {
+                            name: "$_id.title",
+                            count: "$courseCount"
+                        }
+                    }
+                }
+            }
+        ]);
+
+       
+        const combinedData = new Map();
+
+        // Merge Student Data
+        studentData.forEach(student => {
+            combinedData.set(student._id, {
+                email: student._id,
+                firstName: student.firstName,
+                lastName: student.lastName,
+                city: student.city,
+                phoneNumber: student.phoneNumber,
+                created: student.created,
+                isActive: student.isActive,
+                source: student.source,
+                enrollmentDate: student.enrollmentDate,
+                sentEmail: student.sentEmail,
+                courses: student.courses.map(course => ({
+                    id: course.id,
+                    name: courseMapping[course.id] || "Unknown Course",
+                    count: course.count
+                }))
+            });
+        });
+
+       
+        liveCoursesData.forEach(liveCustomer => {
+            if (combinedData.has(liveCustomer._id)) {
+                // Merge courses if email exists in studentData
+                const existingData = combinedData.get(liveCustomer._id);
+                existingData.courses = existingData.courses.concat(liveCustomer.courses);
+            } else {
+                // If email is only in liveCoursesCustomer, add new entry
+                combinedData.set(liveCustomer._id, {
+                    email: liveCustomer._id,
+                    firstName: liveCustomer.firstName,
+                    lastName: "",
+                    city: "",
+                    phoneNumber: liveCustomer.phoneNumber,
+                    created: liveCustomer.created,
+                    isActive: null,
+                    source: "",
+                    enrollmentDate: "",
+                    sentEmail: "",
+                    courses: liveCustomer.courses
+                });
+            }
+        });
+
+        
+        const finalResult = Array.from(combinedData.values());
+        const paginatedData = finalResult.slice(skip, skip + limit);
+
+        // Step 4: Send Response
+        res.json({
+            success: true,
+            total: finalResult.length,
+            data: paginatedData
+        });
+          
+          } catch (err) {
+            res.status(500).json({error:err});
+          } 
+    },
+
     getKundaliniParichayRefferalCode: async function (req, res) {
         try {
             let code = 'swarayoga@prashantji';
