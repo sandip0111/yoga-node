@@ -397,39 +397,57 @@ module.exports ={
 
     getPaymentResultSwarSadhana:async function (req, res){
     try {
-        const session = await stripe.checkout.sessions.retrieve(req.body.sessionId);
+            const session = await stripe.checkout.sessions.retrieve(req.body.sessionId);
             if(session.payment_status == "paid"){
-            let val = {
-                userId:req.body.userId,
-            }
-            try{
-            try{
-                const pay = await webinarUser.findOneAndUpdate({_id:val.userId},{paymentStatus: "paid", paymentId: session.payment_intent});
-            } catch(e){
-                console.log('paymnet update error');
-            }
+                let val = {
+                    userId:req.body.userId,
+                }
             
-
-            try{
-
-                const dbTimeSlot = await timeSlots.findOne({_id:pay.timeSlot}); 
-            }
-            catch(e){
-                console.log('email send error!');
-            }
-            }
-            catch(err){
-                console.log('internal error');
-            }
-            res.status(200).json({'status':"success",sessionId:req.body.sessionId,paymtId:session.payment_intent});
-
+                try
+                {
+                    const pay = await webinarUser.findOneAndUpdate({_id:val.userId},{paymentStatus: "paid", paymentId: session.payment_intent});
+                    const dbTimeSlot = await timeSlots.findOne({_id:pay.timeSlot});
+                    // Send mail 
+                    const filePath = path.join(__dirname, '/emailTemplate/swarayoga.html');
+                    const source = fs.readFileSync(filePath, 'utf-8').toString();
+                    const template = handlebars.compile(source);
+                    const replacements = {
+                        "name":pay.name,
+                        "webinar": pay.webinar,
+                        "whatsappGroupLink": dbTimeSlot.whatsAppGroupLink,
+                        "webinarDate": dbTimeSlot.webinarDate,
+                        "zoomLink": dbTimeSlot.zoomLink,
+                        "slotDuration": dbTimeSlot.slotDuration
+                    };
+                    const htmlToSend = template(replacements);
+            
+                    let mailOptions = {
+                        from: "Yoga Vidya School info@yogavidyaschool.com",
+                        to: pay.email,
+                        subject: `${pay.webinar} webinar registration confirmation`,
+                        replyTo: 'info@yogavidyaschool.com',
+                        html: htmlToSend
+                    }
+                    transporter.sendMail(mailOptions, async (err, result) => {
+                        if (err) {
+                            res.status(400).json('Opps error occured')
+                        } else {
+                            res.status(200).json({'status':"success",sessionId:req.body.sessionId,paymtId:session.payment_intent});
+                        }
+                    });
+                }
+                catch(e)
+                {
+                    console.log('email send error!');
+                }
             }
             else {
-            const pay = await webinarUser.findOneAndUpdate({_id:req.body.userId},{paymentStatus: "failed"});
-            res.status(200).json({"status":"failed",sessionId:req.body.sessionId});
+                const pay = await webinarUser.findOneAndUpdate({_id:req.body.userId},{paymentStatus: "failed"});
+                res.status(200).json({"status":"failed",sessionId:req.body.sessionId});
             }
-        } catch (error) {
-        res.status(500).json("Internal server error");
+        }
+        catch (error) {
+            res.status(500).json("Internal server error");
         }
     },
     
