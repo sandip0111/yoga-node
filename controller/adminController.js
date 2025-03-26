@@ -26,14 +26,15 @@ const fs = require('fs');
 const path = require('path');
 const handlebars = require('handlebars')
 const transporter = require('../helpers/nodemail');
+const { getTimeBefore } = require('../helpers/helper');
 const mongoose = require('mongoose');
 const XLSX = require('xlsx');
 
 const timeSlots = require('../models/TimeSlots');
 const liveCoursesCustomermodel = require('../models/liveCoursesCustomerModel');
-const stripe = require('stripe')('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');
+//const stripe = require('stripe')('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');
 const jwt = require('jsonwebtoken');
-// const stripe = require('stripe')('sk_test_51LJJXISEQq0H4GuE57DEzlM4vmKExUoPzoTFZzc6CclsIMQw8bJAzrnVJyxagwuUxwsAb1qCeoE0tp540gK9GiXO00E23soewI');
+ const stripe = require('stripe')('sk_test_51LJJXISEQq0H4GuE57DEzlM4vmKExUoPzoTFZzc6CclsIMQw8bJAzrnVJyxagwuUxwsAb1qCeoE0tp540gK9GiXO00E23soewI');
 
 // const nodeCCAvenue = require('node-ccavenue');
 // const ccav = new nodeCCAvenue.Configure({
@@ -405,8 +406,9 @@ module.exports ={
             
                 try
                 {
-                    const pay = await webinarUser.findOneAndUpdate({_id:val.userId},{paymentStatus: "paid", paymentId: session.payment_intent});
+                    const pay = await webinarUser.findOneAndUpdate({_id:val.userId},{paymentStatus: "paid", paymentId: session.payment_intent, refferalCode: 'swarayoga@prashantji'});
                     const dbTimeSlot = await timeSlots.findOne({_id:pay.timeSlot});
+                    const { startTime, timeBefore} = getTimeBefore(dbTimeSlot.slotDuration);
                     // Send mail 
                     const filePath = path.join(__dirname, '/emailTemplate/swarayoga.html');
                     const source = fs.readFileSync(filePath, 'utf-8').toString();
@@ -415,9 +417,12 @@ module.exports ={
                         "name":pay.name,
                         "webinar": pay.webinar,
                         "whatsappGroupLink": dbTimeSlot.whatsAppGroupLink,
-                        "webinarDate": dbTimeSlot.webinarDate,
+                        "webinarDate": dbTimeSlot.webinarDate.toDateString(),
                         "zoomLink": dbTimeSlot.zoomLink,
-                        "slotDuration": dbTimeSlot.slotDuration
+                        "slotDuration": startTime,
+                        "slotStartTenMinBefore": timeBefore,
+                        "email": pay.email,
+                        "password": pay.password
                     };
                     const htmlToSend = template(replacements);
             
@@ -1058,6 +1063,13 @@ module.exports ={
             } else {
              const webinarUserData = await webinarUser.findOne({ email: email, password: password });
              if(webinarUserData){
+                const currentTime = new Date();
+                const webinarDate = new Date(2025, 3, 14, 0, 0, 0);
+                if(currentTime < webinarDate)
+                {
+                    res.status(200).json({ status: "ok", msg: "Please access from 14 april at 12 AM" });
+                    return;
+                }
                 if (!webinarUserData.lastTimeLoggedIn) 
                 {
                     webinarUserData.lastTimeLoggedIn = new Date(); // Set current timestamp
@@ -1065,14 +1077,14 @@ module.exports ={
                 }
                 else 
                 {
-                    const currentTime = new Date();
+                   
                     // If lastTimeLoggedIn has a value, check if 48 hours have passed
                     const lastLoggedInTime = new Date(webinarUserData.lastTimeLoggedIn);
-                    const timeAfter96Hours = new Date(lastLoggedInTime.getTime() + 2 * 48 * 60 * 60 * 1000); // Add 96 hours
+                    const timeAfter96Hours = new Date(lastLoggedInTime.getTime() + 48 * 60 * 60 * 1000); // Add 48 hours
                 
                     if (currentTime > timeAfter96Hours) 
                     {
-                        res.status(200).json({ status: "ok", msg: "You exceed the 96 hours time after logged in" });
+                        res.status(200).json({ status: "ok", msg: "You exceed the 48 hours time after logged in" });
                         return;
                     }
                 }
