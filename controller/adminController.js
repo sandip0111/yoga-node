@@ -22,6 +22,7 @@ const onlineVideoModel= require('../models/onlineVideoModel');
 const analyticsModel = require('../models/analyticsModel');
 const subscribeModel = require('../models/subscribeModel');
 const webinarUser = require('../models/webinarRegiserUserModel');
+const pranicPurificationUsers = require('../models/pranicPurificationUsersModel');
 const fs = require('fs');
 const path = require('path');
 const handlebars = require('handlebars')
@@ -1503,6 +1504,92 @@ module.exports ={
     
         res.status(200).json({ sessionId: session.id,payDbId:pay._id,url:session.url});
   },
+
+    checkoutStripeForPranicPurification: async function(req, res) {
+        let userData= {
+            name:req.body.name,
+            email:req.body.email,
+            phoneNumber: req.body.phoneNumber,
+            address: req.body.address?? '',
+            paymentStatus:"pending",
+            price:req.body.price,
+            currency:req.body.currency,
+            courseStartDate: req.body.courseStartDate,
+            courseTimeDuration: req.body.courseTimeDuration
+        }
+        const pay =  await pranicPurificationUsers.create(userData);
+        const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+            {
+                price_data: {
+                    currency: req.body.currency,
+                    unit_amount: req.body.price * 100, // Amount in cents
+                    product_data: {
+                    name: 'Custom Payment',
+                    },
+                },
+            quantity: 1,
+            },
+        ],
+        mode: 'payment',
+        success_url: 'https://www.yogavidyaschool.com/confirmation',
+        cancel_url: 'https://www.yogavidyaschool.com/confirmation',
+        customer_email: req.body.email
+        });
+
+        res.status(200).json({ sessionId: session.id,payDbId:pay._id,url:session.url});
+    },
+
+    getPaymentResultPranicPurification:async function (req, res){
+        try {
+            const session = await stripe.checkout.sessions.retrieve(req.body.pranicPurificationSessionId);
+             if(session.payment_status == "paid"){
+                
+                  const user = await pranicPurificationUsers.findOneAndUpdate({_id:req.body.payDbId},{paymentId: session.payment_intent, paymentStatus:"paid"});
+                    let mailOptions;
+                   
+                    let replacements = {};
+                    let template;
+                    const filePath = path.join(__dirname, '/emailTemplate/pranicPurification.html');
+                    const source = fs.readFileSync(filePath, 'utf-8').toString();
+                    template = handlebars.compile(source);
+                    replacements = {
+                        "name":user.name,
+                        "courseTitle":"Pranic Purification - Best online pranayama sadhana prashanJ",
+                        "whatsappGroupLink":"https://chat.whatsapp.com/IAein5jV3z04o9LyVS9z8n",
+                        "startDate":user.courseStartDate.toDateString(),
+                        "startTime":user.courseTimeDuration                        
+                    };
+                   
+                    const htmlToSend = template(replacements);
+            
+                    mailOptions = {
+                        from: "Yoga Vidya School info@yogavidyaschool.com",
+                        to: user.email,
+                        subject: 'Pranic Purification Registration Confirmation',                        
+                        replyTo: "info@yogavidyaschool.com",
+                        html: htmlToSend
+                    }
+
+                    transporter.sendMail(mailOptions, async (err, result) => {
+                        if (err) {
+                            res.status(400).json('Opps error occured')
+                        } else {
+                            res.status(200).json({'status':"success",sessionId:req.body.pranicPurificationSessionId,paymtId:session.payment_intent,amount: (session.amount_total / 100),currency: session.currency,});
+                        }
+                    });
+
+             }
+             else {
+                const user = await pranicPurificationUsers.findOneAndUpdate({_id:req.body.payDbId},{ paymentStatus:"failed"});
+                res.status(200).json({"status":"failed",sessionId:req.body.pranicPurificationSessionId});
+             }
+          } catch (error) {
+            res.status(500).json("Internal server error");
+          }
+      },
+
       checkoutStripeNewPranaarabha: async function(req, res) {
         try{
 

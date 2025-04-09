@@ -162,9 +162,13 @@ router.post(
   "/stripeWithoutProduct",
   adminController.checkoutStripeWithoutProduct
 );
+router.post(
+  "/checkoutStripeForPranicPurification",
+  adminController.checkoutStripeForPranicPurification
+);
 router.post("/getPaymentResponse", adminController.getPaymentResult);
 router.post("/getPaymentResponseV2", adminController.getPaymentResultV2);
-
+router.post("/getPaymentResultPranicPurification", adminController.getPaymentResultPranicPurification);
 router.post("/registerSwarSadhanaWebinarUser", adminController.registerSwarSadhanaWebinarUser);
 router.post("/checkoutSwarSadhanaStripe", adminController.checkoutSwarSadhanaStripe);
 router.post("/getPaymentResultSwarSadhana", adminController.getPaymentResultSwarSadhana);
