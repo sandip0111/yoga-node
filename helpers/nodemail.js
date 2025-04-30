@@ -2,15 +2,15 @@ const nodemailer = require('nodemailer');
 require('dotenv').config()
 
 const transporter = nodemailer.createTransport({
-    //service: 'gmail',
     host: 'smtp.gmail.com',
-    port: 587,  // Port for STARTTLS
-    secure: false,   
+    port: 587,               // Use 587 for STARTTLS
+    secure: false,           // Must be false for STARTTLS
     auth: {
-        user: "Info@yogavidyaschool.com",
-        pass: "Y0g@31!0"
-
-    }
+        user: 'Info@yogavidyaschool.com',
+        pass: 'gbpdiztkoofmivha'  // Your app password, no spaces
+    },
+    logger: true,            // Log info for debugging
+    debug: true 
 })
 
 module.exports = transporter
