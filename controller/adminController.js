@@ -35,6 +35,10 @@ const timeSlots = require('../models/TimeSlots');
 const liveCoursesCustomermodel = require('../models/liveCoursesCustomerModel');
 const stripe = require('stripe')('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');
 const jwt = require('jsonwebtoken');
+
+const whatsappCloudApiUrl = "https://graph.facebook.com/v22.0/663204330205335/messages";
+const axios = require('axios');
+const whatsappAccessToken = 'EAAJpIEWgcakBOwmKbIapeBHzNZCOGcSJzQYQxxr0WknDOAHMbr79BxZAZBZA8ZC5yu0viYXbz4DSFblR9JgSZBEcIe34EeIZABZCK5yfZAzT2yWUaawh8KYDylbI0G8FgZBzL8pCbcQRowddPTZC3EIFPRpaGSH0jf9x0FQM50uvZAyRMLECPElEXKaTv9RdSr0hA8TPOQZDZD';
 // const stripe = require('stripe')('sk_test_51LJJXISEQq0H4GuE57DEzlM4vmKExUoPzoTFZzc6CclsIMQw8bJAzrnVJyxagwuUxwsAb1qCeoE0tp540gK9GiXO00E23soewI');
 
 // const nodeCCAvenue = require('node-ccavenue');
@@ -434,11 +438,62 @@ module.exports ={
                         replyTo: 'info@yogavidyaschool.com',
                         html: htmlToSend
                     }
+
+                    const messageData = {
+                        messaging_product: 'whatsapp',
+                        to: pay.phone,
+                        type: 'template',
+                        template: {
+                          name: 'swara_yoga',
+                          language: {
+                            code: 'en_US'
+                          },
+                          components: [
+                            {
+                              type: 'header',
+                              parameters: [
+                                { type: 'text', text: pay.name } // {{1}} in header — user's name
+                              ]
+                            },
+                            {
+                              type: 'body',
+                              parameters: [
+                                { type: 'text', text: dbTimeSlot.whatsAppGroupLink },          // {{1}} in body
+                                { type: 'text', text: dbTimeSlot.webinarDate.toDateString() }, // {{2}} in body
+                                { type: 'text', text: dbTimeSlot.zoomLink },                   // {{3}} in body
+                                { type: 'text', text: startTime },                             // {{4}} in body
+                                { type: 'text', text: timeBefore },                          // {{5}} in body
+                                { type: 'text', text: pay.email },                             // {{6}} in body
+                                { type: 'text', text: pay.password },                          // {{7}} in body
+                                { type: 'text', text: pay.webinar }                            // {{8}} in body
+                              ]
+                            }
+                          ]
+                        }
+                      };                     
+
+                      
                     transporter.sendMail(mailOptions, async (err, result) => {
                         if (err) {
-                            res.status(400).json('Opps error occured')
+                            res.status(400).json('Opps error occured');
                         } else {
-                            res.status(200).json({'status':"success",sessionId:req.body.sessionId,paymtId:session.payment_intent});
+                            axios.post(
+                                whatsappCloudApiUrl,
+                                messageData,
+                                {
+                                  headers: {
+                                    Authorization: `Bearer ${whatsappAccessToken}`,
+                                    'Content-Type': 'application/json'
+                                  }
+                                }
+                              )
+                              .then(response => {
+                                res.status(200).json({'status':"success",sessionId:req.body.sessionId,paymtId:session.payment_intent});
+                              })
+                              .catch(error => {
+                                res.status(400).json('Opps error occured');
+                              });
+                            
                         }
                     });
                 }
