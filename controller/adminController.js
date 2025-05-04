@@ -1517,6 +1517,8 @@ module.exports ={
                 mode: 'payment',
                 success_url: 'https://www.yogavidyaschool.com/confirmation',
                 cancel_url: 'https://www.yogavidyaschool.com/confirmation',
+                // success_url: 'http://localhost:4200/confirmation',
+                // cancel_url: 'http://localhost:4200/confirmation',
                 customer_email: req.body.email
               });
           
@@ -1882,7 +1884,7 @@ module.exports ={
                               if (err) {
                                
                               } else {
-                                
+                                console.log("Mail sent successfully to customer!");
                               }
                           })
         
@@ -1931,8 +1933,55 @@ module.exports ={
                               } else {
                                   
                               }
+                          });
+
+                          //whatsapp template 
+
+                          let table = courseList.map((item, index) =>
+                            `Class ${index + 1}: ${item.title}, Price: ${item.price}, Timing: ${item.shortDescription}`
+                          ).join(' | ');
+                          const messageData = {
+                            messaging_product: 'whatsapp',
+                            to: phone,
+                            type: 'template',
+                            template: {
+                              name: 'live_class_template',
+                              language: {
+                                code: 'en'
+                              },
+                              components: [
+                                {
+                                  type: 'header',
+                                  parameters: [
+                                    { type: 'text', text: name } // {{1}} in header — user's name
+                                  ]
+                                },
+                                {
+                                  type: 'body',
+                                  parameters: [
+                                    { type: 'text', text: table }                                                             
+                                  ]
+                                }
+                              ]
+                            }
+                          };  
+                          axios.post(
+                            whatsappCloudApiUrl,
+                            messageData,
+                            {
+                              headers: {
+                                Authorization: `Bearer ${whatsappAccessToken}`,
+                                'Content-Type': 'application/json'
+                              }
+                            }
+                          )
+                          .then(response => {
+                            res.status(200).json({"status":"success",sessionId:req.body.sessionId,paymtId:session.payment_intent,amount: (session.amount_total / 100),currency: session.currency,});
                           })
-                          res.status(200).json({"status":"success",sessionId:req.body.sessionId,paymtId:session.payment_intent,amount: (session.amount_total / 100),currency: session.currency,});
+                          .catch(error => {
+                            res.status(400).json('Opps error occured');
+                          });
+                          
                         }
                         catch(e){
                             console.log('admin email send error!');

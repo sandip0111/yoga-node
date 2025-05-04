@@ -7,7 +7,7 @@ const transporter = nodemailer.createTransport({
     secure: false,           // Must be false for STARTTLS
     auth: {
         user: 'Info@yogavidyaschool.com',
-        pass: 'gbpdiztkoofmivha'  // Your app password, no spaces
+        pass: 'gbpdiztkoofmivha' //Y0g@31!0 // Your app password, no spaces
     },
     logger: true,            // Log info for debugging
     debug: true 
