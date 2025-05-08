@@ -1861,13 +1861,18 @@ module.exports ={
                             acc.push({ title: course.title, price: course.priceInfo, shortDescription: course.shortDescription });
                             return acc;
                            }, []);
-                          const filePath = path.join(__dirname, '/emailTemplate/OrderConfirmationForLiveClasses.html');
+                           const match = "Acharya Prashant Jakhmola";
+                          const isPrashantClass = courseList.some(course =>
+                            course.title.toLowerCase().includes(match.toLowerCase())
+                          );
+
+                          var eTemplate = isPrashantClass ? "OrderConfirmationForLiveClassesPrashant.html" : "OrderConfirmationForLiveClasses.html";
+                          const filePath = path.join(__dirname, 'emailTemplate', eTemplate);
                           const source = fs.readFileSync(filePath, 'utf-8').toString();
                           const template = handlebars.compile(source);
                           const replacements = {
                              
-                              "name":name,
-                              "items":courseList
+                              "name":name
                           };
                           const htmlToSend = template(replacements);
                         
@@ -1936,7 +1941,12 @@ module.exports ={
                           });
 
                           //whatsapp template 
+                          const target = "Acharya Prashant Jakhmola";
+                          const isPrashantClassFound = courseList.some(course =>
+                            course.title.toLowerCase().includes(target.toLowerCase())
+                          );
 
+                          var wspTemplate = isPrashantClassFound ? "live_class_prashant" : "live_class_others";
                           let table = courseList.map((item, index) =>
                             `Class ${index + 1}: ${item.title}, Price: ${item.price}, Timing: ${item.shortDescription}`
                           ).join(' | ');
@@ -1945,7 +1955,7 @@ module.exports ={
                             to: phone,
                             type: 'template',
                             template: {
-                              name: 'live_class_template',
+                              name: wspTemplate,
                               language: {
                                 code: 'en'
                               },
@@ -1955,13 +1965,7 @@ module.exports ={
                                   parameters: [
                                     { type: 'text', text: name } // {{1}} in header — user's name
                                   ]
-                                },
-                                {
-                                  type: 'body',
-                                  parameters: [
-                                    { type: 'text', text: table }                                                             
-                                  ]
-                                }
+                                }                                
                               ]
                             }
                           };  
