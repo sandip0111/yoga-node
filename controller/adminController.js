@@ -71,7 +71,7 @@ const mentors =[
       "name" : "Taniya"
     },
     {
-      "topic": "My Meeting",
+      "topic": "Anuj ji class.",
       "time": "Jun 4, 2025 05:30 AM India",
       "zoomLink": "https://us02web.zoom.us/j/87819016124?pwd=mvFto9SEALb9xclEaKAqNA69RIv45m.1",
       "meetingId": "878 1901 6124",
@@ -1550,8 +1550,8 @@ module.exports ={
                 mode: 'payment',
                 success_url: 'https://www.yogavidyaschool.com/confirmation',
                 cancel_url: 'https://www.yogavidyaschool.com/confirmation',
-                //success_url: 'http://localhost:4200/confirmation',
-                //cancel_url: 'http://localhost:4200/confirmation',
+                // success_url: 'http://localhost:4200/confirmation',
+                // cancel_url: 'http://localhost:4200/confirmation',
                 customer_email: req.body.email
               });
           
@@ -1621,24 +1621,35 @@ module.exports ={
                 shortDescription: course.shortDescription
             }));
 
-            const isPrashantClass = courseList.some(course =>
-                course.title.toLowerCase().includes("acharya prashant jakhmola")
-            );
+           
 
             // Customer Email
-            const custTemplateName = isPrashantClass ? "OrderConfirmationForLiveClassesPrashant.html" : "OrderConfirmationForLiveClasses.html";
+            const custTemplateName =  "OrderConfirmationForLiveClassesPrashant.html";
+            const targetList = mentors.filter(obj =>
+                courseList.some(item => item.title.includes(obj.name))
+                );
+
             const custTemplatePath = path.join(__dirname, 'emailTemplate', custTemplateName);
             const custSource = fs.readFileSync(custTemplatePath, 'utf-8');
-            const custHtml = handlebars.compile(custSource)({ name });
-
+           // const custHtml = handlebars.compile(custSource)({ name });
+            const template = handlebars.compile(custSource);
+            const replacements = { "name":name, "sessions": targetList};
+            const htmlToSend = template(replacements);                      
             transporter.sendMail({
                 from: "Yoga Vidya School <info@yogavidyaschool.com>",
                 to: email,
                 subject: `Purchase Confirmation for online classes`,
                 replyTo: 'info@yogavidyaschool.com',
-                html: custHtml
-            });
-
+                html: htmlToSend
+            },
+               async (err, result) => {
+                        if (err) {
+                            console.log("failed")
+                        } else {
+                           
+                        }
+                    });
+ 
             // Admin Email
             const adminTemplatePath = path.join(__dirname, 'emailTemplate', 'adminOrdersForLiveClasses.html');
             const adminSource = fs.readFileSync(adminTemplatePath, 'utf-8');
@@ -1655,46 +1666,65 @@ module.exports ={
             });
 
             // WhatsApp
-            const wspTemplate = isPrashantClass ? "live_class_prashant" : "live_class_others";
+            //const wspTemplate = isPrashantClass ? "live_class_prashant" : "live_class_others";
+                   
+                         var wspTemplate = "";
+                          for (let i = 0; i < courseList.length; i++) {
+                            if(courseList[i].title.toLowerCase().includes("acharya prashant jakhmola"))
+                            {
+                              wspTemplate = "yoga_online_class";
+                            } 
+                            else if(courseList[i].title.toLowerCase().includes("taniya"))
+                            {
+                                wspTemplate = "online_class_taniya";
+                            } 
+                            else if(courseList[i].title.toLowerCase().includes("anuj"))
+                            {
+                                wspTemplate = "online_class_anuj";
+                            } 
+                            if(wspTemplate != ""){
+                                const wspMessage = {
+                                    messaging_product: 'whatsapp',
+                                    to: phone,
+                                    type: 'template',
+                                    template: {
+                                        name: wspTemplate,
+                                        language: { code: 'en' },
+                                        components: [{
+                                            type: 'header',
+                                            parameters: [{ type: 'text', text: name }]
+                                        }]
+                                    }
+                                };
+                            
+                                axios.post(
+                                    whatsappCloudApiUrl,
+                                    wspMessage,
+                                    {
+                                        headers: {
+                                        Authorization: `Bearer ${whatsappAccessToken}`,
+                                        'Content-Type': 'application/json'
+                                        }
+                                    }
+                                    )
+                                    .then(response => {
+                                    
+                                    })
+                                    .catch(error => {
+                                // res.status(400).json('Opps error occured');
+                                    });
 
-            const wspMessage = {
-                messaging_product: 'whatsapp',
-                to: phone,
-                type: 'template',
-                template: {
-                    name: wspTemplate,
-                    language: { code: 'en' },
-                    components: [{
-                        type: 'header',
-                        parameters: [{ type: 'text', text: name }]
-                    }]
-                }
-            };
+                                    wspTemplate = "";
+                                }
+                         }
+                    res.status(200).json({"status":"success",paymentId,
+                            amount: price,
+                            currency});
 
-             axios.post(
-                whatsappCloudApiUrl,
-                wspMessage,
-                {
-                    headers: {
-                    Authorization: `Bearer ${whatsappAccessToken}`,
-                    'Content-Type': 'application/json'
+                    } catch (err) {
+                        console.error(err);
+                        res.status(500).json("Internal Server Error");
                     }
-                }
-                )
-                .then(response => {
-                res.status(200).json({"status":"success",paymentId,
-                amount: price,
-                currency});
-                })
-                .catch(error => {
-                res.status(400).json('Opps error occured');
-                });
-            
-
-        } catch (err) {
-            console.error(err);
-            res.status(500).json("Internal Server Error");
-        }
    },
 
 
@@ -2030,8 +2060,9 @@ module.exports ={
                             return acc;
                            }, []);
                           var eTemplate =  "OrderConfirmationForLiveClassesPrashant.html";
-                          const titles = courseList.map(item => item.title);
-                          const targetList = mentors.filter(obj => titles.includes(obj.topic));
+                          const targetList = mentors.filter(obj =>
+                            courseList.some(item => item.title.includes(obj.name))
+                            );
                           const filePath = path.join(__dirname, 'emailTemplate', eTemplate);
                           const source = fs.readFileSync(filePath, 'utf-8').toString();
                           const template = handlebars.compile(source);
@@ -2107,7 +2138,7 @@ module.exports ={
 
                           //whatsapp template 
                           var wspTemplate = "";
-                          for (let i = 0; i < courseList.length; i++) {{
+                          for (let i = 0; i < courseList.length; i++) {
                             if(courseList[i].title.toLowerCase().includes("acharya prashant jakhmola"))
                             {
                               wspTemplate = "yoga_online_class";
@@ -2120,46 +2151,44 @@ module.exports ={
                             {
                                 wspTemplate = "online_class_anuj";
                             } 
+                            if(wspTemplate != "")
+                            {
+                                const wspMessage = {
+                                    messaging_product: 'whatsapp',
+                                    to: phone,
+                                    type: 'template',
+                                    template: {
+                                        name: wspTemplate,
+                                        language: { code: 'en' },
+                                        components: [{
+                                            type: 'header',
+                                            parameters: [{ type: 'text', text: name }]
+                                        }]
+                                    }
+                                };
+                            
+                                axios.post(
+                                    whatsappCloudApiUrl,
+                                    wspMessage,
+                                    {
+                                        headers: {
+                                        Authorization: `Bearer ${whatsappAccessToken}`,
+                                        'Content-Type': 'application/json'
+                                        }
+                                    }
+                                    )
+                                    .then(response => {
+                                    
+                                    })
+                                    .catch(error => {
+                                
+                                    });
 
-                           const messageData = {
-                            messaging_product: 'whatsapp',
-                            to: phone,
-                            type: 'template',
-                            template: {
-                              name: wspTemplate,
-                              language: {
-                                code: 'en'
-                              },
-                              components: [
-                                {
-                                  type: 'header',
-                                  parameters: [
-                                    { type: 'text', text: name } // {{1}} in header — user's name
-                                  ]
-                                }                                
-                              ]
+                                    wspTemplate = "";
+                                }
                             }
-                            };  
-                            axios.post(
-                                whatsappCloudApiUrl,
-                                messageData,
-                                {
-                                headers: {
-                                    Authorization: `Bearer ${whatsappAccessToken}`,
-                                    'Content-Type': 'application/json'
-                                }
-                                }
-                            )
-                            .then(response => {
-                               
-                            })
-                            .catch(error => {
-                                //res.status(400).json('Opps error occured');
-                            });
-                          }
-                        }
 
-                         res.status(200).json({"status":"success",sessionId:req.body.sessionId,paymtId:session.payment_intent,amount: (session.amount_total / 100),currency: session.currency,});
+                          res.status(200).json({"status":"success",sessionId:req.body.sessionId,paymtId:session.payment_intent,amount: (session.amount_total / 100),currency: session.currency,});
                         
                           
                         }
