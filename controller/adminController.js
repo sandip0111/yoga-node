@@ -30,7 +30,12 @@ const transporter = require('../helpers/nodemail');
 const { getTimeBefore } = require('../helpers/helper');
 const mongoose = require('mongoose');
 const XLSX = require('xlsx');
-
+const Razorpay = require('razorpay');
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+const crypto = require('crypto');
 const timeSlots = require('../models/TimeSlots');
 const liveCoursesCustomermodel = require('../models/liveCoursesCustomerModel');
 const stripe = require('stripe')('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');
@@ -39,14 +44,42 @@ const jwt = require('jsonwebtoken');
 const whatsappCloudApiUrl = "https://graph.facebook.com/v22.0/663204330205335/messages";
 const axios = require('axios');
 const whatsappAccessToken = 'EAAJpIEWgcakBOwmKbIapeBHzNZCOGcSJzQYQxxr0WknDOAHMbr79BxZAZBZA8ZC5yu0viYXbz4DSFblR9JgSZBEcIe34EeIZABZCK5yfZAzT2yWUaawh8KYDylbI0G8FgZBzL8pCbcQRowddPTZC3EIFPRpaGSH0jf9x0FQM50uvZAyRMLECPElEXKaTv9RdSr0hA8TPOQZDZD';
-// const stripe = require('stripe')('sk_test_51LJJXISEQq0H4GuE57DEzlM4vmKExUoPzoTFZzc6CclsIMQw8bJAzrnVJyxagwuUxwsAb1qCeoE0tp540gK9GiXO00E23soewI');
+//const stripe = require('stripe')('sk_test_51LJJXISEQq0H4GuE57DEzlM4vmKExUoPzoTFZzc6CclsIMQw8bJAzrnVJyxagwuUxwsAb1qCeoE0tp540gK9GiXO00E23soewI');
 
 // const nodeCCAvenue = require('node-ccavenue');
 // const ccav = new nodeCCAvenue.Configure({
 //   merchant_id: '2566832',
 //   working_key: 'B3489497A467813AFC801D9273189D24',
 // });
-
+const mentors =[
+    {
+      "topic": "Yoga Sadhna",
+      "time": "Jun 2, 2025 06:00 AM India",
+      "zoomLink": "https://us06web.zoom.us/j/84109987733?pwd=tpi09BV8mCbP3H6obNlA47ZKRis7UH.1",
+      "meetingId": "841 0998 7733",
+      "passcode": "539598",
+      "whatsappLink": "https://chat.whatsapp.com/KCHUAQyUbRc9hj8FU7uavn",
+      "name" : "Acharya Prashant Jakhmola"
+    },
+    {
+      "topic": "Women Wellness By Taniya ji",
+      "time": "Jun 3, 2025 05:30 PM India",
+      "zoomLink": "https://us02web.zoom.us/j/84217807362?pwd=LJdpCwlrfVr4BJvIB65M5WwdwFtqgo.1",
+      "meetingId": "842 1780 7362",
+      "passcode": "787560",
+      "whatsappLink": "https://chat.whatsapp.com/C3rzlJ7KsSG25YGkQWLL2c",
+      "name" : "Taniya"
+    },
+    {
+      "topic": "My Meeting",
+      "time": "Jun 4, 2025 05:30 AM India",
+      "zoomLink": "https://us02web.zoom.us/j/87819016124?pwd=mvFto9SEALb9xclEaKAqNA69RIv45m.1",
+      "meetingId": "878 1901 6124",
+      "passcode": "425937",
+      "whatsappLink": "https://chat.whatsapp.com/BGk8Dz2wJaX8WCokhFg1kt",
+      "name" : "Anuj"
+    }
+  ]
 const maxAge = 3 * 24 * 60 * 60;
 const createToken = (id) => {
   return jwt.sign({ id }, 'PK@2023#', {
@@ -1517,8 +1550,8 @@ module.exports ={
                 mode: 'payment',
                 success_url: 'https://www.yogavidyaschool.com/confirmation',
                 cancel_url: 'https://www.yogavidyaschool.com/confirmation',
-                // success_url: 'http://localhost:4200/confirmation',
-                // cancel_url: 'http://localhost:4200/confirmation',
+                //success_url: 'http://localhost:4200/confirmation',
+                //cancel_url: 'http://localhost:4200/confirmation',
                 customer_email: req.body.email
               });
           
@@ -1529,6 +1562,141 @@ module.exports ={
             res.status(500).send('Internal Server Error');
           }
       },
+
+      checkoutRazorpayForLiveClasses: async function (req, res) {
+            try {
+                const paymentData = {
+                    name: req.body.name,
+                    email: req.body.email,
+                    phone: req.body.phone,
+                    currency: req.body.currency,
+                    price: req.body.price,
+                    paymentStatus: 'unpaid',
+                    courses: req.body.courses
+                };
+
+                const pay = await liveCoursesCustomermodel.create(paymentData);
+
+                const order = await razorpay.orders.create({
+                    amount: req.body.price * 100, // in paise
+                    currency: req.body.currency,
+                    receipt: `receipt_order_${pay._id}`,
+                    notes: { dbId: pay._id.toString() }
+                });
+                res.setHeader('Access-Control-Expose-Headers', 'x-rtb-fingerprint-id');
+                res.status(200).json({ key: process.env.RAZORPAY_KEY_ID, orderId: order.id, payDbId: pay._id });
+            } catch (error) {
+                console.error(error);
+                res.status(500).send('Internal Server Error');
+            }
+    },
+
+
+     verifyRazorpayPaymentAndSendMail: async function (req, res) {
+        try {
+            const { razorpay_order_id, razorpay_payment_id, razorpay_signature, payDbId } = req.body;
+
+            const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+            hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
+            const generatedSignature = hmac.digest('hex');
+
+            if (generatedSignature !== razorpay_signature) {
+                return res.status(400).json({ status: 'failed', reason: 'Signature mismatch' });
+            }
+
+            const val = {
+                paymentStatus: 'paid',
+                payDbId: payDbId,
+                paymentId: razorpay_payment_id
+            };
+
+            await updatePaymentOnlineLiveClasses(val);
+
+            const customer = await liveCoursesCustomermodel.findOne({ _id: val.payDbId });
+            const { name, email, phone, currency, price, courses, paymentStatus, paymentId } = customer;
+
+            const courseList = courses.map(course => ({
+                title: course.title,
+                price: course.priceInfo,
+                shortDescription: course.shortDescription
+            }));
+
+            const isPrashantClass = courseList.some(course =>
+                course.title.toLowerCase().includes("acharya prashant jakhmola")
+            );
+
+            // Customer Email
+            const custTemplateName = isPrashantClass ? "OrderConfirmationForLiveClassesPrashant.html" : "OrderConfirmationForLiveClasses.html";
+            const custTemplatePath = path.join(__dirname, 'emailTemplate', custTemplateName);
+            const custSource = fs.readFileSync(custTemplatePath, 'utf-8');
+            const custHtml = handlebars.compile(custSource)({ name });
+
+            transporter.sendMail({
+                from: "Yoga Vidya School <info@yogavidyaschool.com>",
+                to: email,
+                subject: `Purchase Confirmation for online classes`,
+                replyTo: 'info@yogavidyaschool.com',
+                html: custHtml
+            });
+
+            // Admin Email
+            const adminTemplatePath = path.join(__dirname, 'emailTemplate', 'adminOrdersForLiveClasses.html');
+            const adminSource = fs.readFileSync(adminTemplatePath, 'utf-8');
+            const adminHtml = handlebars.compile(adminSource)({
+                name, phoneNo: phone, email, price, payId: paymentId, currency, status: paymentStatus, items: courseList
+            });
+
+            transporter.sendMail({
+                from: "Yoga Vidya School <info@yogavidyaschool.com>",
+                to: 'info@yogavidyaschool.com',
+                subject: `Admin Purchase Confirmation for online classes`,
+                replyTo: 'info@yogavidyaschool.com',
+                html: adminHtml
+            });
+
+            // WhatsApp
+            const wspTemplate = isPrashantClass ? "live_class_prashant" : "live_class_others";
+
+            const wspMessage = {
+                messaging_product: 'whatsapp',
+                to: phone,
+                type: 'template',
+                template: {
+                    name: wspTemplate,
+                    language: { code: 'en' },
+                    components: [{
+                        type: 'header',
+                        parameters: [{ type: 'text', text: name }]
+                    }]
+                }
+            };
+
+             axios.post(
+                whatsappCloudApiUrl,
+                wspMessage,
+                {
+                    headers: {
+                    Authorization: `Bearer ${whatsappAccessToken}`,
+                    'Content-Type': 'application/json'
+                    }
+                }
+                )
+                .then(response => {
+                res.status(200).json({"status":"success",paymentId,
+                amount: price,
+                currency});
+                })
+                .catch(error => {
+                res.status(400).json('Opps error occured');
+                });
+            
+
+        } catch (err) {
+            console.error(err);
+            res.status(500).json("Internal Server Error");
+        }
+   },
+
 
       checkoutStripeWithoutProduct: async function(req, res) {
         let paymentData= {
@@ -1861,18 +2029,15 @@ module.exports ={
                             acc.push({ title: course.title, price: course.priceInfo, shortDescription: course.shortDescription });
                             return acc;
                            }, []);
-                           const match = "Acharya Prashant Jakhmola";
-                          const isPrashantClass = courseList.some(course =>
-                            course.title.toLowerCase().includes(match.toLowerCase())
-                          );
-
-                          var eTemplate = isPrashantClass ? "OrderConfirmationForLiveClassesPrashant.html" : "OrderConfirmationForLiveClasses.html";
+                          var eTemplate =  "OrderConfirmationForLiveClassesPrashant.html";
+                          const titles = courseList.map(item => item.title);
+                          const targetList = mentors.filter(obj => titles.includes(obj.topic));
                           const filePath = path.join(__dirname, 'emailTemplate', eTemplate);
                           const source = fs.readFileSync(filePath, 'utf-8').toString();
                           const template = handlebars.compile(source);
                           const replacements = {
                              
-                              "name":name
+                              "name":name, "sessions": targetList
                           };
                           const htmlToSend = template(replacements);
                         
@@ -1941,16 +2106,22 @@ module.exports ={
                           });
 
                           //whatsapp template 
-                          const target = "Acharya Prashant Jakhmola";
-                          const isPrashantClassFound = courseList.some(course =>
-                            course.title.toLowerCase().includes(target.toLowerCase())
-                          );
+                          var wspTemplate = "";
+                          for (let i = 0; i < courseList.length; i++) {{
+                            if(courseList[i].title.toLowerCase().includes("acharya prashant jakhmola"))
+                            {
+                              wspTemplate = "yoga_online_class";
+                            } 
+                            else if(courseList[i].title.toLowerCase().includes("taniya"))
+                            {
+                                wspTemplate = "online_class_taniya";
+                            } 
+                            else if(courseList[i].title.toLowerCase().includes("anuj"))
+                            {
+                                wspTemplate = "online_class_anuj";
+                            } 
 
-                          var wspTemplate = isPrashantClassFound ? "live_class_prashant" : "live_class_others";
-                          let table = courseList.map((item, index) =>
-                            `Class ${index + 1}: ${item.title}, Price: ${item.price}, Timing: ${item.shortDescription}`
-                          ).join(' | ');
-                          const messageData = {
+                           const messageData = {
                             messaging_product: 'whatsapp',
                             to: phone,
                             type: 'template',
@@ -1968,23 +2139,28 @@ module.exports ={
                                 }                                
                               ]
                             }
-                          };  
-                          axios.post(
-                            whatsappCloudApiUrl,
-                            messageData,
-                            {
-                              headers: {
-                                Authorization: `Bearer ${whatsappAccessToken}`,
-                                'Content-Type': 'application/json'
-                              }
-                            }
-                          )
-                          .then(response => {
-                            res.status(200).json({"status":"success",sessionId:req.body.sessionId,paymtId:session.payment_intent,amount: (session.amount_total / 100),currency: session.currency,});
-                          })
-                          .catch(error => {
-                            res.status(400).json('Opps error occured');
-                          });
+                            };  
+                            axios.post(
+                                whatsappCloudApiUrl,
+                                messageData,
+                                {
+                                headers: {
+                                    Authorization: `Bearer ${whatsappAccessToken}`,
+                                    'Content-Type': 'application/json'
+                                }
+                                }
+                            )
+                            .then(response => {
+                               
+                            })
+                            .catch(error => {
+                                //res.status(400).json('Opps error occured');
+                            });
+                          }
+                        }
+
+                         res.status(200).json({"status":"success",sessionId:req.body.sessionId,paymtId:session.payment_intent,amount: (session.amount_total / 100),currency: session.currency,});
+                        
                           
                         }
                         catch(e){
@@ -1997,10 +2173,10 @@ module.exports ={
                         console.log('internal error');
                     }  
                 }             
-             else 
-             {
-                res.status(200).json({"status":"failed",sessionId:req.body.sessionId});
-             }
+                else 
+                {
+                    res.status(200).json({"status":"failed",sessionId:req.body.sessionId});
+                }
             } 
             catch (error) 
             {

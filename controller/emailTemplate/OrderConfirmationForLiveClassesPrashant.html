@@ -135,21 +135,26 @@
                         </p>
                        
 
-                        <p>
-                          <strong>Join Zoom for upcoming session:</strong><br />
-                          <a href="https://us06web.zoom.us/j/82768331179?pwd=XrVPkLgabtaUcJIjuBDZIfgiy37K42.1" target="_blank">
-                            Join Zoom Meeting
-                          </a><br />
-                          Meeting ID: 827 6833 1179<br />
-                          Passcode: 681924
-                        </p>
+                        {{#each sessions}}
+                            <p>
+                              <strong>Topic:</strong> {{topic}}<br />
+                              <strong>Time:</strong> {{time}}<br />
+                              <strong>Join Zoom for upcoming session:</strong><br />
+                              <a href="{{zoomLink}}" target="_blank">
+                                Join Zoom Meeting
+                              </a><br />
+                              Meeting ID: {{meetingId}}<br />
+                              Passcode: {{passcode}}
+                            </p>
 
-                        <p>
-                          <strong>Join our WhatsApp group for updates:</strong><br />
-                          <a href="https://chat.whatsapp.com/KP1QuBvBo1jCgiB92kvb3x" target="_blank">
-                            Click here to join WhatsApp group
-                          </a>
-                        </p>
+                            <p>
+                              <strong>Join our WhatsApp group for updates:</strong><br />
+                              <a href="{{whatsappLink}}" target="_blank">
+                                Click here to join WhatsApp group
+                              </a>
+                            </p>
+                          {{/each}}
+
 
                         <p>
                           Our team will connect with you shortly to share all the necessary details related to the process of online yoga classes.

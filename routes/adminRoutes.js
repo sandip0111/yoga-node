@@ -154,7 +154,9 @@ router.post("/getAllPayment", adminController.getAllPayment);
 router.post("/getAllOnlinePayment", adminController.getAllOnlinePayment);
 router.get("/exportInquiry", adminController.exportInquiry);
 router.post("/stripe", adminController.checkoutStripe);
-router.post("/checkoutStripeForLiveClasses", adminController.checkoutStripeForLiveClasses)
+router.post("/checkoutStripeForLiveClasses", adminController.checkoutStripeForLiveClasses);
+router.post("/createRazorpayOrder", adminController.checkoutRazorpayForLiveClasses);
+router.post("/verifyRazorpayPaymentAndSendMail", adminController.verifyRazorpayPaymentAndSendMail);
 router.post("/registerWebinarUser", adminController.registerWebinarUser);
 router.post("/getPaymentResultAndSendMailForLiveClass", adminController.getPaymentResultAndSendMailForLiveClass);
 router.post("/getAllWebinarRegistration", adminController.getAllWebinarRegistration);
