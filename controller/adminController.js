@@ -2115,7 +2115,7 @@ module.exports ={
         // Send confirmation email to student
         try {
             const { coursetitle } = await courseModel.findOne({ _id: course });
-            const { firstName, email, password } = await studentModel.findOne({ _id: student });
+            const { firstName, email, password, phoneNumber } = await studentModel.findOne({ _id: student });
 
             const filePath = path.join(__dirname, '/emailTemplate/OrderConfirmation.html');
             const source = fs.readFileSync(filePath, 'utf-8').toString();
@@ -2139,6 +2139,55 @@ module.exports ={
             };
 
             transporter.sendMail(mailOptions, () => {});
+            //send mail to whatsapp
+            const wspMessage = {
+            messaging_product: 'whatsapp',
+            to: phoneNumber,
+            type: 'template',
+            template: {
+                name: "prana_arambha",
+                language: { code: 'en' },
+                components: [
+                {
+                    type: 'header',
+                    parameters: [
+                    {
+                        type: 'text',
+                        text: firstName
+                    }
+                    ]
+                },
+                {
+                    type: 'body',
+                    parameters: [
+                    { type: 'text', text: coursetitle },           // {{1}}
+                    { type: 'text', text: coursetitle },           // {{2}}
+                    { type: 'text', text: `${amount} ${currency}` }, // {{3}}
+                    { type: 'text', text: date.toString() },       // {{4}}
+                    { type: 'text', text: email },                 // {{5}}
+                    { type: 'text', text: password }               // {{6}}
+                    ]
+                }
+                ]
+            }
+        };
+                            
+        axios.post(
+            whatsappCloudApiUrl,
+            wspMessage,
+            {
+                headers: {
+                Authorization: `Bearer ${whatsappAccessToken}`,
+                'Content-Type': 'application/json'
+                }
+            }
+            )
+            .then(response => {
+             console.log('WhatsApp message sent successfully:', response.data);
+            })
+            .catch(error => {
+                console.log('WhatsApp message error:', error.message);
+            });
         } catch (err) {
             console.log('Student confirmation email error:', err.message);
         }
@@ -2172,8 +2221,8 @@ module.exports ={
             transporter.sendMail(mailOptions, () => {});
         } catch (err) {
             console.log('Admin email error:', err.message);
-        }
-
+        }        
+        
         res.status(200).json({
             status: "success",
             paymentId: razorpay_payment_id,
