@@ -1883,6 +1883,45 @@ module.exports ={
         }
  
       },
+
+      checkoutRazorpayNewPranaarabha: async function(req, res) {
+         try {
+        const { courseId, studentId, paymentStatus, paymentBy, price, currency, email } = req.body;
+
+        // Save initial payment intent in DB
+        const paymentData = {
+            courseId,
+            studentId,
+            paymentStatus,
+            paymentBy
+        };
+        const pay = await paymentModel.create(paymentData);
+
+        // Create Razorpay order
+        const options = {
+            amount: price * 100, // Razorpay accepts amount in paise (for INR)
+            currency: currency || 'INR',
+            receipt: 'receipt_order_pranaarabha_' + Date.now(),
+            payment_capture: 1 // Auto-capture
+        };
+
+        const order = await razorpay.orders.create(options);
+        res.setHeader('Access-Control-Expose-Headers', 'x-rtb-fingerprint-id');
+        res.status(200).json({
+            success: true,
+            orderId: order.id,
+            razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+            payDbId: pay._id,
+            amount: order.amount,
+            currency: order.currency
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+        }
+    },
+
       getPaymentResult:async function (req, res){
         try {
             const session = await stripe.checkout.sessions.retrieve(req.body.sessionId);
@@ -2036,6 +2075,118 @@ module.exports ={
           }
       },
 
+    getRazorpayPaymentResultForPranarambha: async function (req, res) {
+          try {
+        
+             const { razorpay_payment_id, razorpay_order_id, razorpay_signature, student, course, payDbId } = req.body;
+       
+
+            const hmac = crypto.createHmac('sha256', "sjNRHS53ZSRxMa275usqcSDV");
+            hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
+            const generatedSignature = hmac.digest('hex');
+
+
+        if (generatedSignature !== razorpay_signature) {
+            return res.status(400).json({ status: "failed", message: "Invalid signature" });
+        }
+
+        const amount = req.body.amount;
+        const currency = req.body.currency;
+
+        // Update payment DB
+        await paymentModel.findOneAndUpdate(
+            { _id: payDbId },
+            {
+                paymentId: razorpay_payment_id,
+                amount: amount,
+                currency: currency,
+                paymentStatus: "paid"
+            }
+        );
+
+        // Update student’s course list
+        const studentDoc = await studentModel.findOne({ _id: student });
+        let updatedCourses = studentDoc.course.includes(course)
+            ? studentDoc.course
+            : [...studentDoc.course, course];
+
+        await studentModel.findOneAndUpdate({ _id: student }, { course: updatedCourses });
+
+        // Send confirmation email to student
+        try {
+            const { coursetitle } = await courseModel.findOne({ _id: course });
+            const { firstName, email, password } = await studentModel.findOne({ _id: student });
+
+            const filePath = path.join(__dirname, '/emailTemplate/OrderConfirmation.html');
+            const source = fs.readFileSync(filePath, 'utf-8').toString();
+            const template = handlebars.compile(source);
+            const date = new Date();
+            const htmlToSend = template({
+                name: firstName,
+                course: coursetitle,
+                email: email,
+                price: `${amount} ${currency}`,
+                date: date.toString(),
+                password: password
+            });
+
+            const mailOptions = {
+                from: "Yoga Vidya School <info@yogavidyaschool.com>",
+                to: email,
+                subject: `Purchase Confirmation - ${coursetitle}`,
+                replyTo: 'info@yogavidyaschool.com',
+                html: htmlToSend
+            };
+
+            transporter.sendMail(mailOptions, () => {});
+        } catch (err) {
+            console.log('Student confirmation email error:', err.message);
+        }
+
+        // Send confirmation email to admin
+        try {
+            const { coursetitle } = await courseModel.findOne({ _id: course });
+            const { firstName, email } = await studentModel.findOne({ _id: student });
+            const { paymentId } = await paymentModel.findOne({ _id: payDbId });
+
+            const filePath = path.join(__dirname, '/emailTemplate/adminOrders.html');
+            const source = fs.readFileSync(filePath, 'utf-8').toString();
+            const template = handlebars.compile(source);
+            const htmlToSend = template({
+                name: firstName,
+                course: coursetitle,
+                email: email,
+                price: amount,
+                payId: paymentId,
+                currency: currency
+            });
+
+            const mailOptions = {
+                from: "Yoga Vidya School <info@yogavidyaschool.com>",
+                to: 'info@yogavidyaschool.com',
+                subject: `Admin Purchase Confirmation - ${coursetitle}`,
+                replyTo: 'info@yogavidyaschool.com',
+                html: htmlToSend
+            };
+
+            transporter.sendMail(mailOptions, () => {});
+        } catch (err) {
+            console.log('Admin email error:', err.message);
+        }
+
+        res.status(200).json({
+            status: "success",
+            paymentId: razorpay_payment_id,
+            orderId: razorpay_order_id,
+            amount: amount,
+            currency: currency
+        });
+
+        } catch (error) {
+            console.error("Payment result error:", error);
+            res.status(500).json("Internal server error");
+        }
+    },
       getPaymentResultAndSendMailForLiveClass:async function (req, res){
         try {
              const session = await stripe.checkout.sessions.retrieve(req.body.sessionId);

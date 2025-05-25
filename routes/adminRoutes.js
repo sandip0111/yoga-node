@@ -160,6 +160,8 @@ router.post("/verifyRazorpayPaymentAndSendMail", adminController.verifyRazorpayP
 router.post("/registerWebinarUser", adminController.registerWebinarUser);
 router.post("/getPaymentResultAndSendMailForLiveClass", adminController.getPaymentResultAndSendMailForLiveClass);
 router.post("/getAllWebinarRegistration", adminController.getAllWebinarRegistration);
+router.post("/checkoutRazorpayNewPranaarabha", adminController.checkoutRazorpayNewPranaarabha);
+router.post("/getRazorpayPaymentResultForPranarambha", adminController.getRazorpayPaymentResultForPranarambha);
 router.post(
   "/stripeWithoutProduct",
   adminController.checkoutStripeWithoutProduct
