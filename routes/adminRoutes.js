@@ -162,6 +162,8 @@ router.post("/getPaymentResultAndSendMailForLiveClass", adminController.getPayme
 router.post("/getAllWebinarRegistration", adminController.getAllWebinarRegistration);
 router.post("/checkoutRazorpayNewPranaarabha", adminController.checkoutRazorpayNewPranaarabha);
 router.post("/getRazorpayPaymentResultForPranarambha", adminController.getRazorpayPaymentResultForPranarambha);
+router.post("/checkoutRazorpayForPranicPurification",adminController.checkoutRazorpayForPranicPurification);
+router.post("/getRazorPaymentResultPranicPurification", adminController.getRazorPaymentResultPranicPurification);
 router.post(
   "/stripeWithoutProduct",
   adminController.checkoutStripeWithoutProduct

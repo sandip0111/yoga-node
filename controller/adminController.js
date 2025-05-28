@@ -1812,11 +1812,12 @@ module.exports ={
                     replacements = {
                         "name":user.name,
                         "courseTitle":"Pranic Purification - Best online pranayama sadhana prashanJ",
-                        "whatsappGroupLink":"https://chat.whatsapp.com/IAein5jV3z04o9LyVS9z8n",
+                        "whatsappGroupLink":"https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
                         "startDate":user.courseStartDate.toDateString(),
                         "startTime":user.courseTimeDuration                        
                     };
-                   
+                   var courseTitle = "Pranic Purification - Best online pranayama sadhana prashanJ";
+                   var whatsappGroupLink = "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA";
                     const htmlToSend = template(replacements);
             
                     mailOptions = {
@@ -1835,6 +1836,53 @@ module.exports ={
                         }
                     });
 
+                   const wspMessage = {
+                    messaging_product: 'whatsapp',
+                    to: user.phoneNumber,
+                    type: 'template',
+                    template: {
+                        name: "pranic_purification",
+                        language: { code: 'en' },
+                        components: [
+                        {
+                            type: 'header',
+                            parameters: [
+                            {
+                                type: 'text',
+                                text: user.name
+                            }
+                            ]
+                        },
+                        {
+                            type: 'body',
+                            parameters: [
+                            { type: 'text', text: courseTitle },                             // {{0}}
+                            { type: 'text', text: whatsappGroupLink },                       // {{1}}
+                            { type: 'text', text: user.courseStartDate.toDateString() },     // {{2}}
+                            { type: 'text', text: user.courseTimeDuration }                 // {{3}}
+                            ]
+                        }
+                        ]
+                    }
+                };
+                            
+            axios.post(
+                whatsappCloudApiUrl,
+                wspMessage,
+                {
+                    headers: {
+                    Authorization: `Bearer ${whatsappAccessToken}`,
+                    'Content-Type': 'application/json'
+                    }
+                }
+                )
+            .then(response => {
+             console.log('WhatsApp message sent successfully:', response.data);
+            })
+            .catch(error => {
+                console.log('WhatsApp message error:', error.message);
+            });
+
              }
              else {
                 const user = await pranicPurificationUsers.findOneAndUpdate({_id:req.body.payDbId},{ paymentStatus:"failed"});
@@ -1844,6 +1892,172 @@ module.exports ={
             res.status(500).json("Internal server error");
           }
       },
+
+checkoutRazorpayForPranicPurification: async function(req, res) {
+    try {
+        // Save user data with paymentStatus = pending
+        let userData = {
+            name: req.body.name,
+            email: req.body.email,
+            phoneNumber: req.body.phoneNumber,
+            address: req.body.address ?? '',
+            paymentStatus: "pending",
+            price: req.body.price,
+            currency: req.body.currency,
+            courseStartDate: req.body.courseStartDate,
+            courseTimeDuration: req.body.courseTimeDuration
+        };
+
+        const pay = await pranicPurificationUsers.create(userData);
+
+        // Razorpay accepts amount in paise (INR) or the smallest currency unit
+        const amountInSubunits = req.body.price * 100;
+
+        // Create a Razorpay order
+        const options = {
+            amount: amountInSubunits,
+            currency: req.body.currency,
+            receipt: `receipt_order_${pay._id}`,
+            payment_capture: 1 // auto-capture
+        };
+
+        const order = await razorpay.orders.create(options);
+
+        res.status(200).json({
+            orderId: order.id,
+            razorpayKey: process.env.RAZORPAY_KEY_ID,
+            payDbId: pay._id,
+            amount: amountInSubunits,
+            currency: req.body.currency,
+            name: req.body.name,
+            email: req.body.email,
+            phoneNumber: req.body.phoneNumber
+        });
+
+    } catch (error) {
+        console.error("Error in Razorpay checkout:", error);
+        res.status(500).json({ error: 'Payment initialization failed' });
+    }
+},
+
+getRazorPaymentResultPranicPurification: async function (req, res) {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, payDbId } = req.body;
+
+    // Step 1: Verify the signature
+
+      const hmac = crypto.createHmac('sha256', "sjNRHS53ZSRxMa275usqcSDV");
+            hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
+            const generated_signature = hmac.digest('hex');
+
+    if (generated_signature === razorpay_signature) {
+      // Step 2: Update payment status in DB
+      const user = await pranicPurificationUsers.findOneAndUpdate(
+        { _id: payDbId },
+        {
+          paymentId: razorpay_payment_id,
+          paymentStatus: "paid"
+        },
+        { new: true }
+      );
+
+      // Step 3: Prepare and send confirmation email
+      const filePath = path.join(__dirname, '/emailTemplate/pranicPurification.html');
+      const source = fs.readFileSync(filePath, 'utf-8').toString();
+      const template = handlebars.compile(source);
+
+      const replacements = {
+        name: user.name,
+        courseTitle: "Pranic Purification - Best online pranayama sadhana prashanJ",
+        whatsappGroupLink: "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
+        startDate: user.courseStartDate.toDateString(),
+        startTime: user.courseTimeDuration
+      };
+
+    var courseTitle =  "Pranic Purification - Best online pranayama sadhana prashanJ";
+    var  whatsappGroupLink ="https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA";
+
+      const htmlToSend = template(replacements);
+      const mailOptions = {
+        from: "Yoga Vidya School <info@yogavidyaschool.com>",
+        to: user.email,
+        subject: 'Pranic Purification Registration Confirmation',
+        replyTo: "info@yogavidyaschool.com",
+        html: htmlToSend
+      };
+
+      transporter.sendMail(mailOptions, (err, result) => {
+        if (err) {
+          res.status(400).json('Oops, error occurred while sending mail.');
+        } else {
+          
+        }
+      });
+       const wspMessage = {
+            messaging_product: 'whatsapp',
+            to: user.phoneNumber,
+            type: 'template',
+            template: {
+                name: "pranic_purification",
+                language: { code: 'en' },
+                components: [
+                {
+                    type: 'header',
+                    parameters: [
+                    {
+                        type: 'text',
+                        text: user.name
+                    }
+                    ]
+                },
+                {
+                    type: 'body',
+                    parameters: [
+                    { type: 'text', text: courseTitle },                             // {{0}}
+                    { type: 'text', text: whatsappGroupLink },                       // {{1}}
+                    { type: 'text', text: user.courseStartDate.toDateString() },     // {{2}}
+                    { type: 'text', text: user.courseTimeDuration }                 // {{3}}
+                    ]
+                }
+                ]
+            }
+        };
+                            
+        axios.post(
+            whatsappCloudApiUrl,
+            wspMessage,
+            {
+                headers: {
+                Authorization: `Bearer ${whatsappAccessToken}`,
+                'Content-Type': 'application/json'
+                }
+            }
+            )
+            .then(response => {
+             console.log('WhatsApp message sent successfully:', response.data);
+            })
+            .catch(error => {
+                console.log('WhatsApp message error:', error.message);
+            });
+             res.status(200).json({
+            status: "success",
+            paymentId: razorpay_payment_id,
+            orderId: razorpay_order_id
+        });
+    } else {
+      // Signature didn't match
+      await pranicPurificationUsers.findOneAndUpdate(
+        { _id: payDbId },
+        { paymentStatus: "failed" }
+      );
+      res.status(200).json({ status: "failed", message: "Payment verification failed" });
+    }
+            
+  } catch (error) {
+    console.error("Error verifying Razorpay payment:", error);
+    res.status(500).json("Internal server error");
+  }
+},
 
       checkoutStripeNewPranaarabha: async function(req, res) {
         try{
@@ -1973,7 +2187,7 @@ module.exports ={
                     const {coursetitle} = await courseModel.findOne({_id:val.course});
                     const {firstName,email,password} = await studentModel.findOne({_id:val.student});
                   let mailOptions;
-                
+                let wpLink ='https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA';
                   // let student = await studentModel.findOne({_id:req.body.studentId});
                   const filePath = path.join(__dirname, '/emailTemplate/OrderConfirmation.html');
                   const source = fs.readFileSync(filePath, 'utf-8').toString();
@@ -2016,10 +2230,10 @@ module.exports ={
                 try{
  
                     const {coursetitle} = await courseModel.findOne({_id:val.course});
-                    const {firstName,email} = await studentModel.findOne({_id:val.student});
+                    const {firstName,email, phoneNumber, password} = await studentModel.findOne({_id:val.student});
                     const {paymentId,amount,currency} = await paymentModel.findOne({studentId:val.student})
                   let mailOptions;
-                
+                var date = new Date();
                   // let student = await studentModel.findOne({_id:req.body.studentId});
                   const filePath = path.join(__dirname, '/emailTemplate/adminOrders.html');
                   const source = fs.readFileSync(filePath, 'utf-8').toString();
@@ -2053,13 +2267,58 @@ module.exports ={
                         //   res.status(200).json({'status':"ok","msg":"Mail has been sent!"});
                       }
                   })
-
+            const wspMessage = {
+            messaging_product: 'whatsapp',
+            to: phoneNumber,
+            type: 'template',
+            template: {
+                name: "prana_arambha",
+                language: { code: 'en' },
+                components: [
+                {
+                    type: 'header',
+                    parameters: [
+                    {
+                        type: 'text',
+                        text: firstName
+                    }
+                    ]
+                },
+                {
+                    type: 'body',
+                    parameters: [
+                    { type: 'text', text: coursetitle },           // {{1}}
+                    { type: 'text', text: coursetitle },           // {{2}}
+                    { type: 'text', text: `${amount} ${currency}` }, // {{3}}
+                    { type: 'text', text: date.toString() },       // {{4}}
+                    { type: 'text', text: email },                 // {{5}}
+                    { type: 'text', text: password }               // {{6}}
+                    ]
                 }
+                ]
+            }
+            };
+                            
+        axios.post(
+            whatsappCloudApiUrl,
+            wspMessage,
+            {
+                headers: {
+                Authorization: `Bearer ${whatsappAccessToken}`,
+                'Content-Type': 'application/json'
+                }
+            }
+            )
+            .then(response => {
+             console.log('WhatsApp message sent successfully:', response.data);
+            })
+            .catch(error => {
+                console.log('WhatsApp message error:', error.message);
+            });
+        }
                 catch(e){
                     console.log('admin email send error!');
-                }
-
-           
+                }          
                }
                catch(err){
                   console.log('internal error');
@@ -2188,6 +2447,7 @@ module.exports ={
             .catch(error => {
                 console.log('WhatsApp message error:', error.message);
             });
+
         } catch (err) {
             console.log('Student confirmation email error:', err.message);
         }

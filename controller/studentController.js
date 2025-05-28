@@ -19,23 +19,18 @@ module.exports ={
                     res.status(200).json({status:"ok",msg:`Student updated Successfully`});
                     // sendRegistrationEmail(req.body._id);
                 }else{
-                    const studentchek = await Student.countDocuments({isActive:true,email:req.body.email});
-                    const studentData = await Student.findOne({isActive:true,email:req.body.email});
-                    if(studentchek > 0){
-                        res.status(200).json({status:"error", msg:"email already registered",studentId:studentData._id,studentEmail:studentData.email});
+                   
+                    req.body.email = req.body.email.toLowerCase();
+                    const student = await Student.create(req.body);
+                    res.status(201).json({status:"ok", msg:"Student Registerd Success",studentId:student._id});
+                    if(req.body.source == "web"){
+                        //sendRegistrationEmailV2(student._id);
                     }
-                    else{
-                         req.body.email = req.body.email.toLowerCase();
-                        const student = await Student.create(req.body);
-                        res.status(201).json({status:"ok", msg:"Student Registerd Success",studentId:student._id});
-                        if(req.body.source == "web"){
-                            //sendRegistrationEmailV2(student._id);
-                        }
-                        else if(req.body.source == "admin"){
-                            // sendRegistrationEmail(student._id);
-                        }
+                    else if(req.body.source == "admin"){
+                        // sendRegistrationEmail(student._id);
+                    }
                             
-                    }       
+                          
                 }
              
             }
