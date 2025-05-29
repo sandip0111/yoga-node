@@ -648,33 +648,34 @@ module.exports ={
         let pass = Math.random().toString(36).slice(2);
     
         try {
-          if (checkUser > 0) {
-              await Student.findOneAndUpdate(
-                  { _id: user._id },
-                  { source: "PranaArabha-Landing-page" }
-                );
-                let checkCourse = await Student.countDocuments({_id:user._id,course:{$in:"644f9dfc499ffcfb45df35cd"}});
+        //   if (checkUser > 0) {
+        //       await Student.findOneAndUpdate(
+        //           { _id: user._id },
+        //           { source: "PranaArabha-Landing-page" }
+        //         );
+        //         let checkCourse = await Student.countDocuments({_id:user._id,course:{$in:"644f9dfc499ffcfb45df35cd"}});
                 
-                if(checkCourse > 0){
-                    res.status(200).json({ status: "error",msg:"Already Purchased!!"});
-                }
-                else{
-                sendRegistrationEmailV2(user._id);
-                res.status(200).json({ status: "ok",stuId:user._id });
-            }
-          } else {
+        //         if(checkCourse > 0){
+        //             res.status(200).json({ status: "error",msg:"Already Purchased!!"});
+        //         }
+        //         else{
+        //         sendRegistrationEmailV2(user._id);
+        //         res.status(200).json({ status: "ok",stuId:user._id });
+        //     }
+        //   } else {
             let bg = {
               firstName: req.body.name,
               email: req.body.email.toLowerCase(),
               phoneNumber: req.body.phoneNumber,
               source: "PranaArabha-Landing-page",
               city:req.body.city,
+              isActive: true,
               password: pass,
             };
             const student = await Student.create(bg);
             sendRegistrationEmailV2(student._id);
             res.status(200).json({ status: "ok", stuId:student._id });
-          }
+          //}
         } catch (err) {
           res.status(404).json({ status: "error", msg: "Internal server" });
         }
