@@ -1307,10 +1307,10 @@ module.exports ={
              const webinarUserData = await webinarUser.findOne({ email: email, password: password });
              if(webinarUserData){
                 const currentTime = new Date();
-                const webinarDate = new Date(2025, 3, 14, 0, 0, 0);
+                const webinarDate = new Date(2025, 6, 16, 0, 0, 0);
                 if(currentTime < webinarDate)
                 {
-                    res.status(200).json({ status: "ok", msg: "Please access from 14 april at 12 AM" });
+                    res.status(200).json({ status: "ok", msg: "Please access from 16 June at 12 AM" });
                     return;
                 }
                 if (!webinarUserData.lastTimeLoggedIn) 
