@@ -531,7 +531,7 @@ module.exports = {
             to: pay.phone,
             type: "template",
             template: {
-              name: "sawra_sadhana",
+              name: "swar_sadhana",
               language: {
                 code: "en_US",
               },
@@ -574,17 +574,19 @@ module.exports = {
                   },
                 })
                 .then((response) => {
-                  res
+                 
+                })
+                .catch((error) => {
+                  res.status(400).json("Opps error occured");
+                });
+
+                 res
                     .status(200)
                     .json({
                       status: "success",
                       sessionId: req.body.sessionId,
                       paymtId: session.payment_intent,
                     });
-                })
-                .catch((error) => {
-                  res.status(400).json("Opps error occured");
-                });
             }
           });
         } catch (e) {
@@ -704,7 +706,7 @@ module.exports = {
             to: pay.phone,
             type: "template",
             template: {
-              name: "sawra_sadhana",
+              name: "swar_sadhana",
               language: { code: "en_US" },
               components: [
                 {
@@ -746,14 +748,16 @@ module.exports = {
               },
             })
             .then((response) => {
-              res.status(200).json({
-                status: "success",
-                paymentId: razorpay_payment_id,
-              });
+             
             })
             .catch((error) => {
               res.status(400).json("Oops error occurred in WhatsApp message");
             });
+
+            res.status(200).json({
+                status: "success",
+                paymentId: razorpay_payment_id,
+              });
         } catch (e) {
           console.log("Email send error!", e);
           res.status(500).json("Internal error after payment success");
