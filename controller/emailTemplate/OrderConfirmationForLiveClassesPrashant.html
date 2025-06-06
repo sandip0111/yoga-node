@@ -98,66 +98,180 @@
     </style>
   </head>
   <body
-    style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased;
-           font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%;
-           -webkit-text-size-adjust: 100%;">
-    <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0;
-           max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">
+    style="
+      background-color: #f6f6f6;
+      font-family: sans-serif;
+      -webkit-font-smoothing: antialiased;
+      font-size: 14px;
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+      -ms-text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+    "
+  >
+    <span
+      class="preheader"
+      style="
+        color: transparent;
+        display: none;
+        height: 0;
+        max-height: 0;
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        mso-hide: all;
+        visibility: hidden;
+        width: 0;
+      "
+    >
       {{user}}
     </span>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body"
-           style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt;
-           background-color: #f6f6f6; width: 100%;" width="100%" bgcolor="#f6f6f6">
+    <table
+      role="presentation"
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      class="body"
+      style="
+        border-collapse: separate;
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+        background-color: #f6f6f6;
+        width: 100%;
+      "
+      width="100%"
+      bgcolor="#f6f6f6"
+    >
       <tr>
-        <td valign="top" style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-        <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top;
-             display: block; max-width: 580px; padding: 10px; width: 580px; margin: 0 auto;"
-             width="580" valign="top">
-          <div class="content" style="box-sizing: border-box; display: block; margin: 0 auto;
-               max-width: 580px; padding: 10px;">
-            <table role="presentation" class="main" style="border-collapse: separate;
-                   mso-table-lspace: 0pt; mso-table-rspace: 0pt; background: #ffffff;
-                   border-radius: 3px; width: 100%;" width="100%">
+        <td
+          valign="top"
+          style="font-family: sans-serif; font-size: 14px; vertical-align: top"
+        >
+          &nbsp;
+        </td>
+        <td
+          class="container"
+          style="
+            font-family: sans-serif;
+            font-size: 14px;
+            vertical-align: top;
+            display: block;
+            max-width: 580px;
+            padding: 10px;
+            width: 580px;
+            margin: 0 auto;
+          "
+          width="580"
+          valign="top"
+        >
+          <div
+            class="content"
+            style="
+              box-sizing: border-box;
+              display: block;
+              margin: 0 auto;
+              max-width: 580px;
+              padding: 10px;
+            "
+          >
+            <table
+              role="presentation"
+              class="main"
+              style="
+                border-collapse: separate;
+                mso-table-lspace: 0pt;
+                mso-table-rspace: 0pt;
+                background: #ffffff;
+                border-radius: 3px;
+                width: 100%;
+              "
+              width="100%"
+            >
               <tr>
-                <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top;
-                    box-sizing: border-box; padding: 20px;" valign="top">
-                  <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                         style="border-collapse: separate; mso-table-lspace: 0pt;
-                         mso-table-rspace: 0pt; width: 100%;" width="100%">
+                <td
+                  class="wrapper"
+                  style="
+                    font-family: sans-serif;
+                    font-size: 14px;
+                    vertical-align: top;
+                    box-sizing: border-box;
+                    padding: 20px;
+                  "
+                  valign="top"
+                >
+                  <table
+                    role="presentation"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="
+                      border-collapse: separate;
+                      mso-table-lspace: 0pt;
+                      mso-table-rspace: 0pt;
+                      width: 100%;
+                    "
+                    width="100%"
+                  >
                     <tr>
-                      <td valign="top" style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
+                      <td
+                        valign="top"
+                        style="
+                          font-family: sans-serif;
+                          font-size: 14px;
+                          vertical-align: top;
+                        "
+                      >
                         <p>Dear {{name}},</p>
                         <p>
-                          Thank you for your recent purchase and for choosing to embark on this transformative journey with us.
+                          Thank you for your recent purchase and for choosing to
+                          embark on this transformative journey with us.
                         </p>
                         <p>
-                          We’re thrilled to welcome you to the Yoga Vidya School family. This email serves as a confirmation of your purchase.
+                          We’re thrilled to welcome you to the Yoga Vidya School
+                          family. This email serves as a confirmation of your
+                          purchase.
                         </p>
-                       
 
                         {{#each sessions}}
-                            <p>
-                              <strong>Topic:</strong> {{topic}}<br />
-                              <strong>Time:</strong> {{time}}<br />
-                              <strong>Join Zoom for upcoming session:</strong><br />
-                              <a href="{{zoomLink}}" target="_blank">
-                                Join Zoom Meeting
-                              </a><br />
-                              Meeting ID: {{meetingId}}<br />
-                              Passcode: {{passcode}}
-                            </p>
-
-                            <p>
-                              <strong>Join our WhatsApp group for updates:</strong><br />
-                              <a href="{{whatsappLink}}" target="_blank">
-                                Click here to join WhatsApp group
-                              </a>
-                            </p>
-                          {{/each}}
-
+                        <p>
+                          <strong>Topic:</strong> {{topic}}<br />
+                          <strong>Time:</strong> {{time}}<br />
+                          <strong>Join Zoom for upcoming session:</strong><br />
+                          <a href="{{zoomLink}}" target="_blank">
+                            Join Zoom Meeting </a
+                          ><br />
+                          Meeting ID: {{meetingId}}<br />
+                          Passcode: {{passcode}}
+                        </p>
 
                         <p>
-                          Our team will connect with you shortly to share all the necessary details related to the process of online yoga classes.
+                          <strong>Join our WhatsApp group for updates:</strong
+                          ><br />
+                          <a href="{{whatsappLink}}" target="_blank">
+                            Click here to join WhatsApp group
+                          </a>
+                        </p>
+                        <p>
+                          Also Join our WhatsApp community:
+                          <a
+                            target="_blank"
+                            href="https://chat.whatsapp.com/G7ASJJCiiVlB1W317yZvQM"
+                            >Yog sadhana</a
+                          >
+                          <br />and follow us on Facebook:
+                          <a
+                            target="_blank"
+                            href="https://www.facebook.com/share/g/19JkfrQP22/"
+                            >YOGA VIDYA COMMUNITY</a
+                          >
+                        </p>
+                        {{/each}}
+
+                        <p>
+                          Our team will connect with you shortly to share all
+                          the necessary details related to the process of online
+                          yoga classes.
                         </p>
                         <p>Thank you</p>
                       </td>
@@ -168,7 +282,12 @@
             </table>
           </div>
         </td>
-        <td valign="top" style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
+        <td
+          valign="top"
+          style="font-family: sans-serif; font-size: 14px; vertical-align: top"
+        >
+          &nbsp;
+        </td>
       </tr>
     </table>
   </body>
