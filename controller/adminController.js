@@ -626,7 +626,7 @@ module.exports = {
       const options = {
         amount: price * 100, // Razorpay accepts amount in paise (for INR)
         currency: currency,
-        receipt: "receipt_order_swaraSadhana_" + Date.now(),
+        receipt: "swara_" + Date.now(),
         payment_capture: 1, // Auto-capture
       };
 
@@ -2354,7 +2354,7 @@ module.exports = {
       const options = {
         amount: amountInSubunits,
         currency: req.body.currency,
-        receipt: `LiveClass_${pay._id}`,
+        receipt: `pranic_${pay._id}`,
         payment_capture: 1, // auto-capture
       };
 
@@ -2565,7 +2565,7 @@ module.exports = {
       const options = {
         amount: price * 100, // Razorpay accepts amount in paise (for INR)
         currency: currency || "INR",
-        receipt: "receipt_order_pranaarabha_" + Date.now(),
+        receipt: "pranaarabha_" + Date.now(),
         payment_capture: 1, // Auto-capture
       };
 
