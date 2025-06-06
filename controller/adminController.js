@@ -1880,10 +1880,10 @@ module.exports = {
           },
         ],
         mode: "payment",
-        //   success_url: 'https://www.yogavidyaschool.com/confirmation',
-        //   cancel_url: 'https://www.yogavidyaschool.com/confirmation',
-        success_url: "http://localhost:4200/confirmation",
-        cancel_url: "http://localhost:4200/confirmation",
+        success_url: 'https://www.yogavidyaschool.com/confirmation',
+        cancel_url: 'https://www.yogavidyaschool.com/confirmation',
+        // success_url: "http://localhost:4200/confirmation",
+        // cancel_url: "http://localhost:4200/confirmation",
         customer_email: req.body.custEmail,
       });
 
