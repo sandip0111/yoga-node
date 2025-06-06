@@ -535,7 +535,7 @@ module.exports = {
             to: pay.phone,
             type: "template",
             template: {
-              name: "swara_yoga",
+              name: "sawra_sadhana",
               language: {
                 code: "en_US",
               },
@@ -708,7 +708,7 @@ module.exports = {
             to: pay.phone,
             type: "template",
             template: {
-              name: "swara_yoga",
+              name: "sawra_sadhana",
               language: { code: "en_US" },
               components: [
                 {
