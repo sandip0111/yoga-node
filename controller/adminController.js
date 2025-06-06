@@ -38,7 +38,7 @@ const razorpay = new Razorpay({
 const crypto = require("crypto");
 const timeSlots = require("../models/TimeSlots");
 const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
-// const stripe = require('stripe')('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');
+const stripe = require('stripe')('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');
 const jwt = require("jsonwebtoken");
 
 const whatsappCloudApiUrl =
@@ -46,9 +46,9 @@ const whatsappCloudApiUrl =
 const axios = require("axios");
 const whatsappAccessToken =
   "EAAJpIEWgcakBOwmKbIapeBHzNZCOGcSJzQYQxxr0WknDOAHMbr79BxZAZBZA8ZC5yu0viYXbz4DSFblR9JgSZBEcIe34EeIZABZCK5yfZAzT2yWUaawh8KYDylbI0G8FgZBzL8pCbcQRowddPTZC3EIFPRpaGSH0jf9x0FQM50uvZAyRMLECPElEXKaTv9RdSr0hA8TPOQZDZD";
-const stripe = require("stripe")(
-  "sk_test_51LJJXISEQq0H4GuE57DEzlM4vmKExUoPzoTFZzc6CclsIMQw8bJAzrnVJyxagwuUxwsAb1qCeoE0tp540gK9GiXO00E23soewI"
-);
+// const stripe = require("stripe")(
+//   "sk_test_51LJJXISEQq0H4GuE57DEzlM4vmKExUoPzoTFZzc6CclsIMQw8bJAzrnVJyxagwuUxwsAb1qCeoE0tp540gK9GiXO00E23soewI"
+// );
 
 // const nodeCCAvenue = require('node-ccavenue');
 // const ccav = new nodeCCAvenue.Configure({
