@@ -5,7 +5,7 @@ const studentController = require("../controller/studentController");
 const adminController = require("../controller/adminController");
 const wistiaController = require("../controller/wistiaController");
 const multer = require("multer");
-const multerS3 = require('multer-s3')
+const multerS3 = require("multer-s3");
 const path = require("path");
 const fs = require("fs");
 const { S3, GetObjectCommand } = require("@aws-sdk/client-s3");
@@ -154,20 +154,52 @@ router.post("/getAllPayment", adminController.getAllPayment);
 router.post("/getAllOnlinePayment", adminController.getAllOnlinePayment);
 router.get("/exportInquiry", adminController.exportInquiry);
 router.post("/stripe", adminController.checkoutStripe);
-router.post("/checkoutStripeForLiveClasses", adminController.checkoutStripeForLiveClasses);
-router.post("/createRazorpayOrder", adminController.checkoutRazorpayForLiveClasses);
-router.post("/verifyRazorpayPaymentAndSendMail", adminController.verifyRazorpayPaymentAndSendMail);
+router.post(
+  "/checkoutStripeForLiveClasses",
+  adminController.checkoutStripeForLiveClasses
+);
+router.post(
+  "/createRazorpayOrder",
+  adminController.checkoutRazorpayForLiveClasses
+);
+router.post(
+  "/verifyRazorpayPaymentAndSendMail",
+  adminController.verifyRazorpayPaymentAndSendMail
+);
 router.post("/registerWebinarUser", adminController.registerWebinarUser);
-router.post("/getPaymentResultAndSendMailForLiveClass", adminController.getPaymentResultAndSendMailForLiveClass);
-router.post("/getAllWebinarRegistration", adminController.getAllWebinarRegistration);
-router.post("/checkoutRazorpayNewPranaarabha", adminController.checkoutRazorpayNewPranaarabha);
-router.post("/getRazorpayPaymentResultForPranarambha", adminController.getRazorpayPaymentResultForPranarambha);
-router.post("/checkoutRazorpayForPranicPurification",adminController.checkoutRazorpayForPranicPurification);
-router.post("/getRazorPaymentResultPranicPurification", adminController.getRazorPaymentResultPranicPurification);
+router.post(
+  "/getPaymentResultAndSendMailForLiveClass",
+  adminController.getPaymentResultAndSendMailForLiveClass
+);
+router.post(
+  "/getAllWebinarRegistration",
+  adminController.getAllWebinarRegistration
+);
+router.post(
+  "/checkoutRazorpayNewPranaarabha",
+  adminController.checkoutRazorpayNewPranaarabha
+);
+router.post(
+  "/getRazorpayPaymentResultForPranarambha",
+  adminController.getRazorpayPaymentResultForPranarambha
+);
+router.post(
+  "/checkoutRazorpayForPranicPurification",
+  adminController.checkoutRazorpayForPranicPurification
+);
+router.post(
+  "/getRazorPaymentResultPranicPurification",
+  adminController.getRazorPaymentResultPranicPurification
+);
 
-router.post("/checkoutRazorpayNewSwarSadhana", adminController.checkoutRazorpayNewSwarSadhana);
-router.post("/getRazorPaymentResultSwarSadhana",adminController.getRazorPaymentResultSwarSadhana);
-
+router.post(
+  "/checkoutRazorpayNewSwarSadhana",
+  adminController.checkoutRazorpayNewSwarSadhana
+);
+router.post(
+  "/getRazorPaymentResultSwarSadhana",
+  adminController.getRazorPaymentResultSwarSadhana
+);
 
 router.post(
   "/stripeWithoutProduct",
@@ -179,10 +211,22 @@ router.post(
 );
 router.post("/getPaymentResponse", adminController.getPaymentResult);
 router.post("/getPaymentResponseV2", adminController.getPaymentResultV2);
-router.post("/getPaymentResultPranicPurification", adminController.getPaymentResultPranicPurification);
-router.post("/registerSwarSadhanaWebinarUser", adminController.registerSwarSadhanaWebinarUser);
-router.post("/checkoutSwarSadhanaStripe", adminController.checkoutSwarSadhanaStripe);
-router.post("/getPaymentResultSwarSadhana", adminController.getPaymentResultSwarSadhana);
+router.post(
+  "/getPaymentResultPranicPurification",
+  adminController.getPaymentResultPranicPurification
+);
+router.post(
+  "/registerSwarSadhanaWebinarUser",
+  adminController.registerSwarSadhanaWebinarUser
+);
+router.post(
+  "/checkoutSwarSadhanaStripe",
+  adminController.checkoutSwarSadhanaStripe
+);
+router.post(
+  "/getPaymentResultSwarSadhana",
+  adminController.getPaymentResultSwarSadhana
+);
 router.post("/getAllTimeSlot", adminController.getAllTimeSlot);
 
 //video Aws
@@ -194,12 +238,30 @@ router.get(
 );
 //Dashboard
 
-router.post('/getAllParayanamStudent', studentController.getAllParayanamStudent);
-router.post('/getAllLiveClassStudent', studentController.getAllLiveClassStudent);
-router.post('/getAllBreathDetoxStudent', studentController.getAllBreathDetoxStudent);
-router.post('/getAllFoundationOfSpiritualityStudent', studentController.getAllFoundationOfSpiritualityStudent);
-router.post('/getAllStudentCourseListAndCount', studentController.getAllStudentCourseListAndCount);
-router.get('/getKundaliniParichayRefferalCode', studentController.getKundaliniParichayRefferalCode);
+router.post(
+  "/getAllParayanamStudent",
+  studentController.getAllParayanamStudent
+);
+router.post(
+  "/getAllLiveClassStudent",
+  studentController.getAllLiveClassStudent
+);
+router.post(
+  "/getAllBreathDetoxStudent",
+  studentController.getAllBreathDetoxStudent
+);
+router.post(
+  "/getAllFoundationOfSpiritualityStudent",
+  studentController.getAllFoundationOfSpiritualityStudent
+);
+router.post(
+  "/getAllStudentCourseListAndCount",
+  studentController.getAllStudentCourseListAndCount
+);
+router.get(
+  "/getKundaliniParichayRefferalCode",
+  studentController.getKundaliniParichayRefferalCode
+);
 //anaylytics
 router.post("/createAnalytics", adminController.createAnalytics);
 router.post("/getAnalyticsByDate", adminController.getAnalyticsByDate);
@@ -224,28 +286,33 @@ router.post("/getCourseVideosById", async (req, res) => {
     };
     let allObjects = [];
     let continuationToken = null;
-    do 
-    {
+    do {
       if (continuationToken) {
         params.ContinuationToken = continuationToken; // Set pagination token
       }
       const response = await s3.listObjectsV2(params);
 
-      const filteredObjects = response.Contents.filter(obj => !obj.Key.endsWith(".ts"));
+      const filteredObjects = response.Contents.filter(
+        (obj) => !obj.Key.endsWith(".ts")
+      );
 
       allObjects = allObjects.concat(filteredObjects);
       if (allObjects.length >= 1000) {
-        allObjects = allObjects.slice(0, 1000); 
+        allObjects = allObjects.slice(0, 1000);
         break;
       }
       continuationToken = response.NextContinuationToken;
-
     } while (continuationToken);
- 
+
     let arr = [];
     if (allObjects) {
       for (const item of allObjects) {
-        if (item.Key.endsWith(".mp4") || item.Key.endsWith(".mov") || item.Key.endsWith(".MOV") || item.Key.endsWith(".m3u8")) {
+        if (
+          item.Key.endsWith(".mp4") ||
+          item.Key.endsWith(".mov") ||
+          item.Key.endsWith(".MOV") ||
+          item.Key.endsWith(".m3u8")
+        ) {
           // console.log(item,'---');
           const key = item.Key;
           const id = key.substring(
@@ -260,16 +327,15 @@ router.post("/getCourseVideosById", async (req, res) => {
           // console.log(urlv3,'id');
           const getObj = getVideoData.filter((e) => e.videoName == id);
           //  console.log(getObj,'filte rdata');
-          if(getObj.length != 0){
-          let val = {
-            updateId: getObj[0]._id,
-            title: getObj[0].title,
-            sortBy: getObj[0].sortBy,
-            url: newUrl,
-          };
-          arr.push(val);
-        }
-         
+          if (getObj.length != 0) {
+            let val = {
+              updateId: getObj[0]._id,
+              title: getObj[0].title,
+              sortBy: getObj[0].sortBy,
+              url: newUrl,
+            };
+            arr.push(val);
+          }
         }
       }
       // console.log(arr,'--');
@@ -284,10 +350,9 @@ router.post("/getCourseVideosById", async (req, res) => {
 
 router.post("/getWebinarVideosByName", async (req, res) => {
   try {
-   
     // console.log(getVideoData,'---');
-    if(req.body.name == 'swar-sadhana'){
-      req.body.name = 'SWAR SADHANA'
+    if (req.body.name == "swar-sadhana") {
+      req.body.name = "SWAR SADHANA";
     }
     const params = {
       Bucket: "yogacourses",
@@ -296,28 +361,33 @@ router.post("/getWebinarVideosByName", async (req, res) => {
     };
     let allObjects = [];
     let continuationToken = null;
-    do 
-    {
+    do {
       if (continuationToken) {
         params.ContinuationToken = continuationToken; // Set pagination token
       }
       const response = await s3.listObjectsV2(params);
 
-      const filteredObjects = response.Contents.filter(obj => !obj.Key.endsWith(".ts"));
+      const filteredObjects = response.Contents.filter(
+        (obj) => !obj.Key.endsWith(".ts")
+      );
 
       allObjects = allObjects.concat(filteredObjects);
       if (allObjects.length >= 1000) {
-        allObjects = allObjects.slice(0, 1000); 
+        allObjects = allObjects.slice(0, 1000);
         break;
       }
       continuationToken = response.NextContinuationToken;
-
     } while (continuationToken);
- 
+
     let arr = [];
     if (allObjects) {
       for (const item of allObjects) {
-        if (item.Key.endsWith(".mp4") || item.Key.endsWith(".mov") || item.Key.endsWith(".MOV") || item.Key.endsWith(".m3u8")) {
+        if (
+          item.Key.endsWith(".mp4") ||
+          item.Key.endsWith(".mov") ||
+          item.Key.endsWith(".MOV") ||
+          item.Key.endsWith(".m3u8")
+        ) {
           // console.log(item,'---');
           const key = item.Key;
           const id = key.substring(
@@ -329,11 +399,11 @@ router.post("/getWebinarVideosByName", async (req, res) => {
             "yogacourses.s3.us-east-1.amazonaws.com",
             "d3mzqk1fxuwngx.cloudfront.net"
           );
-         
+
           //  console.log(getObj,'filte rdata');
-         var number = extractNumber(id);
+          var number = extractNumber(id);
           let val = {
-            title: 'Part'+ number,
+            title: "Part" + number,
             sortBy: number,
             url: newUrl,
           };
@@ -382,12 +452,12 @@ function extractNumber(str) {
 
 const imageStorages3 = multerS3({
   s3: s3,
-  bucket: 'my-s3-images-bucket', // Replace with your bucket name
-  acl: 'public-read', // Public access for images
+  bucket: "my-s3-images-bucket", // Replace with your bucket name
+  acl: "public-read", // Public access for images
   contentType: multerS3.AUTO_CONTENT_TYPE,
   key: (req, file, cb) => {
     cb(null, `img/${Date.now().toString()}-${file.originalname}`); // Save to images folder
-  }
+  },
 });
 
 const imageUpload = multer({
@@ -410,7 +480,7 @@ router.post(
   "/uploadImage",
   imageUpload.single("image"),
   (req, res) => {
-    const imageName = req.file.key.split('/').pop(); 
+    const imageName = req.file.key.split("/").pop();
     res.send({
       imageName: imageName,
       msg: "Upload succesfully",
@@ -527,23 +597,24 @@ router.post("/uploadReview", videoUpload.single("video"), async (req, res) => {
     //let fullPath = __dirname + "/../"+ filePath;
     fs.unlink(fullPath, (err) => {
       if (err) {
-          console.error(`Error deleting file ${filePath}:`, err);
-          res.status(400).json({ status: "error", msg: "Error on uploading!" });
+        console.error(`Error deleting file ${filePath}:`, err);
+        res.status(400).json({ status: "error", msg: "Error on uploading!" });
       } else {
-          console.log(`File ${filePath} has been deleted.`);
-          res
-          .status(200)
-          .json({
-            videoName: file.filename,
-            msg: "Upload succesfully",
-            status: "ok",
-          });
+        console.log(`File ${filePath} has been deleted.`);
+        res.status(200).json({
+          videoName: file.filename,
+          msg: "Upload succesfully",
+          status: "ok",
+        });
       }
-  });
- 
+    });
   } else {
     res.status(400).json({ status: "error", msg: "Error on uploading!" });
   }
 });
+router.post(
+  "/getAllSwaraSadhanaData",
+  studentController.getAllSwaraSadhanaData
+);
 
 module.exports = router;

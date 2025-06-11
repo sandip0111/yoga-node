@@ -42,7 +42,9 @@ module.exports = {
   getAllParayanamStudent: async function (req, res) {
     try {
       const result = await studentService.getAllParayanamStudent(req.body);
-      res.status(200).json({ data: result.studentList, total: result.totalStudent });
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.totalStudent });
     } catch (err) {
       res.status(500).json({ error: err });
     }
@@ -50,52 +52,8 @@ module.exports = {
 
   getAllLiveClassStudent: async function (req, res) {
     try {
-      let size = req.body.size || 10;
-      let pageNo = req.body.pageNo || 1;
-      const skip = Number(size * (pageNo - 1));
-      const limit = Number(size) || 0;
-      const studentList = await liveCoursesCustomerModel.aggregate([
-        // Unwind the courses array to treat each course as a separate document
-        { $unwind: "$courses" },
-
-        // Group by courses.title and keep all customer details
-        {
-          $group: {
-            _id: "$courses.title",
-            totalCustomers: { $sum: 1 }, // Count customers per course
-            customers: {
-              $push: {
-                _id: "$_id",
-                name: "$name",
-                email: "$email",
-                phone: "$phone",
-                currency: "$currency",
-                price: "$price",
-                paymentStatus: "$paymentStatus",
-                created: "$created",
-                courses: {
-                  _id: "$courses._id",
-                  title: "$courses.title",
-                  shortDescription: "$courses.shortDescription",
-                  priceINR: "$courses.priceINR",
-                  priceUSD: "$courses.priceUSD",
-                  quantity: "$courses.quantity",
-                  priceInfo: "$courses.priceInfo",
-                },
-              },
-            },
-          },
-        },
-
-        // Sort by totalCustomers in descending order
-        { $sort: { totalCustomers: -1 } },
-
-        // Pagination: Skip and Limit
-        { $skip: skip },
-        { $limit: limit },
-      ]);
-
-      res.status(200).json({ data: studentList, total: studentList.length });
+      const result = await studentService.getAllLiveClassStudent(req.body);
+      res.status(200).json({ data: result, total: result.length });
     } catch (err) {
       res.status(500).json({ error: err });
     }
@@ -103,57 +61,10 @@ module.exports = {
 
   getAllBreathDetoxStudent: async function (req, res) {
     try {
-      let courseId = "63c3f26c461e531f3c3452e1";
-      let size = req.body.size || 10;
-      let pageNo = req.body.pageNo || 1;
-      const skip = Number(size * (pageNo - 1));
-      let searchText = req.body.searchText;
-      const limit = Number(size) || 0;
-      const filterCondition = {
-        course: courseId,
-        ...(searchText && {
-          $or: [
-            { firstName: { $regex: searchText, $options: "i" } },
-            { lastName: { $regex: searchText, $options: "i" } },
-            { email: { $regex: searchText, $options: "i" } },
-            { city: { $regex: searchText, $options: "i" } },
-            {
-              $expr: {
-                $regexMatch: {
-                  input: { $toString: "$phoneNumber" }, // Convert phoneNumber to string
-                  regex: searchText,
-                  options: "i",
-                },
-              },
-            },
-          ],
-        }),
-      };
-
-      // Count total students with filter
-      const totalStudent = await Student.countDocuments(filterCondition);
-
-      // Fetch student list with filter
-      const studentList = await Student.aggregate([
-        { $match: filterCondition },
-
-        { $sort: { created: -1 } },
-
-        // Left Join with Payments (Match studentId)
-        {
-          $lookup: {
-            from: "payments",
-            localField: "_id",
-            foreignField: "studentId",
-            as: "paymentDetails",
-          },
-        },
-
-        { $skip: skip },
-        { $limit: limit },
-      ]);
-
-      res.status(200).json({ data: studentList, total: totalStudent });
+      const result = await studentService.getAllBreathDtoxStudent(req.body);
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.totalStudent });
     } catch (err) {
       res.status(500).json({ error: err });
     }
@@ -196,7 +107,11 @@ module.exports = {
             as: "paymentDetails",
           },
         },
-
+        {
+          $match: {
+            "paymentDetails.0": { $exists: true },
+          },
+        },
         { $skip: skip },
         { $limit: limit },
       ]);
@@ -620,7 +535,17 @@ module.exports = {
   //         res.status(404).json({status: 'error',msg:"Internal server"});
   //     }
 
-  // }
+  // },
+  getAllSwaraSadhanaData: async function (req, res) {
+    try {
+      const result = await studentService.getAllSwaraSadhanaData(req.body);
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.totalData });
+    } catch (err) {
+      res.status(404).json({ status: "error", msg: err.message });
+    }
+  },
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });
