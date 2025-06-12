@@ -53,7 +53,9 @@ module.exports = {
   getAllLiveClassStudent: async function (req, res) {
     try {
       const result = await studentService.getAllLiveClassStudent(req.body);
-      res.status(200).json({ data: result, total: result.length });
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.totalData });
     } catch (err) {
       res.status(500).json({ error: err });
     }

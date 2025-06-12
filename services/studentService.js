@@ -107,11 +107,12 @@ module.exports = {
   getAllLiveClassStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
+        const course = reqBody.course;
         let size = reqBody.size || 10;
         let pageNo = reqBody.pageNo || 1;
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
-        let searchText = reqBody.searchText;
+        const searchText = reqBody.searchText;
         let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
         let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
         if (startDate) {
@@ -121,45 +122,54 @@ module.exports = {
           endDate.setHours(23, 59, 59, 999);
         }
         let pipeLine = [
-          { $unwind: "$courses" },
           { $sort: { created: -1 } },
+          {
+            $match: {
+              "courses.title": course,
+            },
+          },
           { $skip: skip },
           { $limit: limit },
           {
-            $group: {
-              _id: "$courses.title",
-              totalCustomers: { $sum: 1 },
-              customers: {
-                $push: {
-                  _id: "$_id",
-                  name: "$name",
-                  email: "$email",
-                  phone: "$phone",
-                  currency: "$currency",
-                  price: "$price",
-                  paymentStatus: "$paymentStatus",
-                  created: "$created",
-                  courses: {
-                    _id: "$courses._id",
-                    title: "$courses.title",
-                    shortDescription: "$courses.shortDescription",
-                    priceINR: "$courses.priceINR",
-                    priceUSD: "$courses.priceUSD",
-                    quantity: "$courses.quantity",
-                    priceInfo: "$courses.priceInfo",
+            $project: {
+              name: "$name",
+              email: "$email",
+              phone: "$phone",
+              currency: "$currency",
+              price: "$price",
+              paymentStatus: "$paymentStatus",
+              created: "$created",
+              courseTimming: {
+                $let: {
+                  vars: {
+                    matchedCourse: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$courses",
+                            as: "c",
+                            cond: { $eq: ["$$c.title", course] },
+                          },
+                        },
+                        0,
+                      ],
+                    },
                   },
+                  in: "$$matchedCourse.shortDescription",
                 },
               },
             },
           },
         ];
         let pipeLineCount = [
-          { $unwind: "$courses" },
+          { $sort: { created: -1 } },
           {
-            $group: {
-              _id: "$courses.title",
-              totalCustomers: { $sum: 1 },
+            $match: {
+              "courses.title": { $regex: course, $options: "i" },
             },
+          },
+          {
+            $count: "total",
           },
         ];
         if (searchText) {
@@ -205,13 +215,11 @@ module.exports = {
           pipeLineCount
         );
         const studentList = studentObj.studentList;
-        for (let obj of studentList) {
-          const totalObj = studentObj.totalData.find((a) => a._id == obj._id);
-          obj.totalCustomers = totalObj
-            ? totalObj.totalCustomers
-            : obj.totalCustomers;
-        }
-        return resolve(studentList);
+        const totalData =
+          studentObj && studentObj.totalData.length > 0
+            ? studentObj.totalData[0]?.total
+            : 0;
+        return resolve({ studentList, totalData });
       } catch (error) {
         return reject(error);
       }
