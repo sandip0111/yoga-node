@@ -1,6 +1,6 @@
 "use strict";
 const Student = require("../models/StudentModel");
-const Payment = require("../models/PaymentModel");
+const Payment = require("../models/paymentModel");
 const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 const webinarRegisterUser = require("../models/webinarRegiserUserModel");
 const mongoose = require("mongoose");
