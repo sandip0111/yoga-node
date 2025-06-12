@@ -120,6 +120,16 @@ module.exports = {
       }
     });
   },
+  getAggregateStudentData: function (pipeLine) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = getStudentData(pipeLine);
+        return resolve(result);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let getStudentData = async function (pipeline) {
   const studentList = await Student.aggregate(pipeline);

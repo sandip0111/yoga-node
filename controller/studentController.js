@@ -74,51 +74,12 @@ module.exports = {
 
   getAllFoundationOfSpiritualityStudent: async function (req, res) {
     try {
-      let courseId = "63c4de4a2bce43a907211c74";
-      let size = req.body.size || 10;
-      let pageNo = req.body.pageNo || 1;
-      let searchText = req.body.searchText;
-      const skip = Number(size * (pageNo - 1));
-      const limit = Number(size) || 0;
-      const filterCondition = {
-        course: courseId,
-        ...(searchText && {
-          $or: [
-            { firstName: { $regex: searchText, $options: "i" } },
-            { lastName: { $regex: searchText, $options: "i" } },
-            { email: { $regex: searchText, $options: "i" } },
-          ],
-        }),
-      };
-
-      // Count total students with filter
-      const totalStudent = await Student.countDocuments(filterCondition);
-
-      // Fetch student list with filter
-      const studentList = await Student.aggregate([
-        { $match: filterCondition },
-
-        { $sort: { created: -1 } },
-
-        // Left Join with Payments (Match studentId)
-        {
-          $lookup: {
-            from: "payments",
-            localField: "_id",
-            foreignField: "studentId",
-            as: "paymentDetails",
-          },
-        },
-        {
-          $match: {
-            "paymentDetails.0": { $exists: true },
-          },
-        },
-        { $skip: skip },
-        { $limit: limit },
-      ]);
-
-      res.status(200).json({ data: studentList, total: totalStudent });
+      const result = await studentService.getAllFoundationOfSpiritualityStudent(
+        req.body
+      );
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.totalStudent });
     } catch (err) {
       res.status(500).json({ error: err });
     }

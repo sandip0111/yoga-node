@@ -312,6 +312,53 @@ module.exports = {
       }
     });
   },
+  getAllFoundationOfSpiritualityStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let courseId = constants.COURSE.FOUNDATION_SPIRITUALITY;
+        let size = reqBody.size || 10;
+        let pageNo = reqBody.pageNo || 1;
+        let searchText = reqBody.searchText;
+        const skip = Number(size * (pageNo - 1));
+        const limit = Number(size) || 0;
+        const filterCondition = {
+          course: courseId,
+          ...(searchText && {
+            $or: [
+              { firstName: { $regex: searchText, $options: "i" } },
+              { lastName: { $regex: searchText, $options: "i" } },
+              { email: { $regex: searchText, $options: "i" } },
+            ],
+          }),
+        };
+        const totalStudent = await studentRepo.getStudentCountFilter(
+          filterCondition
+        );
+        const studentList = await studentRepo.getAggregateStudentData([
+          { $match: filterCondition },
+          { $sort: { created: -1 } },
+          {
+            $lookup: {
+              from: "payments",
+              localField: "_id",
+              foreignField: "studentId",
+              as: "paymentDetails",
+            },
+          },
+          { $skip: skip },
+          { $limit: limit },
+          // {
+          //   $match: {
+          //     "paymentDetails.0": { $exists: true },
+          //   },
+          // },
+        ]);
+        return resolve({ studentList, totalStudent });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let getPranaArmbhAllData2 = async function (courseId, skip, limit, searchText) {
   let studentList;
