@@ -616,5 +616,8 @@ router.post(
   "/getAllSwaraSadhanaData",
   studentController.getAllSwaraSadhanaData
 );
-
+router.post(
+  "/getCouponCode",
+  adminController.getCouponCode
+);
 module.exports = router;

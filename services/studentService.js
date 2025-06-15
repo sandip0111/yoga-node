@@ -1,6 +1,5 @@
 "use strict";
 const studentRepo = require("../repositories/studentRepository");
-const Student = require("../models/StudentModel");
 const constants = require("../helpers/constants.json");
 
 module.exports = {
@@ -354,6 +353,31 @@ module.exports = {
           // },
         ]);
         return resolve({ studentList, totalStudent });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  createUpdateStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (reqBody._id) {
+          await studentRepo.updateStudent(reqBody);
+          return resolve({ status: "ok", msg: `Student updated Successfully` });
+        } else {
+          reqBody.email = reqBody.email.toLowerCase();
+          const student = await studentRepo.createStudent(reqBody);
+          if (reqBody.source == "web") {
+            //sendRegistrationEmailV2(student._id);
+          } else if (reqBody.source == "admin") {
+            // sendRegistrationEmail(student._id);
+          }
+          return resolve({
+            status: "ok",
+            msg: "Student Registerd Success",
+            studentId: student._id,
+          });
+        }
       } catch (error) {
         return reject(error);
       }

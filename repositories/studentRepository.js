@@ -1,15 +1,16 @@
 "use strict";
-const Student = require("../models/StudentModel");
-const Payment = require("../models/paymentModel");
+const studentModel = require("../models/StudentModel");
+const paymentModel = require("../models/paymentModel");
 const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 const webinarRegisterUser = require("../models/webinarRegiserUserModel");
 const mongoose = require("mongoose");
-// const moment = require('moment-timezone');
+const courseModel = require("../models/courseModel");
+
 module.exports = {
   getStudentCountFilter: function (pipeline) {
     return new Promise(async (resolve, reject) => {
       try {
-        const totalStudent = await Student.countDocuments(pipeline);
+        const totalStudent = await studentModel.countDocuments(pipeline);
         return resolve(totalStudent);
       } catch (error) {
         return reject(error);
@@ -36,11 +37,13 @@ module.exports = {
   ) {
     return new Promise(async (resolve, reject) => {
       try {
-        const payments = await Payment.find({
-          courseId: mongoose.Types.ObjectId(courseId),
-          studentId: { $ne: null },
-          created: { $gte: startDate, $lte: endDate },
-        }).select("studentId");
+        const payments = await paymentModel
+          .find({
+            courseId: mongoose.Types.ObjectId(courseId),
+            studentId: { $ne: null },
+            created: { $gte: startDate, $lte: endDate },
+          })
+          .select("studentId");
         const studentIds = payments.map((p) => p.studentId);
         const studentList = await getTotalStudent(
           courseId,
@@ -71,11 +74,13 @@ module.exports = {
   ) {
     return new Promise(async (resolve, reject) => {
       try {
-        const payments = await Payment.find({
-          courseId: mongoose.Types.ObjectId(courseId),
-          studentId: { $ne: null },
-          created: { $gte: startDate, $lte: endDate },
-        }).select("studentId");
+        const payments = await paymentModel
+          .find({
+            courseId: mongoose.Types.ObjectId(courseId),
+            studentId: { $ne: null },
+            created: { $gte: startDate, $lte: endDate },
+          })
+          .select("studentId");
         const studentIds = payments.map((p) => p.studentId);
         const studentList = await getTotalbDtoxStudent(
           courseId,
@@ -130,9 +135,65 @@ module.exports = {
       }
     });
   },
+  updateStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await studentModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  createStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await studentModel.create(reqBody);
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getStudentById: function (id) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await studentModel.findOne({ _id: id });
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  updateStudentCourse: function (id, updatedCourses) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await studentModel.findOneAndUpdate(
+          { _id: id },
+          { course: updatedCourses }
+        );
+        return resolve(1);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getCourseById: function (id) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await courseModel.findOne({ _id: id });
+        return resolve(data.coursetitle);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let getStudentData = async function (pipeline) {
-  const studentList = await Student.aggregate(pipeline);
+  const studentList = await studentModel.aggregate(pipeline);
   return studentList;
 };
 let getTotalStudent = async function (

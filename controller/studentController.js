@@ -10,29 +10,8 @@ module.exports = {
   createUpdateStudent: async function (req, res) {
     {
       try {
-        if (req.body._id) {
-          const student = await Student.findOneAndUpdate(
-            { _id: req.body._id },
-            req.body
-          );
-          res
-            .status(200)
-            .json({ status: "ok", msg: `Student updated Successfully` });
-          // sendRegistrationEmail(req.body._id);
-        } else {
-          req.body.email = req.body.email.toLowerCase();
-          const student = await Student.create(req.body);
-          res.status(201).json({
-            status: "ok",
-            msg: "Student Registerd Success",
-            studentId: student._id,
-          });
-          if (req.body.source == "web") {
-            //sendRegistrationEmailV2(student._id);
-          } else if (req.body.source == "admin") {
-            // sendRegistrationEmail(student._id);
-          }
-        }
+        const result = await studentService.createUpdateStudent(req.body);
+        res.status(200).json(result);
       } catch (err) {
         res.status(400).json({ err });
       }

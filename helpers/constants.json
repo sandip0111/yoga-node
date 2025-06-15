@@ -5,5 +5,16 @@
     "SPIRITUALITY": "63c4de4a2bce43a907211c74",
     "SWAR_SADHNA": "Swara Sadhana",
     "FOUNDATION_SPIRITUALITY": "63c4de4a2bce43a907211c74"
+  },
+  "EMAIL_TEMPLATE": {
+    "PRANIC_PURIFICATION": "/emailTemplate/pranicPurification.html",
+    "ORDER_CONFIRMATION": "/emailTemplate/OrderConfirmation.html",
+    "ADMIN_ORDER": "/emailTemplate/adminOrders.html"
+  },
+  "LINK": {
+    "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA"
+  },
+  "SLUG": {
+    "PRANA_ARAMBH": "pranayama-course-online-pranarambha"
   }
 }

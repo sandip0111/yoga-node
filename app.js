@@ -1,18 +1,17 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
 const app = express();
-const adminRoutes = require('./routes/adminRoutes');
-require('dotenv').config()
-var cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path');
-
+const adminRoutes = require("./routes/adminRoutes");
+require("dotenv").config();
+var cors = require("cors");
+const bodyParser = require("body-parser");
+const path = require("path");
 
 //middleware
 app.use(express.json());
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended:true}));
-app.use("/public", express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/public", express.static(path.join(__dirname, "public")));
 // mongoose.connect('mongodb://44.211.96.198:27016/yogavidyaschool', { useNewUrlParser: true, useUnifiedTopology: true })
 //     .then((result) => {
 //         console.log("Database connected");
@@ -22,21 +21,24 @@ app.use("/public", express.static(path.join(__dirname, 'public')));
 //         console.log(error);
 //     })
 
-const username = 'yogavidyaschooldb';
-const password = 'yogavidya4321qwerty';
-const host = '44.211.96.198';
-const port = '27014'; 
-const dbName = 'yogavidyaschool'; 
+const username = "yogavidyaschooldb";
+const password = "yogavidya4321qwerty";
+const host = "44.211.96.198";
+const port = "27014";
+const dbName = "yogavidyaschool";
 
-    mongoose.connect(`mongodb://${username}:${password}@${host}:${port}/${dbName}`, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then((result) => {
-        console.log("Database connected");
-        app.listen(3000);
-    })
-    .catch((error) => {
-        console.log(error);
-    })
-
+mongoose
+  .connect(`mongodb://${username}:${password}@${host}:${port}/${dbName}`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then((result) => {
+    console.log("Database connected");
+    app.listen(3000);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 
 // app.post('/api/sendTestMail', (req, res) => {
 //     const { to, subject, body } = req.body;
@@ -50,7 +52,6 @@ const dbName = 'yogavidyaschool';
 //         if (body) {
 //             if (body.trim() === "") throw new Error("Kindly add message");
 //         } else throw new Error("Kindly add message");
-
 
 //         const filePath = path.join(__dirname, '/emailTemplate/testEmail.html');
 //         const source = fs.readFileSync(filePath, 'utf-8').toString();
@@ -82,7 +83,7 @@ const dbName = 'yogavidyaschool';
 // })
 
 //routes
-app.use('/api/v1', adminRoutes);
+app.use("/api/v1", adminRoutes);
 
 // const express = require('express');
 // const mongoose = require('mongoose');
@@ -101,7 +102,6 @@ app.use('/api/v1', adminRoutes);
 // app.use(bodyParser.urlencoded({ extended:true}));
 // app.use("/public", express.static(path.join(__dirname, 'public')));
 
-
 // mongoose.connect('mongodb://18.212.35.81:27018/yogavidyaschool', { useNewUrlParser: true, useUnifiedTopology: true })
 //     .then((result) => {
 //         console.log("Database connected");
@@ -110,7 +110,6 @@ app.use('/api/v1', adminRoutes);
 //     .catch((error) => {
 //         console.log(error);
 //     })
-
 
 // // app.post('/api/sendTestMail', (req, res) => {
 // //     const { to, subject, body } = req.body;
@@ -124,7 +123,6 @@ app.use('/api/v1', adminRoutes);
 // //         if (body) {
 // //             if (body.trim() === "") throw new Error("Kindly add message");
 // //         } else throw new Error("Kindly add message");
-
 
 // //         const filePath = path.join(__dirname, '/emailTemplate/testEmail.html');
 // //         const source = fs.readFileSync(filePath, 'utf-8').toString();

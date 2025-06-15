@@ -35,6 +35,7 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+const paymentRepo = require("../repositories/paymentRepository");
 const crypto = require("crypto");
 const timeSlots = require("../models/TimeSlots");
 const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
@@ -45,7 +46,7 @@ const axios = require("axios");
 const whatsappAccessToken =
   "EAAJpIEWgcakBOwmKbIapeBHzNZCOGcSJzQYQxxr0WknDOAHMbr79BxZAZBZA8ZC5yu0viYXbz4DSFblR9JgSZBEcIe34EeIZABZCK5yfZAzT2yWUaawh8KYDylbI0G8FgZBzL8pCbcQRowddPTZC3EIFPRpaGSH0jf9x0FQM50uvZAyRMLECPElEXKaTv9RdSr0hA8TPOQZDZD";
 const stripe = require("stripe")(process.env.STRIP_KEY);
-
+const paymentService = require("../services/paymentService");
 // const nodeCCAvenue = require('node-ccavenue');
 // const ccav = new nodeCCAvenue.Configure({
 //   merchant_id: '2566832',
@@ -165,13 +166,11 @@ module.exports = {
             .json({ status: "ok", msg: `User updated Successfully` });
         } else {
           const user = await mentorModel.create(req.body);
-          res
-            .status(201)
-            .json({
-              status: "ok",
-              msg: "User Registerd Success",
-              userId: user._id,
-            });
+          res.status(201).json({
+            status: "ok",
+            msg: "User Registerd Success",
+            userId: user._id,
+          });
         }
       } catch (err) {
         res.status(400).json({ err });
@@ -225,13 +224,11 @@ module.exports = {
             .json({ status: "ok", msg: `slider updated Successfully` });
         } else {
           const user = await sliderModel.create(req.body);
-          res
-            .status(201)
-            .json({
-              status: "ok",
-              msg: "slider inserted Success",
-              userId: user._id,
-            });
+          res.status(201).json({
+            status: "ok",
+            msg: "slider inserted Success",
+            userId: user._id,
+          });
         }
       } catch (err) {
         res.status(400).json({ err });
@@ -573,20 +570,16 @@ module.exports = {
                     "Content-Type": "application/json",
                   },
                 })
-                .then((response) => {
-                 
-                })
+                .then((response) => {})
                 .catch((error) => {
                   res.status(400).json("Opps error occured");
                 });
 
-                 res
-                    .status(200)
-                    .json({
-                      status: "success",
-                      sessionId: req.body.sessionId,
-                      paymtId: session.payment_intent,
-                    });
+              res.status(200).json({
+                status: "success",
+                sessionId: req.body.sessionId,
+                paymtId: session.payment_intent,
+              });
             }
           });
         } catch (e) {
@@ -747,17 +740,15 @@ module.exports = {
                 "Content-Type": "application/json",
               },
             })
-            .then((response) => {
-             
-            })
+            .then((response) => {})
             .catch((error) => {
               res.status(400).json("Oops error occurred in WhatsApp message");
             });
 
-            res.status(200).json({
-                status: "success",
-                paymentId: razorpay_payment_id,
-              });
+          res.status(200).json({
+            status: "success",
+            paymentId: razorpay_payment_id,
+          });
         } catch (e) {
           console.log("Email send error!", e);
           res.status(500).json("Internal error after payment success");
@@ -817,13 +808,11 @@ module.exports = {
       }
       // Save user to database
       const savedUser = await newUser.save();
-      res
-        .status(200)
-        .json({
-          status: "ok",
-          message: "User registered successfully!",
-          userId: savedUser._id,
-        });
+      res.status(200).json({
+        status: "ok",
+        message: "User registered successfully!",
+        userId: savedUser._id,
+      });
     } catch (error) {
       if (error.code === 11000) {
         // Duplicate email error
@@ -858,13 +847,11 @@ module.exports = {
             .json({ status: "ok", msg: `category updated Successfully` });
         } else {
           const user = await categoryModel.create(req.body);
-          res
-            .status(201)
-            .json({
-              status: "ok",
-              msg: "category Registerd Success",
-              categoryId: user._id,
-            });
+          res.status(201).json({
+            status: "ok",
+            msg: "category Registerd Success",
+            categoryId: user._id,
+          });
         }
       } catch (err) {
         res.status(400).json({ err });
@@ -888,13 +875,11 @@ module.exports = {
           _id: user._id,
           course: { $in: req.body.course },
         });
-        res
-          .status(200)
-          .json({
-            status: "ok",
-            id: user._id,
-            coursePurchased: check > 0 ? true : false,
-          });
+        res.status(200).json({
+          status: "ok",
+          id: user._id,
+          coursePurchased: check > 0 ? true : false,
+        });
       } else {
         res.status(200).json({ status: "error" });
       }
@@ -1294,20 +1279,16 @@ module.exports = {
             { _id: req.body._id },
             req.body
           );
-          res
-            .status(200)
-            .json({
-              status: "ok",
-              msg: `subcategory course updated Successfully`,
-            });
+          res.status(200).json({
+            status: "ok",
+            msg: `subcategory course updated Successfully`,
+          });
         } else {
           const subcat = await subcoursecategoryModel.create(req.body);
-          res
-            .status(201)
-            .json({
-              status: "ok",
-              msg: "subcategory course Registerd Success",
-            });
+          res.status(201).json({
+            status: "ok",
+            msg: "subcategory course Registerd Success",
+          });
         }
       } catch (err) {
         res.status(400).json({ err });
@@ -1468,13 +1449,11 @@ module.exports = {
       });
 
       if (user) {
-        res
-          .status(200)
-          .json({
-            status: "ok",
-            user: { id: user._id, isWebinarUser: false },
-            msg: "succesfully logged in",
-          });
+        res.status(200).json({
+          status: "ok",
+          user: { id: user._id, isWebinarUser: false },
+          msg: "succesfully logged in",
+        });
       } else {
         const webinarUserData = await webinarUser.findOne({
           email: email,
@@ -1484,12 +1463,10 @@ module.exports = {
           const currentTime = new Date();
           const webinarDate = new Date(2025, 6, 16, 0, 0, 0);
           if (currentTime < webinarDate) {
-            res
-              .status(200)
-              .json({
-                status: "ok",
-                msg: "Please access from 16 June at 12 AM",
-              });
+            res.status(200).json({
+              status: "ok",
+              msg: "Please access from 16 June at 12 AM",
+            });
             return;
           }
           if (!webinarUserData.lastTimeLoggedIn) {
@@ -1503,22 +1480,18 @@ module.exports = {
             ); // Add 48 hours
 
             if (currentTime > timeAfter96Hours) {
-              res
-                .status(200)
-                .json({
-                  status: "ok",
-                  msg: "You exceed the 48 hours time after logged in",
-                });
+              res.status(200).json({
+                status: "ok",
+                msg: "You exceed the 48 hours time after logged in",
+              });
               return;
             }
           }
-          res
-            .status(200)
-            .json({
-              status: "ok",
-              user: { id: webinarUserData._id, isWebinarUser: true },
-              msg: "succesfully logged in",
-            });
+          res.status(200).json({
+            status: "ok",
+            user: { id: webinarUserData._id, isWebinarUser: true },
+            msg: "succesfully logged in",
+          });
         } else {
           res.status(200).json({ status: "ok", msg: "User not found" });
         }
@@ -1961,13 +1934,11 @@ module.exports = {
         notes: { dbId: pay._id.toString() },
       });
       res.setHeader("Access-Control-Expose-Headers", "x-rtb-fingerprint-id");
-      res
-        .status(200)
-        .json({
-          key: process.env.RAZORPAY_KEY_ID,
-          orderId: order.id,
-          payDbId: pay._id,
-        });
+      res.status(200).json({
+        key: process.env.RAZORPAY_KEY_ID,
+        orderId: order.id,
+        payDbId: pay._id,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal Server Error");
@@ -2160,8 +2131,8 @@ module.exports = {
         },
       ],
       mode: "payment",
-      success_url: "https://www.yogavidyaschool.com/confirmation",
-      cancel_url: "https://www.yogavidyaschool.com/confirmation",
+      success_url: process.env.STRIP_URL,
+      cancel_url: process.env.STRIP_URL,
       customer_email: req.body.email,
     });
 
@@ -2171,156 +2142,21 @@ module.exports = {
   },
 
   checkoutStripeForPranicPurification: async function (req, res) {
-    let userData = {
-      name: req.body.name,
-      email: req.body.email,
-      phoneNumber: req.body.phoneNumber,
-      address: req.body.address ?? "",
-      paymentStatus: "pending",
-      price: req.body.price,
-      currency: req.body.currency,
-      courseStartDate: req.body.courseStartDate,
-      courseTimeDuration: req.body.courseTimeDuration,
-    };
-    const pay = await pranicPurificationUsers.create(userData);
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: req.body.currency,
-            unit_amount: req.body.price * 100, // Amount in cents
-            product_data: {
-              name: "Custom Payment",
-            },
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: "https://www.yogavidyaschool.com/confirmation",
-      cancel_url: "https://www.yogavidyaschool.com/confirmation",
-      customer_email: req.body.email,
-    });
-
-    res
-      .status(200)
-      .json({ sessionId: session.id, payDbId: pay._id, url: session.url });
+    try {
+      let result = await paymentService.checkoutStripeForPranicPurification(
+        req.body
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json(error);
+    }
   },
 
   getPaymentResultPranicPurification: async function (req, res) {
     try {
-      const session = await stripe.checkout.sessions.retrieve(
-        req.body.pranicPurificationSessionId
-      );
-      if (session.payment_status == "paid") {
-        const user = await pranicPurificationUsers.findOneAndUpdate(
-          { _id: req.body.payDbId },
-          { paymentId: session.payment_intent, paymentStatus: "paid" }
-        );
-        let mailOptions;
-
-        let replacements = {};
-        let template;
-        const filePath = path.join(
-          __dirname,
-          "/emailTemplate/pranicPurification.html"
-        );
-        const source = fs.readFileSync(filePath, "utf-8").toString();
-        template = handlebars.compile(source);
-        replacements = {
-          name: user.name,
-          courseTitle:
-            "Pranic Purification - Best online pranayama sadhana prashanJ",
-          whatsappGroupLink: "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
-          startDate: user.courseStartDate.toDateString(),
-          startTime: user.courseTimeDuration,
-        };
-        var courseTitle =
-          "Pranic Purification - Best online pranayama sadhana prashanJ";
-        var whatsappGroupLink =
-          "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA";
-        const htmlToSend = template(replacements);
-
-        mailOptions = {
-          from: "Yoga Vidya School info@yogavidyaschool.com",
-          to: user.email,
-          subject: "Pranic Purification Registration Confirmation",
-          replyTo: "info@yogavidyaschool.com",
-          html: htmlToSend,
-        };
-
-        transporter.sendMail(mailOptions, async (err, result) => {
-          if (err) {
-            res.status(400).json("Opps error occured");
-          } else {
-            res
-              .status(200)
-              .json({
-                status: "success",
-                sessionId: req.body.pranicPurificationSessionId,
-                paymtId: session.payment_intent,
-                amount: session.amount_total / 100,
-                currency: session.currency,
-              });
-          }
-        });
-
-        const wspMessage = {
-          messaging_product: "whatsapp",
-          to: user.phoneNumber,
-          type: "template",
-          template: {
-            name: "pranic_purification",
-            language: { code: "en" },
-            components: [
-              {
-                type: "header",
-                parameters: [
-                  {
-                    type: "text",
-                    text: user.name,
-                  },
-                ],
-              },
-              {
-                type: "body",
-                parameters: [
-                  { type: "text", text: courseTitle }, // {{0}}
-                  { type: "text", text: whatsappGroupLink }, // {{1}}
-                  { type: "text", text: user.courseStartDate.toDateString() }, // {{2}}
-                  { type: "text", text: user.courseTimeDuration }, // {{3}}
-                ],
-              },
-            ],
-          },
-        };
-
-        axios
-          .post(whatsappCloudApiUrl, wspMessage, {
-            headers: {
-              Authorization: `Bearer ${whatsappAccessToken}`,
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            console.log("WhatsApp message sent successfully:", response.data);
-          })
-          .catch((error) => {
-            console.log("WhatsApp message error:", error.message);
-          });
-      } else {
-        const user = await pranicPurificationUsers.findOneAndUpdate(
-          { _id: req.body.payDbId },
-          { paymentStatus: "failed" }
-        );
-        res
-          .status(200)
-          .json({
-            status: "failed",
-            sessionId: req.body.pranicPurificationSessionId,
-          });
-      }
+      const returnData =
+        await paymentService.getPaymentResultPranicPurification(req.body);
+      res.status(returnData.status).json(returnData.data);
     } catch (error) {
       res.status(500).json("Internal server error");
     }
@@ -2328,44 +2164,10 @@ module.exports = {
 
   checkoutRazorpayForPranicPurification: async function (req, res) {
     try {
-      // Save user data with paymentStatus = pending
-      let userData = {
-        name: req.body.name,
-        email: req.body.email,
-        phoneNumber: req.body.phoneNumber,
-        address: req.body.address ?? "",
-        paymentStatus: "pending",
-        price: req.body.price,
-        currency: req.body.currency,
-        courseStartDate: req.body.courseStartDate,
-        courseTimeDuration: req.body.courseTimeDuration,
-      };
-
-      const pay = await pranicPurificationUsers.create(userData);
-
-      // Razorpay accepts amount in paise (INR) or the smallest currency unit
-      const amountInSubunits = req.body.price * 100;
-
-      // Create a Razorpay order
-      const options = {
-        amount: amountInSubunits,
-        currency: req.body.currency,
-        receipt: `pranic_${pay._id}`,
-        payment_capture: 1, // auto-capture
-      };
-
-      const order = await razorpay.orders.create(options);
-
-      res.status(200).json({
-        orderId: order.id,
-        razorpayKey: process.env.RAZORPAY_KEY_ID,
-        payDbId: pay._id,
-        amount: amountInSubunits,
-        currency: req.body.currency,
-        name: req.body.name,
-        email: req.body.email,
-        phoneNumber: req.body.phoneNumber,
-      });
+      let result = await paymentService.checkoutRazorpayForPranicPurification(
+        req.body
+      );
+      res.status(200).json(result);
     } catch (error) {
       console.error("Error in Razorpay checkout:", error);
       res.status(500).json({ error: "Payment initialization failed" });
@@ -2380,119 +2182,15 @@ module.exports = {
         razorpay_signature,
         payDbId,
       } = req.body;
-
-      // Step 1: Verify the signature
-
-      const hmac = crypto.createHmac("sha256", razorpay.key_secret);
-      hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
-      const generated_signature = hmac.digest("hex");
-
-      if (generated_signature === razorpay_signature) {
-        // Step 2: Update payment status in DB
-        const user = await pranicPurificationUsers.findOneAndUpdate(
-          { _id: payDbId },
-          {
-            paymentId: razorpay_payment_id,
-            paymentStatus: "paid",
-          },
-          { new: true }
-        );
-
-        // Step 3: Prepare and send confirmation email
-        const filePath = path.join(
-          __dirname,
-          "/emailTemplate/pranicPurification.html"
-        );
-        const source = fs.readFileSync(filePath, "utf-8").toString();
-        const template = handlebars.compile(source);
-
-        const replacements = {
-          name: user.name,
-          courseTitle:
-            "Pranic Purification - Best online pranayama sadhana prashanJ",
-          whatsappGroupLink: "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
-          startDate: user.courseStartDate.toDateString(),
-          startTime: user.courseTimeDuration,
-        };
-
-        var courseTitle =
-          "Pranic Purification - Best online pranayama sadhana prashanJ";
-        var whatsappGroupLink =
-          "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA";
-
-        const htmlToSend = template(replacements);
-        const mailOptions = {
-          from: "Yoga Vidya School <info@yogavidyaschool.com>",
-          to: user.email,
-          subject: "Pranic Purification Registration Confirmation",
-          replyTo: "info@yogavidyaschool.com",
-          html: htmlToSend,
-        };
-
-        transporter.sendMail(mailOptions, (err, result) => {
-          if (err) {
-            res.status(400).json("Oops, error occurred while sending mail.");
-          } else {
-          }
-        });
-        const wspMessage = {
-          messaging_product: "whatsapp",
-          to: user.phoneNumber,
-          type: "template",
-          template: {
-            name: "pranic_purification",
-            language: { code: "en" },
-            components: [
-              {
-                type: "header",
-                parameters: [
-                  {
-                    type: "text",
-                    text: user.name,
-                  },
-                ],
-              },
-              {
-                type: "body",
-                parameters: [
-                  { type: "text", text: courseTitle }, // {{0}}
-                  { type: "text", text: whatsappGroupLink }, // {{1}}
-                  { type: "text", text: user.courseStartDate.toDateString() }, // {{2}}
-                  { type: "text", text: user.courseTimeDuration }, // {{3}}
-                ],
-              },
-            ],
-          },
-        };
-
-        axios
-          .post(whatsappCloudApiUrl, wspMessage, {
-            headers: {
-              Authorization: `Bearer ${whatsappAccessToken}`,
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            console.log("WhatsApp message sent successfully:", response.data);
-          })
-          .catch((error) => {
-            console.log("WhatsApp message error:", error.message);
-          });
-        res.status(200).json({
-          status: "success",
-          paymentId: razorpay_payment_id,
-          orderId: razorpay_order_id,
-        });
-      } else {
-        // Signature didn't match
-        await pranicPurificationUsers.findOneAndUpdate(
-          { _id: payDbId },
-          { paymentStatus: "failed" }
-        );
-        res
-          .status(200)
-          .json({ status: "failed", message: "Payment verification failed" });
-      }
+      let result = await paymentService.getRazorPaymentResultPranicPurification(
+        {
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature,
+          payDbId,
+        }
+      );
+      res.status(200).json(result);
     } catch (error) {
       console.error("Error verifying Razorpay payment:", error);
       res.status(500).json("Internal server error");
@@ -2580,7 +2278,6 @@ module.exports = {
       res.status(500).send("Internal Server Error");
     }
   },
-
   getPaymentResult: async function (req, res) {
     try {
       const session = await stripe.checkout.sessions.retrieve(
@@ -2609,6 +2306,7 @@ module.exports = {
                 paymentStatus: val.paymentStatus,
               }
             );
+            await paymentRepo.disableCouponCode(req.body.couponCode);
           } catch (e) {
             console.log("paymnet update error");
           }
@@ -2785,15 +2483,13 @@ module.exports = {
         } catch (err) {
           console.log("internal error");
         }
-        res
-          .status(200)
-          .json({
-            status: "success",
-            sessionId: req.body.sessionId,
-            paymtId: session.payment_intent,
-            amount: session.amount_total / 100,
-            currency: session.currency,
-          });
+        res.status(200).json({
+          status: "success",
+          sessionId: req.body.sessionId,
+          paymtId: session.payment_intent,
+          amount: session.amount_total / 100,
+          currency: session.currency,
+        });
       } else {
         res
           .status(200)
@@ -2813,167 +2509,23 @@ module.exports = {
         student,
         course,
         payDbId,
+        amount,
+        currency,
+        couponCodeId,
       } = req.body;
-
-      const hmac = crypto.createHmac("sha256", razorpay.key_secret);
-      hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
-      const generatedSignature = hmac.digest("hex");
-
-      if (generatedSignature !== razorpay_signature) {
-        return res
-          .status(400)
-          .json({ status: "failed", message: "Invalid signature" });
-      }
-
-      const amount = req.body.amount;
-      const currency = req.body.currency;
-
-      // Update payment DB
-      await paymentModel.findOneAndUpdate(
-        { _id: payDbId },
-        {
-          paymentId: razorpay_payment_id,
-          amount: amount,
-          currency: currency,
-          paymentStatus: "paid",
-        }
-      );
-
-      // Update student’s course list
-      const studentDoc = await studentModel.findOne({ _id: student });
-      let updatedCourses = studentDoc.course.includes(course)
-        ? studentDoc.course
-        : [...studentDoc.course, course];
-
-      await studentModel.findOneAndUpdate(
-        { _id: student },
-        { course: updatedCourses }
-      );
-
-      // Send confirmation email to student
-      try {
-        const { coursetitle } = await courseModel.findOne({ _id: course });
-        const { firstName, email, password, phoneNumber } =
-          await studentModel.findOne({ _id: student });
-
-        const filePath = path.join(
-          __dirname,
-          "/emailTemplate/OrderConfirmation.html"
+      const returnData =
+        await paymentService.getRazorpayPaymentResultForPranarambha(
+          razorpay_payment_id,
+          razorpay_order_id,
+          razorpay_signature,
+          student,
+          course,
+          payDbId,
+          amount,
+          currency,
+          couponCodeId
         );
-        const source = fs.readFileSync(filePath, "utf-8").toString();
-        const template = handlebars.compile(source);
-        const date = new Date();
-        const htmlToSend = template({
-          name: firstName,
-          course: coursetitle,
-          email: email,
-          price: `${amount} ${currency}`,
-          date: date.toString(),
-          password: password,
-        });
-
-        const mailOptions = {
-          from: "Yoga Vidya School <info@yogavidyaschool.com>",
-          to: email,
-          subject: `Purchase Confirmation - ${coursetitle}`,
-          replyTo: "info@yogavidyaschool.com",
-          html: htmlToSend,
-        };
-
-        transporter.sendMail(mailOptions, () => {});
-        //send mail to whatsapp
-        const wspMessage = {
-          messaging_product: "whatsapp",
-          to: phoneNumber,
-          type: "template",
-          template: {
-            name: "prana_arambha",
-            language: { code: "en" },
-            components: [
-              {
-                type: "header",
-                parameters: [
-                  {
-                    type: "text",
-                    text: firstName,
-                  },
-                ],
-              },
-              {
-                type: "body",
-                parameters: [
-                  { type: "text", text: coursetitle }, // {{1}}
-                  { type: "text", text: coursetitle }, // {{2}}
-                  { type: "text", text: `${amount} ${currency}` }, // {{3}}
-                  { type: "text", text: date.toString() }, // {{4}}
-                  { type: "text", text: email }, // {{5}}
-                  { type: "text", text: password }, // {{6}}
-                ],
-              },
-            ],
-          },
-        };
-
-        axios
-          .post(whatsappCloudApiUrl, wspMessage, {
-            headers: {
-              Authorization: `Bearer ${whatsappAccessToken}`,
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            console.log("WhatsApp message sent successfully:", response.data);
-          })
-          .catch((error) => {
-            console.log("WhatsApp message error:", error.message);
-          });
-      } catch (err) {
-        console.log("Student confirmation email error:", err.message);
-      }
-
-      // Send confirmation email to admin
-      try {
-        const { coursetitle } = await courseModel.findOne({ _id: course });
-        const { firstName, email } = await studentModel.findOne({
-          _id: student,
-        });
-        const { paymentId } = await paymentModel.findOne({ _id: payDbId });
-
-        const filePath = path.join(
-          __dirname,
-          "/emailTemplate/adminOrders.html"
-        );
-        const source = fs.readFileSync(filePath, "utf-8").toString();
-        const template = handlebars.compile(source);
-        const htmlToSend = template({
-          name: firstName,
-          course: coursetitle,
-          email: email,
-          price: amount,
-          payId: paymentId,
-          currency: currency,
-        });
-
-        const mailOptions = {
-          from: "Yoga Vidya School <info@yogavidyaschool.com>",
-          to: "info@yogavidyaschool.com",
-          subject: `Admin Purchase Confirmation - ${coursetitle}`,
-          replyTo: "info@yogavidyaschool.com",
-          html: htmlToSend,
-        };
-
-        transporter.sendMail(mailOptions, () => {});
-      } catch (err) {
-        console.log("Admin email error:", err.message);
-      }
-
-      res.status(200).json({
-        status: "success",
-        paymentId: razorpay_payment_id,
-        orderId: razorpay_order_id,
-        amount: amount,
-        currency: currency,
-      });
+      res.status(returnData.status).json(returnData.result);
     } catch (error) {
       console.error("Payment result error:", error);
       res.status(500).json("Internal server error");
@@ -3137,15 +2689,13 @@ module.exports = {
               }
             }
 
-            res
-              .status(200)
-              .json({
-                status: "success",
-                sessionId: req.body.sessionId,
-                paymtId: session.payment_intent,
-                amount: session.amount_total / 100,
-                currency: session.currency,
-              });
+            res.status(200).json({
+              status: "success",
+              sessionId: req.body.sessionId,
+              paymtId: session.payment_intent,
+              amount: session.amount_total / 100,
+              currency: session.currency,
+            });
           } catch (e) {
             console.log("admin email send error!");
           }
@@ -3174,15 +2724,13 @@ module.exports = {
 
         try {
           updatePaymentV2(val);
-          res
-            .status(200)
-            .json({
-              status: "success",
-              sessionId: req.body.sessionId,
-              paymtId: session.payment_intent,
-              amount: session.amount_total / 100,
-              currency: session.currency,
-            });
+          res.status(200).json({
+            status: "success",
+            sessionId: req.body.sessionId,
+            paymtId: session.payment_intent,
+            amount: session.amount_total / 100,
+            currency: session.currency,
+          });
         } catch (err) {
           console.log("internal error");
         }
@@ -3396,6 +2944,16 @@ module.exports = {
             .status(200)
             .json({ status: "ok", msg: `Subscriber Inserted Success` });
         }
+      } catch (err) {
+        res.status(400).json({ msg: "Internal Server error" });
+      }
+    }
+  },
+  getCouponCode: async function (req, res) {
+    {
+      try {
+        const result = await paymentService.getCouponCode(req.body);
+        res.status(200).json(result);
       } catch (err) {
         res.status(400).json({ msg: "Internal Server error" });
       }
