@@ -93,7 +93,7 @@ function getRazorPaymentResultPranicPurification({
           whatsappGroupLink: constants.LINK.WHATSAPP,
           startDate: user.courseStartDate.toDateString(),
           startTime: user.courseTimeDuration,
-          code: couponCode
+          code: couponCode,
         };
         var courseTitle =
           "Pranic Purification - Best online pranayama sadhana prashanJ";
@@ -135,6 +135,7 @@ function getRazorPaymentResultPranicPurification({
                   { type: "text", text: whatsappGroupLink },
                   { type: "text", text: user.courseStartDate.toDateString() },
                   { type: "text", text: user.courseTimeDuration },
+                  { type: "text", text: couponCode },
                 ],
               },
             ],
@@ -168,7 +169,10 @@ function getRazorPaymentResultPranicPurification({
   });
 }
 function generateCouponCode(name) {
-  const namePart = name.substring(0, 4).toUpperCase();
+  const namePart = name
+    .substring(0, Math.min(4, name.length))
+    .trim()
+    .toUpperCase();
   const now = new Date();
   const datePart =
     now.getFullYear().toString() +
@@ -423,7 +427,7 @@ function getPaymentResultPranicPurification(reqBody) {
           whatsappGroupLink: "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
           startDate: user.courseStartDate.toDateString(),
           startTime: user.courseTimeDuration,
-          code: couponCode
+          code: couponCode,
         };
         var courseTitle =
           "Pranic Purification - Best online pranayama sadhana prashanJ";
@@ -466,6 +470,7 @@ function getPaymentResultPranicPurification(reqBody) {
                   { type: "text", text: whatsappGroupLink },
                   { type: "text", text: user.courseStartDate.toDateString() },
                   { type: "text", text: user.courseTimeDuration },
+                  { type: "text", text: couponCode },
                 ],
               },
             ],
