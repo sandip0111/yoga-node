@@ -73,27 +73,16 @@ module.exports = {
         let studentObj;
         let studentList;
         let totalStudent = 0;
-        if (!startDate && !endDate) {
-          studentObj = await getBrathDtoxAllData(
-            courseId,
-            skip,
-            limit,
-            searchText
-          );
-          studentList = studentObj.studentList;
-          totalStudent = studentObj.totalData;
-        } else {
-          studentObj = await studentRepo.getStudentWithBrathDtoxPaymentDetails(
-            startDate,
-            endDate,
-            searchText,
-            courseId,
-            skip,
-            limit
-          );
-          studentList = studentObj.studentList;
-          totalStudent = studentObj.total;
-        }
+        studentObj = await getBrathDtoxAllData(
+              courseId,
+              skip,
+              limit,
+              searchText,
+              startDate,
+              endDate
+        );
+        studentList = studentObj.studentList;
+        totalStudent = studentObj.totalData;
         return resolve({
           studentList,
           totalStudent,
@@ -519,10 +508,18 @@ let getPranaArmbhCount = async function (courseId, searchText) {
   totalStudent = await studentRepo.getStudentCountFilter(filterCondition);
   return totalStudent;
 };
-let getBrathDtoxAllData = async function (courseId, skip, limit, searchText) {
+let getBrathDtoxAllData = async function (courseId, skip, limit, searchText, fromDate, toDate) {
   let studentList;
+  let matchStage = { course: courseId };
+
+  if (fromDate && toDate) 
+    {
+      matchStage.created = {};
+      if (fromDate) matchStage.created.$gte = new Date(fromDate);
+      if (toDate) matchStage.created.$lte = new Date(toDate);
+    }
   let pipeline = [
-    { $match: { course: courseId } },
+    { $match: matchStage },
     { $sort: { created: -1 } },
     { $skip: skip },
     { $limit: limit },
@@ -562,31 +559,40 @@ let getBrathDtoxAllData = async function (courseId, skip, limit, searchText) {
     });
   }
   studentList = await studentRepo.getStudentDataFilter(pipeline);
-  const totalData = await getBrathDtoxCount(courseId, searchText);
+  const totalData = await getBrathDtoxCount(courseId, searchText, fromDate, toDate);
   return { studentList, totalData };
 };
-let getBrathDtoxCount = async function (courseId, searchText) {
-  let totalStudent = 0;
+
+let getBrathDtoxCount = async function (courseId, searchText, fromDate, toDate) {
   let filterCondition = {
     course: courseId,
-    ...(searchText && {
-      $or: [
-        { firstName: { $regex: searchText, $options: "i" } },
-        { lastName: { $regex: searchText, $options: "i" } },
-        { email: { $regex: searchText, $options: "i" } },
-        { city: { $regex: searchText, $options: "i" } },
-        {
-          $expr: {
-            $regexMatch: {
-              input: { $toString: "$phoneNumber" },
-              regex: searchText,
-              options: "i",
-            },
+  };
+
+  if (fromDate && toDate) {
+    filterCondition.created = {};
+    if (fromDate) filterCondition.created.$gte = new Date(fromDate);
+    if (toDate) filterCondition.created.$lte = new Date(toDate);
+  }
+
+  if (searchText) {
+    filterCondition.$or = [
+      { firstName: { $regex: searchText, $options: "i" } },
+      { lastName: { $regex: searchText, $options: "i" } },
+      { email: { $regex: searchText, $options: "i" } },
+      { city: { $regex: searchText, $options: "i" } },
+      {
+        $expr: {
+          $regexMatch: {
+            input: { $toString: "$phoneNumber" },
+            regex: searchText,
+            options: "i",
           },
         },
-      ],
-    }),
-  };
-  totalStudent = await studentRepo.getStudentCountFilter(filterCondition);
+      },
+    ];
+  }
+
+  const totalStudent = await studentRepo.getStudentCountFilter(filterCondition);
   return totalStudent;
 };
+
