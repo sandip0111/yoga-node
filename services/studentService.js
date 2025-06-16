@@ -243,6 +243,7 @@ module.exports = {
               city: "$city",
               paymentStatus: "$paymentStatus",
               created: "$created",
+              password: "$password",
             },
           },
         ];
