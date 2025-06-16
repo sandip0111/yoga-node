@@ -1461,7 +1461,7 @@ module.exports = {
         });
         if (webinarUserData) {
           const currentTime = new Date();
-          const webinarDate = new Date(2025, 6, 16, 0, 0, 0);
+          const webinarDate = new Date(2025, 5, 16, 0, 0, 0);
           if (currentTime < webinarDate) {
             res.status(200).json({
               status: "ok",
