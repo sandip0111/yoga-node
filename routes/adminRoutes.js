@@ -620,4 +620,8 @@ router.post(
   "/getCouponCode",
   adminController.getCouponCode
 );
+router.post(
+  "/disableCouponCode",
+  adminController.disableCouponCode
+);
 module.exports = router;

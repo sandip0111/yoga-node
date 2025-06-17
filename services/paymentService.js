@@ -514,6 +514,16 @@ function getPaymentResultPranicPurification(reqBody) {
     }
   });
 }
+function disableCouponCode(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await paymentRepo.disableCouponCode(reqBody.id);
+      return resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   checkoutRazorpayForPranicPurification,
   getRazorPaymentResultPranicPurification,
@@ -521,4 +531,5 @@ module.exports = {
   getCouponCode,
   getRazorpayPaymentResultForPranarambha,
   getPaymentResultPranicPurification,
+  disableCouponCode
 };

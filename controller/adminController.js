@@ -2212,7 +2212,7 @@ module.exports = {
           {
             price_data: {
               currency: req.body.currency,
-              unit_amount: req.body.price * 100, // Amount in cents
+              unit_amount: req.body.price * 100,
               product_data: {
                 name: "PRANA ARAMBHA Yoga Course",
               },
@@ -2225,7 +2225,6 @@ module.exports = {
         cancel_url: "https://pranaarambha.yogavidyaschool.com/failed.html",
         customer_email: req.body.email,
       });
-
       res
         .status(200)
         .json({ sessionId: session.id, payDbId: pay._id, url: session.url });
@@ -2955,7 +2954,17 @@ module.exports = {
         const result = await paymentService.getCouponCode(req.body);
         res.status(200).json(result);
       } catch (err) {
-        res.status(400).json({ msg: "Internal Server error" });
+        res.status(400).json(err);
+      }
+    }
+  },
+  disableCouponCode: async function (req, res) {
+    {
+      try {
+        const result = await paymentService.disableCouponCode(req.body);
+        res.status(200).json(result);
+      } catch (err) {
+        res.status(400).json(err);
       }
     }
   },
