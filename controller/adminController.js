@@ -47,40 +47,35 @@ const whatsappAccessToken =
   "EAAJpIEWgcakBOwmKbIapeBHzNZCOGcSJzQYQxxr0WknDOAHMbr79BxZAZBZA8ZC5yu0viYXbz4DSFblR9JgSZBEcIe34EeIZABZCK5yfZAzT2yWUaawh8KYDylbI0G8FgZBzL8pCbcQRowddPTZC3EIFPRpaGSH0jf9x0FQM50uvZAyRMLECPElEXKaTv9RdSr0hA8TPOQZDZD";
 const stripe = require("stripe")(process.env.STRIP_KEY);
 const paymentService = require("../services/paymentService");
-// const nodeCCAvenue = require('node-ccavenue');
-// const ccav = new nodeCCAvenue.Configure({
-//   merchant_id: '2566832',
-//   working_key: 'B3489497A467813AFC801D9273189D24',
-// });
 const mentors = [
   {
-    topic: "Yoga Sadhna",
-    time: "Jun 2, 2025 06:00 AM India",
+    topic: "July 2025 : Yoga Sadhana With Prashant ji",
+    time: "Jul 1, 2025 06:00 AM India",
     zoomLink:
-      "https://us06web.zoom.us/j/84109987733?pwd=tpi09BV8mCbP3H6obNlA47ZKRis7UH.1",
-    meetingId: "841 0998 7733",
-    passcode: "539598",
-    whatsappLink: "https://chat.whatsapp.com/KCHUAQyUbRc9hj8FU7uavn",
+      "https://us06web.zoom.us/j/83564779928?pwd=W2G3PTlR5UqDHByHpuFFtQkjbjhC3Q.1",
+    meetingId: "835 6477 9928",
+    passcode: "733109",
+    whatsappLink: "https://chat.whatsapp.com/ISyRHR3rK3G4NQIUeGRZlo",
     name: "Acharya Prashant Jakhmola",
   },
   {
-    topic: "Women Wellness By Taniya ji",
-    time: "Jun 3, 2025 05:30 PM India",
+    topic: "July 2025: Women Wellness With Taniya ji",
+    time: "Jul 1, 2025 05:30 PM India",
     zoomLink:
-      "https://us02web.zoom.us/j/84217807362?pwd=LJdpCwlrfVr4BJvIB65M5WwdwFtqgo.1",
-    meetingId: "842 1780 7362",
-    passcode: "787560",
-    whatsappLink: "https://chat.whatsapp.com/C3rzlJ7KsSG25YGkQWLL2c",
+      "https://us02web.zoom.us/j/89233171924?pwd=WpxN9xbGg99amrYZT0KXcEis0VHVGp.1",
+    meetingId: "892 3317 1924",
+    passcode: "678971",
+    whatsappLink: "https://chat.whatsapp.com/Ie1SQ8qwrz8A7YrQGDTKQa",
     name: "Taniya",
   },
   {
-    topic: "Anuj ji class.",
-    time: "Jun 4, 2025 05:30 AM India",
+    topic: "July 2025: HathaYoga With Anuj ji",
+    time: "Jul 7, 2025 05:30 AM India",
     zoomLink:
-      "https://us02web.zoom.us/j/87819016124?pwd=mvFto9SEALb9xclEaKAqNA69RIv45m.1",
-    meetingId: "878 1901 6124",
-    passcode: "425937",
-    whatsappLink: "https://chat.whatsapp.com/BGk8Dz2wJaX8WCokhFg1kt",
+      "https://us02web.zoom.us/j/83047327844?pwd=cFydHZza9Ol3hadplFqaVyFi2Mp2As.1",
+    meetingId: "830 4732 7844",
+    passcode: "821384",
+    whatsappLink: "https://chat.whatsapp.com/FG9UGxl8jSk74iKBEVmXlq",
     name: "Anuj",
   },
 ];
