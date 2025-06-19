@@ -10,7 +10,7 @@ const transporter = require("../helpers/nodemail");
 const axios = require("axios");
 const stripe = require("stripe")(process.env.STRIP_KEY);
 const studentRepo = require("../repositories/studentRepository");
-
+const sendMail = require("../helpers/nodemail");
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -78,82 +78,42 @@ function getRazorPaymentResultPranicPurification({
           studentId: user._id,
         };
         await paymentRepo.createCouponCodeData(couponcodeData);
-        const filePath = path.join(
-          __dirname,
-          "..",
-          "controller",
-          constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION
-        );
-        const source = fs.readFileSync(filePath, "utf-8").toString();
-        const template = handlebars.compile(source);
-        const replacements = {
-          name: user.name,
-          courseTitle:
-            "Pranic Purification - Best online pranayama sadhana prashanJ",
-          whatsappGroupLink: constants.LINK.WHATSAPP,
-          startDate: user.courseStartDate.toDateString(),
-          startTime: user.courseTimeDuration,
-          code: couponCode,
-        };
-        var courseTitle =
-          "Pranic Purification - Best online pranayama sadhana prashanJ";
-        var whatsappGroupLink = constants.LINK.WHATSAPP;
-        const htmlToSend = template(replacements);
-        const mailOptions = {
-          from: "Yoga Vidya School <info@yogavidyaschool.com>",
-          to: user.email,
-          subject: "Pranic Purification Registration Confirmation",
-          replyTo: "info@yogavidyaschool.com",
-          html: htmlToSend,
-        };
-        transporter.sendMail(mailOptions, (err, result) => {
-          if (err) {
-            return reject(`Oops, error occurred while sending mail. -> ${err}`);
-          }
-        });
-        const wspMessage = {
-          messaging_product: "whatsapp",
-          to: user.phoneNumber,
-          type: "template",
-          template: {
-            name: "pranic_purification",
-            language: { code: "en" },
-            components: [
-              {
-                type: "header",
-                parameters: [
-                  {
-                    type: "text",
-                    text: user.name,
-                  },
-                ],
-              },
-              {
-                type: "body",
-                parameters: [
-                  { type: "text", text: courseTitle },
-                  { type: "text", text: whatsappGroupLink },
-                  { type: "text", text: user.courseStartDate.toDateString() },
-                  { type: "text", text: user.courseTimeDuration },
-                  { type: "text", text: couponCode },
-                ],
-              },
-            ],
+        const mailData = {
+          replacements: {
+            name: user.name,
+            courseTitle:
+              "Pranic Purification - Best online pranayama sadhana prashanJ",
+            whatsappGroupLink: constants.LINK.WHATSAPP,
+            startDate: user.courseStartDate.toDateString(),
+            startTime: user.courseTimeDuration,
+            code: couponCode,
           },
+          mailTo: user.email,
+          contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION,
+          subject: "Pranic Purification Registration Confirmation",
         };
-        axios
-          .post(process.env.WHATSAPP_API_URL, wspMessage, {
-            headers: {
-              Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-              "Content-Type": "application/json",
+        sendMail.createContent(mailData);
+        const whatsappData = {
+          templateName: "pranic_purification",
+          to: user.phoneNumber,
+          headerParam: [
+            {
+              type: "text",
+              text: user.name,
             },
-          })
-          .then((response) => {
-            console.log("WhatsApp message sent successfully:", response.data);
-          })
-          .catch((error) => {
-            console.log("WhatsApp message error:", error.message);
-          });
+          ],
+          params: [
+            {
+              type: "text",
+              text: "Pranic Purification - Best online pranayama sadhana prashanJ",
+            },
+            { type: "text", text: constants.LINK.WHATSAPP },
+            { type: "text", text: user.courseStartDate.toDateString() },
+            { type: "text", text: user.courseTimeDuration },
+            { type: "text", text: couponCode },
+          ],
+        };
+        sendMail.createWhatsAppContent(whatsappData);
         return resolve({
           status: "success",
           paymentId: razorpay_payment_id,
@@ -409,86 +369,42 @@ function getPaymentResultPranicPurification(reqBody) {
           studentId: user._id,
         };
         await paymentRepo.createCouponCodeData(couponcodeData);
-        let mailOptions;
-        let replacements = {};
-        let template;
-        const filePath = path.join(
-          __dirname,
-          "..",
-          "controller",
-          constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION
-        );
-        const source = fs.readFileSync(filePath, "utf-8").toString();
-        template = handlebars.compile(source);
-        replacements = {
-          name: user.name,
-          courseTitle:
-            "Pranic Purification - Best online pranayama sadhana prashanJ",
-          whatsappGroupLink: "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
-          startDate: user.courseStartDate.toDateString(),
-          startTime: user.courseTimeDuration,
-          code: couponCode,
-        };
-        var courseTitle =
-          "Pranic Purification - Best online pranayama sadhana prashanJ";
-        var whatsappGroupLink =
-          "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA";
-        const htmlToSend = template(replacements);
-        mailOptions = {
-          from: "Yoga Vidya School info@yogavidyaschool.com",
-          to: user.email,
-          subject: "Pranic Purification Registration Confirmation",
-          replyTo: "info@yogavidyaschool.com",
-          html: htmlToSend,
-        };
-        transporter.sendMail(mailOptions, async (err, result) => {
-          if (err) {
-            return resolve({ status: 400, data: "Opps error occured" });
-          }
-        });
-        const wspMessage = {
-          messaging_product: "whatsapp",
-          to: user.phoneNumber,
-          type: "template",
-          template: {
-            name: "pranic_purification",
-            language: { code: "en" },
-            components: [
-              {
-                type: "header",
-                parameters: [
-                  {
-                    type: "text",
-                    text: user.name,
-                  },
-                ],
-              },
-              {
-                type: "body",
-                parameters: [
-                  { type: "text", text: courseTitle },
-                  { type: "text", text: whatsappGroupLink },
-                  { type: "text", text: user.courseStartDate.toDateString() },
-                  { type: "text", text: user.courseTimeDuration },
-                  { type: "text", text: couponCode },
-                ],
-              },
-            ],
+        const mailData = {
+          replacements: {
+            name: user.name,
+            courseTitle:
+              "Pranic Purification - Best online pranayama sadhana prashanJ",
+            whatsappGroupLink: constants.LINK.WHATSAPP,
+            startDate: user.courseStartDate.toDateString(),
+            startTime: user.courseTimeDuration,
+            code: couponCode,
           },
+          mailTo: user.email,
+          contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION,
+          subject: "Pranic Purification Registration Confirmation",
         };
-        axios
-          .post(process.env.WHATSAPP_API_URL, wspMessage, {
-            headers: {
-              Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-              "Content-Type": "application/json",
+        sendMail.createContent(mailData);
+        const whatsappData = {
+          templateName: "pranic_purification",
+          to: user.phoneNumber,
+          headerParam: [
+            {
+              type: "text",
+              text: user.name,
             },
-          })
-          .then((response) => {
-            console.log("WhatsApp message sent successfully:", response.data);
-          })
-          .catch((error) => {
-            console.log("WhatsApp message error:", error.message);
-          });
+          ],
+          params: [
+            {
+              type: "text",
+              text: "Pranic Purification - Best online pranayama sadhana prashanJ",
+            },
+            { type: "text", text: constants.LINK.WHATSAPP },
+            { type: "text", text: user.courseStartDate.toDateString() },
+            { type: "text", text: user.courseTimeDuration },
+            { type: "text", text: couponCode },
+          ],
+        };
+        sendMail.createWhatsAppContent(whatsappData);
         return resolve({
           status: 200,
           data: {
@@ -524,6 +440,206 @@ function disableCouponCode(reqBody) {
     }
   });
 }
+function checkoutRazorpayFor200TTC(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let userData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phoneNumber,
+        package: reqBody.package,
+        currency: reqBody.currency,
+        price: reqBody.price,
+        courseStartDate: reqBody.courseStartDate,
+        courseTimeDuration: reqBody.courseTimeDuration,
+      };
+      const pay = await paymentRepo.create200TTCData(userData);
+      const amountInSubunits = reqBody.price * 100;
+      const options = {
+        amount: amountInSubunits,
+        currency: reqBody.currency,
+        receipt: `200TTC_${pay._id}`,
+        payment_capture: 1,
+      };
+      const order = await razorpay.orders.create(options);
+      return resolve({
+        orderId: order.id,
+        razorpayKey: process.env.RAZORPAY_KEY_ID,
+        payDbId: pay._id,
+        amount: amountInSubunits,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getRazorPaymentResult200TTC(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const hmac = crypto.createHmac("sha256", razorpay.key_secret);
+      hmac.update(reqBody.razorpayOrderId + "|" + reqBody.razorpayPaymentId);
+      const generatedSignature = hmac.digest("hex");
+      if (generatedSignature === reqBody.razorpaySignature) {
+        const user = await paymentRepo.update200TTCata(
+          reqBody.payDbId,
+          reqBody.razorpayPaymentId,
+          true
+        );
+        const mailData = {
+          replacements: {
+            name: user.name,
+            whatsappGroupLink: constants.LINK.WHATSAPP,
+            startDate: user.courseStartDate.toDateString(),
+            startTime: user.courseTimeDuration,
+          },
+          mailTo: user.email,
+          contentPath: constants.EMAIL_TEMPLATE["200_HOURS_TTC"],
+          subject: "200 Hours Yoga TTC Registration Confirmation",
+        };
+        sendMail.createContent(mailData);
+        // const whatsappData = {
+        //   templateName: "pranic_purification",
+        //   to: user.phoneNumber,
+        //   headerParam: [
+        //     {
+        //       type: "text",
+        //       text: user.name,
+        //     },
+        //   ],
+        //   params: [
+        //     {
+        //       type: "text",
+        //       text: "Pranic Purification - Best online pranayama sadhana prashanJ",
+        //     },
+        //     { type: "text", text: constants.LINK.WHATSAPP },
+        //     { type: "text", text: user.courseStartDate.toDateString() },
+        //     { type: "text", text: user.courseTimeDuration },
+        //     { type: "text", text: couponCode },
+        //   ],
+        // };
+        // sendMail.createWhatsAppContent(whatsappData);
+        return resolve(1);
+      } else {
+        await paymentRepo.updatePranicUserData(reqBody.payDbId, null, false);
+        return reject("Payment verification failed");
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function checkoutStripeFor200TTC(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let userData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phoneNumber,
+        package: reqBody.package,
+        currency: reqBody.currency,
+        price: reqBody.price,
+        courseStartDate: reqBody.courseStartDate,
+        courseTimeDuration: reqBody.courseTimeDuration,
+      };
+      const pay = await paymentRepo.create200TTCData(userData);
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: reqBody.currency,
+              unit_amount: reqBody.price * 100,
+              product_data: {
+                name: "Custom Payment",
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: process.env.STRIP_URL,
+        cancel_url: process.env.STRIP_URL,
+        customer_email: reqBody.email,
+      });
+      return resolve({
+        sessionId: session.id,
+        payDbId: pay._id,
+        url: session.url,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getStripePaymentResult200TTC(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(
+        reqBody.sessionId
+      );
+      if (session.payment_status == "paid") {
+        const user = await paymentRepo.update200TTCata(
+          reqBody.payDbId,
+          session.payment_intent,
+          true
+        );
+        const mailData = {
+          replacements: {
+            name: user.name,
+            whatsappGroupLink: constants.LINK.WHATSAPP,
+            startDate: user.courseStartDate.toDateString(),
+            startTime: user.courseTimeDuration,
+          },
+          mailTo: user.email,
+          contentPath: constants.EMAIL_TEMPLATE["200_HOURS_TTC"],
+          subject: "200 Hours Yoga TTC Registration Confirmation",
+        };
+        sendMail.createContent(mailData);
+        // const whatsappData = {
+        //   templateName: "pranic_purification",
+        //   to: user.phoneNumber,
+        //   headerParam: [
+        //     {
+        //       type: "text",
+        //       text: user.name,
+        //     },
+        //   ],
+        //   params: [
+        //     {
+        //       type: "text",
+        //       text: "Pranic Purification - Best online pranayama sadhana prashanJ",
+        //     },
+        //     { type: "text", text: constants.LINK.WHATSAPP },
+        //     { type: "text", text: user.courseStartDate.toDateString() },
+        //     { type: "text", text: user.courseTimeDuration },
+        //     { type: "text", text: couponCode },
+        //   ],
+        // };
+        // sendMail.createWhatsAppContent(whatsappData);
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: session.payment_intent,
+            amount: session.amount_total / 100,
+            currency: session.currency,
+          },
+        });
+      } else {
+        await paymentRepo.updatePranicUserData(reqBody.payDbId, null, false);
+        return resolve({
+          status: 200,
+          data: {
+            status: "failed",
+            sessionId: reqBody.pranicPurificationSessionId,
+          },
+        });
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   checkoutRazorpayForPranicPurification,
   getRazorPaymentResultPranicPurification,
@@ -531,5 +647,9 @@ module.exports = {
   getCouponCode,
   getRazorpayPaymentResultForPranarambha,
   getPaymentResultPranicPurification,
-  disableCouponCode
+  disableCouponCode,
+  checkoutRazorpayFor200TTC,
+  getRazorPaymentResult200TTC,
+  checkoutStripeFor200TTC,
+  getStripePaymentResult200TTC,
 };

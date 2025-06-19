@@ -2963,6 +2963,42 @@ module.exports = {
       }
     }
   },
+  checkoutRazorpayFor200TTC: async function (req, res) {
+    {
+      try {
+        const result = await paymentService.checkoutRazorpayFor200TTC(req.body);
+        res.status(200).json(result);
+      } catch (err) {
+        res.status(400).json(err);
+      }
+    }
+  },
+  getRazorPaymentResult200TTC: async function (req, res) {
+    try {
+      await paymentService.getRazorPaymentResult200TTC(req.body);
+      res.status(200).json("success");
+    } catch (error) {
+      console.error("Error verifying Razorpay payment:", error);
+      res.status(500).json("Internal server error");
+    }
+  },
+  checkoutStripeFor200TTC: async function (req, res) {
+    try {
+      let result = await paymentService.checkoutStripeFor200TTC(req.body);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getStripePaymentResult200TTC: async function (req, res) {
+    try {
+      const returnData =
+        await paymentService.getStripePaymentResult200TTC(req.body);
+      res.status(returnData.status).json(returnData.data);
+    } catch (error) {
+      res.status(500).json("Internal server error");
+    }
+  },
 };
 
 let updatePayment = async function (data) {

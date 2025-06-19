@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
   paymentStatus: {
     type: String, 
     enum: ['pending', 'paid', 'failed'], 
-    required: false, // Nullable
+    required: false,
     default: 'pending' 
   },
   paymentId: {

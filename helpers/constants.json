@@ -9,12 +9,17 @@
   "EMAIL_TEMPLATE": {
     "PRANIC_PURIFICATION": "/emailTemplate/pranicPurification.html",
     "ORDER_CONFIRMATION": "/emailTemplate/OrderConfirmation.html",
-    "ADMIN_ORDER": "/emailTemplate/adminOrders.html"
+    "ADMIN_ORDER": "/emailTemplate/adminOrders.html",
+    "200_HOURS_TTC": "/emailTemplate/twoHundredTTC.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA"
   },
   "SLUG": {
     "PRANA_ARAMBH": "pranayama-course-online-pranarambha"
+  },
+  "EMAIL_DATA": {
+    "FROM": "Yoga Vidya School <info@yogavidyaschool.com>",
+    "REPLY_TO": "info@yogavidyaschool.com"
   }
 }

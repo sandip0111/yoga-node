@@ -616,12 +616,22 @@ router.post(
   "/getAllSwaraSadhanaData",
   studentController.getAllSwaraSadhanaData
 );
+router.post("/getCouponCode", adminController.getCouponCode);
+router.post("/disableCouponCode", adminController.disableCouponCode);
 router.post(
-  "/getCouponCode",
-  adminController.getCouponCode
+  "/checkoutRazorpayFor200TTC",
+  adminController.checkoutRazorpayFor200TTC
 );
 router.post(
-  "/disableCouponCode",
-  adminController.disableCouponCode
+  "/getRazorPaymentResult200TTC",
+  adminController.getRazorPaymentResult200TTC
+);
+router.post(
+  "/checkoutStripeFor200TTC",
+  adminController.checkoutStripeFor200TTC
+);
+router.post(
+  "/getStripePaymentResult200TTC",
+  adminController.getStripePaymentResult200TTC
 );
 module.exports = router;

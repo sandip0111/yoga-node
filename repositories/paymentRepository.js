@@ -2,6 +2,7 @@
 const pranicPurificationUsers = require("../models/pranicPurificationUsersModel");
 const couponCourse = require("../models/couponCodeModel");
 const paymentModel = require("../models/paymentModel");
+const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
@@ -108,6 +109,41 @@ function disableCouponCode(id) {
     }
   });
 }
+function create200TTCData(userData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await twoHundredHourTTCModel.create(userData);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function update200TTCata(id, paymentId, isPaid) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user;
+      if (isPaid) {
+        user = await twoHundredHourTTCModel.findOneAndUpdate(
+          { _id: id },
+          {
+            paymentId: paymentId,
+            paymentStatus: "paid",
+          },
+          { new: true }
+        );
+      } else {
+        await twoHundredHourTTCModel.findOneAndUpdate(
+          { _id: id },
+          { paymentStatus: "failed" }
+        );
+      }
+      return resolve(user);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -116,4 +152,6 @@ module.exports = {
   updatePranaArambhPaymentUserData,
   getPaymentDetailsById,
   disableCouponCode,
+  create200TTCData,
+  update200TTCata
 };
