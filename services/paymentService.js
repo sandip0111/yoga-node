@@ -6,7 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const handlebars = require("handlebars");
 const constants = require("../helpers/constants.json");
-const transporter = require("../helpers/nodemail");
+const { transporter } = require("../helpers/nodemail");
 const axios = require("axios");
 const stripe = require("stripe")(process.env.STRIP_KEY);
 const studentRepo = require("../repositories/studentRepository");
@@ -518,7 +518,10 @@ function getRazorPaymentResult200TTC(reqBody) {
         //   ],
         // };
         // sendMail.createWhatsAppContent(whatsappData);
-        return resolve(1);
+        return resolve({
+          amount: +user.price,
+          currency: user.currency,
+        });
       } else {
         await paymentRepo.updatePranicUserData(reqBody.payDbId, null, false);
         return reject("Payment verification failed");

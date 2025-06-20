@@ -26,7 +26,7 @@ const pranicPurificationUsers = require("../models/pranicPurificationUsersModel"
 const fs = require("fs");
 const path = require("path");
 const handlebars = require("handlebars");
-const transporter = require("../helpers/nodemail");
+const { transporter } = require("../helpers/nodemail");
 const { getTimeBefore } = require("../helpers/helper");
 const mongoose = require("mongoose");
 const XLSX = require("xlsx");
@@ -2975,8 +2975,8 @@ module.exports = {
   },
   getRazorPaymentResult200TTC: async function (req, res) {
     try {
-      await paymentService.getRazorPaymentResult200TTC(req.body);
-      res.status(200).json("success");
+      result = await paymentService.getRazorPaymentResult200TTC(req.body);
+      res.status(200).json(result);
     } catch (error) {
       console.error("Error verifying Razorpay payment:", error);
       res.status(500).json("Internal server error");
@@ -2992,8 +2992,9 @@ module.exports = {
   },
   getStripePaymentResult200TTC: async function (req, res) {
     try {
-      const returnData =
-        await paymentService.getStripePaymentResult200TTC(req.body);
+      const returnData = await paymentService.getStripePaymentResult200TTC(
+        req.body
+      );
       res.status(returnData.status).json(returnData.data);
     } catch (error) {
       res.status(500).json("Internal server error");

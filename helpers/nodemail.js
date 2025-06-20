@@ -90,4 +90,4 @@ function createWhatsAppContent(whatsappData) {
     }
   });
 }
-module.exports = { createContent, createWhatsAppContent };
+module.exports = { createContent, createWhatsAppContent, transporter };
