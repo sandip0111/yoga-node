@@ -446,7 +446,7 @@ module.exports = {
         password: pass,
       };
       const student = await Student.create(bg);
-      sendRegistrationEmailV2(student._id);
+      //sendRegistrationEmailV2(student._id);
       res.status(200).json({ status: "ok", stuId: student._id });
       //}
     } catch (err) {
