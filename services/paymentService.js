@@ -233,7 +233,9 @@ function getRazorpayPaymentResultForPranarambha(
         amount,
         currency
       );
-      await paymentRepo.disableCouponCode(couponCodeId);
+      if (couponCodeId !== undefined && couponCodeId !== null && couponCodeId !== '') {
+        await paymentRepo.disableCouponCode(couponCodeId);
+      }
       const studentDoc = await studentRepo.getStudentById(student);
       let updatedCourses = studentDoc.course.includes(course)
         ? studentDoc.course
