@@ -60,7 +60,7 @@ const mentors = [
   },
   {
     topic: "July 2025: Women Wellness With Taniya ji",
-    time: "Jul 1, 2025 05:30 PM India",
+    time: "Jul 1, 2025 05:00 PM India",
     zoomLink:
       "https://us02web.zoom.us/j/89233171924?pwd=WpxN9xbGg99amrYZT0KXcEis0VHVGp.1",
     meetingId: "892 3317 1924",
@@ -76,7 +76,27 @@ const mentors = [
     meetingId: "830 4732 7844",
     passcode: "821384",
     whatsappLink: "https://chat.whatsapp.com/FG9UGxl8jSk74iKBEVmXlq",
-    name: "Anuj",
+    name: "Anuj online",
+  },
+  {
+    topic: "July 2025: Weekend Classes with shivam ji",
+    time: "Jul 5, 2025 06:30 PM India",
+    zoomLink:
+      "https://us02web.zoom.us/j/81450682018?pwd=GfJmnHd2kp750wjDIRd10aqEQwzNUj.1",
+    meetingId: "814 5068 2018",
+    passcode: "857309",
+    whatsappLink: "https://chat.whatsapp.com/L6LzrBaOfo45iesHbejOX0",
+    name: "Shivam",
+  },
+  {
+    topic: "July 2025: Intermediate class with Anuj ji",
+    time: "Jul 7, 2025 06:00 PM India",
+    zoomLink:
+      "https://us02web.zoom.us/j/81409113380?pwd=nADRDKNeK47wWRpF61S2fKOxnCTPuM.1",
+    meetingId: "814 0911 3380",
+    passcode: "030216",
+    whatsappLink: "https://chat.whatsapp.com/IM1kN4EMlUwJHKn1cpcXMD",
+    name: "Intermediate Alignment Based Classes",
   },
 ];
 const maxAge = 3 * 24 * 60 * 60;
