@@ -5,6 +5,7 @@ const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 const webinarRegisterUser = require("../models/webinarRegiserUserModel");
 const mongoose = require("mongoose");
 const courseModel = require("../models/courseModel");
+const onlineVideoModel = require("../models/onlineVideoModel");
 
 module.exports = {
   getStudentCountFilter: function (pipeline) {
@@ -191,6 +192,18 @@ module.exports = {
       }
     });
   },
+  getStudentVideoByCourse: function (courseId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const getVideoData = await onlineVideoModel.find({
+          courseId: courseId,
+        });
+        return resolve(getVideoData);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  }
 };
 let getStudentData = async function (pipeline) {
   const studentList = await studentModel.aggregate(pipeline);
