@@ -76,7 +76,7 @@ const mentors = [
     meetingId: "830 4732 7844",
     passcode: "821384",
     whatsappLink: "https://chat.whatsapp.com/FG9UGxl8jSk74iKBEVmXlq",
-    name: "Anuj online",
+    name: "Anuj Pareek online",
   },
   {
     topic: "July 2025: Weekend Classes with shivam ji",
@@ -96,7 +96,7 @@ const mentors = [
     meetingId: "814 0911 3380",
     passcode: "030216",
     whatsappLink: "https://chat.whatsapp.com/IM1kN4EMlUwJHKn1cpcXMD",
-    name: "Intermediate Alignment Based Classes",
+    name: "Anuj Pareek Intermediate",
   },
 ];
 const maxAge = 3 * 24 * 60 * 60;
