@@ -453,31 +453,6 @@ module.exports = {
       res.status(404).json({ status: "error", msg: "Internal server" });
     }
   },
-  // sendBulkEmail: async function(req, res){
-
-  //     try{
-  //         const getStudentWithEmailSent = await Student.find({sentEmail:"unsent",created: {$gte:new Date('2023-07-30T00:00:00Z'),$lte:new Date('2023-07-30T23:59:59Z')}}).limit(5);
-  //         if(getStudentWithEmailSent.length > 0){
-  //                 for (const st of getStudentWithEmailSent) {
-
-  //                        const getresponse = await sendRegistrationEmailV5(st._id);
-  //                         const y = await Student.findOneAndUpdate({_id:st._id},{sentEmail:"sent"});
-
-  //         }
-
-  //         res.status(200).json("emailed");
-
-  //         }
-  //         else{
-  //             res.status(200).json("No More Studennt Left");
-  //         }
-
-  //     }
-  //     catch(err){
-  //         res.status(404).json({status: 'error',msg:"Internal server"});
-  //     }
-
-  // },
   getAllSwaraSadhanaData: async function (req, res) {
     try {
       const result = await studentService.getAllSwaraSadhanaData(req.body);
@@ -488,21 +463,27 @@ module.exports = {
       res.status(404).json({ status: "error", msg: err.message });
     }
   },
+  getCourseVideosById: async function (req, res) {
+    try {
+      const result = await studentService.getCourseVideosById(req.body);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(400).json({ err });
+    }
+  },
+  getTabVideo: async function (req, res) {
+    try {
+      const result = await studentService.getTabVideo(req.body);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(400).json({ err });
+    }
+  },
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });
   let course = await courseModel.findOne({ _id: "644f9dfc499ffcfb45df35cd" });
-  // const student = await Student.findOne({_id:id});
-  //    console.log(student.courseId,'----------------------------',course);
-  // let courseTitleArray = []
-  // for(let data of course){
-  //     courseTitleArray.push(data.coursetitle);
-  // }
-  // let courseTitle = courseTitleArray.join();
-  // return
   let mailOptions;
-
-  // let student = await studentModel.findOne({_id:req.body.studentId});
   const filePath = path.join(__dirname, "/emailTemplate/prana.html");
   const source = fs.readFileSync(filePath, "utf-8").toString();
   const template = handlebars.compile(source);
@@ -511,10 +492,8 @@ let sendRegistrationEmail = async function (id) {
     password: student.password,
     email: student.email,
     courseTitle: course.coursetitle,
-    // "question3":req.body.question3,
   };
   const htmlToSend = template(replacements);
-
   mailOptions = {
     from: "Yoga Vidya School info@yogavidyaschool.com",
     // to: "ayushr418@gmail.com",

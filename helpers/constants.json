@@ -21,5 +21,8 @@
   "EMAIL_DATA": {
     "FROM": "Yoga Vidya School <info@yogavidyaschool.com>",
     "REPLY_TO": "info@yogavidyaschool.com"
+  },
+  "S3_BUCKET": {
+    "PRANAYAM_SADHANA_FOLDER": "644f9dfc499ffcfb45df35cd_V2"
   }
 }

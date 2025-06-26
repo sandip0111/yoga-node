@@ -1,6 +1,7 @@
 "use strict";
 const studentRepo = require("../repositories/studentRepository");
 const constants = require("../helpers/constants.json");
+const s3Bucket = require("../services/s3_bucket");
 
 module.exports = {
   getAllParayanamStudent: function (reqBody) {
@@ -74,12 +75,12 @@ module.exports = {
         let studentList;
         let totalStudent = 0;
         studentObj = await getBrathDtoxAllData(
-              courseId,
-              skip,
-              limit,
-              searchText,
-              startDate,
-              endDate
+          courseId,
+          skip,
+          limit,
+          searchText,
+          startDate,
+          endDate
         );
         studentList = studentObj.studentList;
         totalStudent = studentObj.totalData;
@@ -373,6 +374,119 @@ module.exports = {
       }
     });
   },
+  getCourseVideosById: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const getVideoData = await studentRepo.getStudentVideoByCourse(
+          reqBody.courseId
+        );
+        let arr = [];
+        if (reqBody.courseId == constants.COURSE.PRANA_ARAMBHA) {
+          arr = await pranaySadhanaCourseVideo(getVideoData);
+        } else {
+          arr = await allCourseVideo(getVideoData, reqBody);
+        }
+        return resolve(arr);
+      } catch (err) {
+        return reject(err);
+      }
+    });
+  },
+  getTabVideo: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let key = `upCourses/${constants.S3_BUCKET.PRANAYAM_SADHANA_FOLDER}/${reqBody.fileName}.mp4`;
+        const url = await s3Bucket.getPresignedUrl("yogacourses", key);
+        const newUrl = url.replace(
+          "yogacourses.s3.us-east-1.amazonaws.com",
+          "d3mzqk1fxuwngx.cloudfront.net"
+        );
+        return resolve(newUrl);
+      } catch (err) {
+        return reject(err);
+      }
+    });
+  },
+};
+let pranaySadhanaCourseVideo = function (getVideoData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let arr = [];
+      getVideoData.map((obj) => {
+        let val = {
+          updateId: obj._id,
+          title: obj.title,
+          sortBy: obj.sortBy,
+          url: obj.videoName,
+        };
+        arr.push(val);
+      });
+      return resolve(arr);
+    } catch (err) {
+      return reject(err);
+    }
+  });
+};
+let allCourseVideo = function (getVideoData, reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const params = {
+        Bucket: "yogacourses",
+        Prefix: `upCourses/${reqBody.courseId}_V2/`,
+        Delimiter: "/",
+      };
+      let allObjects = [];
+      let continuationToken = null;
+      do {
+        if (continuationToken) {
+          params.ContinuationToken = continuationToken;
+        }
+        const res = await s3Bucket.getListObject(params, allObjects);
+        allObjects = allObjects.concat(res.filteredObjects);
+        if (allObjects.length >= 1000) {
+          allObjects = allObjects.slice(0, 1000);
+          break;
+        }
+        continuationToken = res.response.NextContinuationToken;
+      } while (continuationToken);
+      let arr = [];
+      if (allObjects) {
+        for (const item of allObjects) {
+          if (
+            item.Key.endsWith(".mp4") ||
+            item.Key.endsWith(".mov") ||
+            item.Key.endsWith(".MOV") ||
+            item.Key.endsWith(".m3u8")
+          ) {
+            const key = item.Key;
+            const id = key.substring(
+              key.lastIndexOf("/") + 1,
+              key.lastIndexOf(".")
+            );
+            const url = await s3Bucket.getPresignedUrl("yogacourses", key);
+            const newUrl = url.replace(
+              "yogacourses.s3.us-east-1.amazonaws.com",
+              "d3mzqk1fxuwngx.cloudfront.net"
+            );
+            console.log('------------------------>',key);
+            const getObj = getVideoData.find((e) => e.videoName == id);
+            if (getObj) {
+              let val = {
+                updateId: getObj._id,
+                title: getObj.title,
+                sortBy: getObj.sortBy,
+                url: newUrl,
+              };
+              arr.push(val);
+            }
+          }
+        }
+      }
+      return resolve(arr);
+    } catch (err) {
+      return reject(err);
+    }
+  });
 };
 let getPranaArmbhAllData2 = async function (courseId, skip, limit, searchText) {
   let studentList;
@@ -509,16 +623,22 @@ let getPranaArmbhCount = async function (courseId, searchText) {
   totalStudent = await studentRepo.getStudentCountFilter(filterCondition);
   return totalStudent;
 };
-let getBrathDtoxAllData = async function (courseId, skip, limit, searchText, fromDate, toDate) {
+let getBrathDtoxAllData = async function (
+  courseId,
+  skip,
+  limit,
+  searchText,
+  fromDate,
+  toDate
+) {
   let studentList;
   let matchStage = { course: courseId };
 
-  if (fromDate && toDate) 
-    {
-      matchStage.created = {};
-      if (fromDate) matchStage.created.$gte = new Date(fromDate);
-      if (toDate) matchStage.created.$lte = new Date(toDate);
-    }
+  if (fromDate && toDate) {
+    matchStage.created = {};
+    if (fromDate) matchStage.created.$gte = new Date(fromDate);
+    if (toDate) matchStage.created.$lte = new Date(toDate);
+  }
   let pipeline = [
     { $match: matchStage },
     { $sort: { created: -1 } },
@@ -560,11 +680,21 @@ let getBrathDtoxAllData = async function (courseId, skip, limit, searchText, fro
     });
   }
   studentList = await studentRepo.getStudentDataFilter(pipeline);
-  const totalData = await getBrathDtoxCount(courseId, searchText, fromDate, toDate);
+  const totalData = await getBrathDtoxCount(
+    courseId,
+    searchText,
+    fromDate,
+    toDate
+  );
   return { studentList, totalData };
 };
 
-let getBrathDtoxCount = async function (courseId, searchText, fromDate, toDate) {
+let getBrathDtoxCount = async function (
+  courseId,
+  searchText,
+  fromDate,
+  toDate
+) {
   let filterCondition = {
     course: courseId,
   };
@@ -596,4 +726,3 @@ let getBrathDtoxCount = async function (courseId, searchText, fromDate, toDate) 
   const totalStudent = await studentRepo.getStudentCountFilter(filterCondition);
   return totalStudent;
 };
-

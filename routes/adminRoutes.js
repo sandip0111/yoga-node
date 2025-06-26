@@ -14,7 +14,6 @@ const AWS_SECRET_ACCESS_KEY = "bURo27ZvRKgyIXCy6GrOTiHqoGBqUfck6xNRPQP/";
 const AWS_REGION = "us-east-1";
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const onlineVideoModel = require("../models/onlineVideoModel");
-const studentModel = require("../models/StudentModel");
 
 const s3 = new S3({
   region: AWS_REGION,
@@ -273,80 +272,7 @@ router.post(
   adminController.checkoutStripeNewPranaarabha
 );
 
-router.post("/getCourseVideosById", async (req, res) => {
-  try {
-    const getVideoData = await onlineVideoModel.find({
-      courseId: req.body.courseId,
-    });
-    // console.log(getVideoData,'---');
-    const params = {
-      Bucket: "yogacourses",
-      Prefix: `upCourses/${req.body.courseId}/`,
-      Delimiter: "/",
-    };
-    let allObjects = [];
-    let continuationToken = null;
-    do {
-      if (continuationToken) {
-        params.ContinuationToken = continuationToken; // Set pagination token
-      }
-      const response = await s3.listObjectsV2(params);
-
-      const filteredObjects = response.Contents.filter(
-        (obj) => !obj.Key.endsWith(".ts")
-      );
-
-      allObjects = allObjects.concat(filteredObjects);
-      if (allObjects.length >= 1000) {
-        allObjects = allObjects.slice(0, 1000);
-        break;
-      }
-      continuationToken = response.NextContinuationToken;
-    } while (continuationToken);
-
-    let arr = [];
-    if (allObjects) {
-      for (const item of allObjects) {
-        if (
-          item.Key.endsWith(".mp4") ||
-          item.Key.endsWith(".mov") ||
-          item.Key.endsWith(".MOV") ||
-          item.Key.endsWith(".m3u8")
-        ) {
-          // console.log(item,'---');
-          const key = item.Key;
-          const id = key.substring(
-            key.lastIndexOf("/") + 1,
-            key.lastIndexOf(".")
-          );
-          const url = await getPresignedUrl("yogacourses", key);
-          const newUrl = url.replace(
-            "yogacourses.s3.us-east-1.amazonaws.com",
-            "d3mzqk1fxuwngx.cloudfront.net"
-          );
-          // console.log(urlv3,'id');
-          const getObj = getVideoData.filter((e) => e.videoName == id);
-          //  console.log(getObj,'filte rdata');
-          if (getObj.length != 0) {
-            let val = {
-              updateId: getObj[0]._id,
-              title: getObj[0].title,
-              sortBy: getObj[0].sortBy,
-              url: newUrl,
-            };
-            arr.push(val);
-          }
-        }
-      }
-      // console.log(arr,'--');
-      res.status(200).json(arr);
-    } else {
-      res.status(200).json(arr);
-    }
-  } catch (err) {
-    res.status(400).json({ err });
-  }
-});
+router.post("/getCourseVideosById", studentController.getCourseVideosById);
 
 router.post("/getWebinarVideosByName", async (req, res) => {
   try {
@@ -633,5 +559,9 @@ router.post(
 router.post(
   "/getStripePaymentResult200TTC",
   adminController.getStripePaymentResult200TTC
+);
+router.post(
+  "/getTabVideo",
+  studentController.getTabVideo
 );
 module.exports = router;
