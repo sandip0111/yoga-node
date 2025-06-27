@@ -21,7 +21,7 @@ async function getPresignedUrl(bucket, key) {
 }
 async function getListObject(params) {
   const response = await s3.listObjectsV2(params);
-  const filteredObjects = response.Contents.filter(
+  const filteredObjects = response.Contents?.filter(
     (obj) => !obj.Key.endsWith(".ts")
   );
   return { filteredObjects, response };

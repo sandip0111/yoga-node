@@ -432,7 +432,7 @@ let allCourseVideo = function (getVideoData, reqBody) {
     try {
       const params = {
         Bucket: "yogacourses",
-        Prefix: `upCourses/${reqBody.courseId}_V2/`,
+        Prefix: `upCourses/${reqBody.courseId}/`,
         Delimiter: "/",
       };
       let allObjects = [];
@@ -453,10 +453,11 @@ let allCourseVideo = function (getVideoData, reqBody) {
       if (allObjects) {
         for (const item of allObjects) {
           if (
-            item.Key.endsWith(".mp4") ||
+            item &&
+            (item.Key.endsWith(".mp4") ||
             item.Key.endsWith(".mov") ||
             item.Key.endsWith(".MOV") ||
-            item.Key.endsWith(".m3u8")
+            item.Key.endsWith(".m3u8"))
           ) {
             const key = item.Key;
             const id = key.substring(
@@ -468,7 +469,6 @@ let allCourseVideo = function (getVideoData, reqBody) {
               "yogacourses.s3.us-east-1.amazonaws.com",
               "d3mzqk1fxuwngx.cloudfront.net"
             );
-            console.log('------------------------>',key);
             const getObj = getVideoData.find((e) => e.videoName == id);
             if (getObj) {
               let val = {
