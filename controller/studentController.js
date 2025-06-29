@@ -488,6 +488,18 @@ module.exports = {
       res.status(404).json({ status: "error", msg: err.message });
     }
   },
+  getAllPranicPurificationStudent: async function (req, res) {
+    try {
+      const result = await studentService.getAllPranicPurificationStudent(
+        req.body
+      );
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.studentTotal });
+    } catch (err) {
+      res.status(404).json({ status: "error", msg: err.message });
+    }
+  },
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });

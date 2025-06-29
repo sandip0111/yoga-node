@@ -1,6 +1,7 @@
 "use strict";
 const studentRepo = require("../repositories/studentRepository");
 const constants = require("../helpers/constants.json");
+const paymentRepo = require("../repositories/paymentRepository");
 
 module.exports = {
   getAllParayanamStudent: function (reqBody) {
@@ -74,12 +75,12 @@ module.exports = {
         let studentList;
         let totalStudent = 0;
         studentObj = await getBrathDtoxAllData(
-              courseId,
-              skip,
-              limit,
-              searchText,
-              startDate,
-              endDate
+          courseId,
+          skip,
+          limit,
+          searchText,
+          startDate,
+          endDate
         );
         studentList = studentObj.studentList;
         totalStudent = studentObj.totalData;
@@ -373,6 +374,99 @@ module.exports = {
       }
     });
   },
+  getAllPranicPurificationStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let size = reqBody.size || 10;
+        let pageNo = reqBody.pageNo || 1;
+        const skip = Number(size * (pageNo - 1));
+        const limit = Number(size) || 0;
+        const searchText = reqBody.searchText;
+        let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
+        let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
+        if (startDate) {
+          startDate.setHours(0, 0, 0, 0);
+        }
+        if (endDate) {
+          endDate.setHours(23, 59, 59, 999);
+        }
+        let pipeLine = [
+          { $sort: { _id: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ];
+        let pipeLineCount = [{ $count: "total" }];
+        if (searchText) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } },
+                { phoneNumber: { $regex: searchText, $options: "i" } },
+                { address: { $regex: searchText, $options: "i" } },
+                { couponcode: { $regex: searchText, $options: "i" } },
+              ],
+            },
+          });
+          pipeLineCount.unshift({
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } },
+                { phoneNumber: { $regex: searchText, $options: "i" } },
+                { address: { $regex: searchText, $options: "i" } },
+                { couponcode: { $regex: searchText, $options: "i" } },
+              ],
+            },
+          });
+        }
+        if (startDate && endDate) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $and: [
+                { created: { $gte: startDate } },
+                { created: { $lte: endDate } },
+              ],
+            },
+          });
+          pipeLineCount.unshift({
+            $match: {
+              $and: [
+                { created: { $gte: startDate } },
+                { created: { $lte: endDate } },
+              ],
+            },
+          });
+        }
+        let studentList = await studentRepo.getPranicPurificationData(pipeLine);
+        for (let obj of studentList) {
+          const couponPipe = { studentId: obj._id };
+          const couponCodeData = await paymentRepo.getCoupondataById(
+            couponPipe
+          );
+          if (couponCodeData) {
+            obj.couponcode = couponCodeData.code;
+            obj.couponUsed = couponCodeData.isUsed;
+          } else {
+            obj.couponcode = null;
+            obj.couponUsed = null;
+          }
+        }
+        let studentTotal = await studentRepo.getPranicPurificationData(
+          pipeLineCount
+        );
+        return resolve({
+          studentList: studentList,
+          studentTotal:
+            studentTotal && studentTotal.length == 1
+              ? studentTotal[0].total
+              : 0,
+        });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let getPranaArmbhAllData2 = async function (courseId, skip, limit, searchText) {
   let studentList;
@@ -509,16 +603,22 @@ let getPranaArmbhCount = async function (courseId, searchText) {
   totalStudent = await studentRepo.getStudentCountFilter(filterCondition);
   return totalStudent;
 };
-let getBrathDtoxAllData = async function (courseId, skip, limit, searchText, fromDate, toDate) {
+let getBrathDtoxAllData = async function (
+  courseId,
+  skip,
+  limit,
+  searchText,
+  fromDate,
+  toDate
+) {
   let studentList;
   let matchStage = { course: courseId };
 
-  if (fromDate && toDate) 
-    {
-      matchStage.created = {};
-      if (fromDate) matchStage.created.$gte = new Date(fromDate);
-      if (toDate) matchStage.created.$lte = new Date(toDate);
-    }
+  if (fromDate && toDate) {
+    matchStage.created = {};
+    if (fromDate) matchStage.created.$gte = new Date(fromDate);
+    if (toDate) matchStage.created.$lte = new Date(toDate);
+  }
   let pipeline = [
     { $match: matchStage },
     { $sort: { created: -1 } },
@@ -560,11 +660,21 @@ let getBrathDtoxAllData = async function (courseId, skip, limit, searchText, fro
     });
   }
   studentList = await studentRepo.getStudentDataFilter(pipeline);
-  const totalData = await getBrathDtoxCount(courseId, searchText, fromDate, toDate);
+  const totalData = await getBrathDtoxCount(
+    courseId,
+    searchText,
+    fromDate,
+    toDate
+  );
   return { studentList, totalData };
 };
 
-let getBrathDtoxCount = async function (courseId, searchText, fromDate, toDate) {
+let getBrathDtoxCount = async function (
+  courseId,
+  searchText,
+  fromDate,
+  toDate
+) {
   let filterCondition = {
     course: courseId,
   };
@@ -596,4 +706,3 @@ let getBrathDtoxCount = async function (courseId, searchText, fromDate, toDate) 
   const totalStudent = await studentRepo.getStudentCountFilter(filterCondition);
   return totalStudent;
 };
-

@@ -634,4 +634,9 @@ router.post(
   "/getStripePaymentResult200TTC",
   adminController.getStripePaymentResult200TTC
 );
+router.post(
+  "/getAllPranicPurificationStudent",
+  studentController.getAllPranicPurificationStudent
+);
+
 module.exports = router;

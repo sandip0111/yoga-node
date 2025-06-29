@@ -144,6 +144,16 @@ function update200TTCata(id, paymentId, isPaid) {
     }
   });
 }
+function getCoupondataById(data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const resultData = await couponCourse.findOne(data);
+      return resolve(resultData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -153,5 +163,6 @@ module.exports = {
   getPaymentDetailsById,
   disableCouponCode,
   create200TTCData,
-  update200TTCata
+  update200TTCata,
+  getCoupondataById
 };

@@ -5,7 +5,8 @@ const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 const webinarRegisterUser = require("../models/webinarRegiserUserModel");
 const mongoose = require("mongoose");
 const courseModel = require("../models/courseModel");
-
+const pranicPurificationModel = require("../models/pranicPurificationUsersModel");
+const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 module.exports = {
   getStudentCountFilter: function (pipeline) {
     return new Promise(async (resolve, reject) => {
@@ -186,6 +187,16 @@ module.exports = {
       try {
         const data = await courseModel.findOne({ _id: id });
         return resolve(data.coursetitle);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getPranicPurificationData: function (pipeline) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = await pranicPurificationModel.aggregate(pipeline);
+        return resolve(result);
       } catch (error) {
         return reject(error);
       }
