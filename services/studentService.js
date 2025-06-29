@@ -501,6 +501,80 @@ module.exports = {
       }
     });
   },
+  get200ttcData: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let size = reqBody.size || 10;
+        let pageNo = reqBody.pageNo || 1;
+        const skip = Number(size * (pageNo - 1));
+        const limit = Number(size) || 0;
+        const searchText = reqBody.searchText;
+        let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
+        let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
+        if (startDate) {
+          startDate.setHours(0, 0, 0, 0);
+        }
+        if (endDate) {
+          endDate.setHours(23, 59, 59, 999);
+        }
+        let pipeLine = [
+          { $sort: { _id: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ];
+        let pipeLineCount = [{ $count: "total" }];
+        if (searchText) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } },
+                { phoneNumber: { $regex: searchText, $options: "i" } },
+              ],
+            },
+          });
+          pipeLineCount.unshift({
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } },
+                { phoneNumber: { $regex: searchText, $options: "i" } },
+              ],
+            },
+          });
+        }
+        if (startDate && endDate) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $and: [
+                { created: { $gte: startDate } },
+                { created: { $lte: endDate } },
+              ],
+            },
+          });
+          pipeLineCount.unshift({
+            $match: {
+              $and: [
+                { created: { $gte: startDate } },
+                { created: { $lte: endDate } },
+              ],
+            },
+          });
+        }
+        let studentList = await studentRepo.get200ttcData(pipeLine);
+        let studentTotal = await studentRepo.get200ttcData(pipeLineCount);
+        return resolve({
+          studentList: studentList,
+          studentTotal:
+            studentTotal && studentTotal.length == 1
+              ? studentTotal[0].total
+              : 0,
+        });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let pranaySadhanaCourseVideo = function (getVideoData) {
   return new Promise(async (resolve, reject) => {
@@ -549,9 +623,9 @@ let allCourseVideo = function (getVideoData, reqBody) {
           if (
             item &&
             (item.Key.endsWith(".mp4") ||
-            item.Key.endsWith(".mov") ||
-            item.Key.endsWith(".MOV") ||
-            item.Key.endsWith(".m3u8"))
+              item.Key.endsWith(".mov") ||
+              item.Key.endsWith(".MOV") ||
+              item.Key.endsWith(".m3u8"))
           ) {
             const key = item.Key;
             const id = key.substring(

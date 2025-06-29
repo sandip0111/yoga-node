@@ -564,9 +564,6 @@ router.post(
   "/getAllPranicPurificationStudent",
   studentController.getAllPranicPurificationStudent
 );
-
-router.post(
-  "/getTabVideo",
-  studentController.getTabVideo
-);
+router.post("/getTabVideo", studentController.getTabVideo);
+router.post("/get200ttcData", studentController.get200ttcData);
 module.exports = router;
