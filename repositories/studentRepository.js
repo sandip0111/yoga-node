@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 const courseModel = require("../models/courseModel");
 const pranicPurificationModel = require("../models/pranicPurificationUsersModel");
 const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
+const onlineVideoModel = require("../models/onlineVideoModel");
+
 module.exports = {
   getStudentCountFilter: function (pipeline) {
     return new Promise(async (resolve, reject) => {
@@ -202,6 +204,18 @@ module.exports = {
       }
     });
   },
+  getStudentVideoByCourse: function (courseId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const getVideoData = await onlineVideoModel.find({
+          courseId: courseId,
+        });
+        return resolve(getVideoData);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  }
 };
 let getStudentData = async function (pipeline) {
   const studentList = await studentModel.aggregate(pipeline);
