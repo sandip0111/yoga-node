@@ -154,6 +154,16 @@ function getCoupondataById(data) {
     }
   });
 }
+function createPaymentDetails(data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      data = await paymentModel.create(data);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -164,5 +174,6 @@ module.exports = {
   disableCouponCode,
   create200TTCData,
   update200TTCata,
-  getCoupondataById
+  getCoupondataById,
+  createPaymentDetails,
 };

@@ -24,5 +24,10 @@
   },
   "S3_BUCKET": {
     "PRANAYAM_SADHANA_FOLDER": "644f9dfc499ffcfb45df35cd_V2"
+  },
+  "PAYMENT_STATUS": {
+    "PAID": "paid",
+    "PENDING": "pending",
+    "FAILED": "failed"
   }
 }

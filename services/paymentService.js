@@ -11,6 +11,8 @@ const axios = require("axios");
 const stripe = require("stripe")(process.env.STRIP_KEY);
 const studentRepo = require("../repositories/studentRepository");
 const sendMail = require("../helpers/nodemail");
+const mongoose = require("mongoose");
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -233,7 +235,11 @@ function getRazorpayPaymentResultForPranarambha(
         amount,
         currency
       );
-      if (couponCodeId !== undefined && couponCodeId !== null && couponCodeId !== '') {
+      if (
+        couponCodeId !== undefined &&
+        couponCodeId !== null &&
+        couponCodeId !== ""
+      ) {
         await paymentRepo.disableCouponCode(couponCodeId);
       }
       const studentDoc = await studentRepo.getStudentById(student);
@@ -487,6 +493,7 @@ function getRazorPaymentResult200TTC(reqBody) {
           reqBody.razorpayPaymentId,
           true
         );
+        await sendPranaArambhMailOn200TTC(user, reqBody);
         const mailData = {
           replacements: {
             name: user.name,
@@ -640,6 +647,72 @@ function getStripePaymentResult200TTC(reqBody) {
           },
         });
       }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function sendPranaArambhMailOn200TTC(user, reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let studentData = {
+        email: user.email,
+        firstName: user.name,
+        isActive: true,
+        password: reqBody.password,
+        phoneNumber: user.phoneNumber,
+        course: [constants.COURSE.PRANA_ARAMBHA],
+        source: "web",
+        is200TTC: true,
+      };
+      let studentRes = await studentRepo.createStudent(studentData);
+      let paymentData = {
+        courseId: mongoose.Types.ObjectId(constants.COURSE.PRANA_ARAMBHA),
+        studentId: mongoose.Types.ObjectId(studentRes._id),
+        paymentStatus: constants.PAYMENT_STATUS.PAID,
+        amount: user.price,
+        currency: user.currency,
+        paymentId: reqBody.razorpayPaymentId,
+      };
+      await paymentRepo.createPaymentDetails(paymentData);
+      let coursetitle = await studentRepo.getCourseById(
+        constants.COURSE.PRANA_ARAMBHA
+      );
+      let date = new Date();
+      const mailData = {
+        replacements: {
+          name: user.name,
+          course: coursetitle,
+          email: user.email,
+          price: `${user.price} ${user.currency}`,
+          date: date.toString(),
+          password: reqBody.password,
+        },
+        mailTo: user.email,
+        contentPath: constants.EMAIL_TEMPLATE.ORDER_CONFIRMATION,
+        subject: `Purchase Confirmation - ${coursetitle}`,
+      };
+      sendMail.createContent(mailData);
+      const whatsappData = {
+        templateName: "prana_arambha",
+        to: user.phoneNumber,
+        headerParam: [
+          {
+            type: "text",
+            text: user.name,
+          },
+        ],
+        params: [
+          { type: "text", text: coursetitle },
+          { type: "text", text: coursetitle },
+          { type: "text", text: `${amount} ${currency}` },
+          { type: "text", text: date.toString() },
+          { type: "text", text: user.email },
+          { type: "text", text: reqBody.password },
+        ],
+      };
+      sendMail.createWhatsAppContent(whatsappData);
+      return resolve(1);
     } catch (error) {
       return reject(error);
     }
