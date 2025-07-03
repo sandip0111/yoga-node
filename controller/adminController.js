@@ -22,7 +22,6 @@ const onlineVideoModel = require("../models/onlineVideoModel");
 const analyticsModel = require("../models/analyticsModel");
 const subscribeModel = require("../models/subscribeModel");
 const webinarUser = require("../models/webinarRegiserUserModel");
-const pranicPurificationUsers = require("../models/pranicPurificationUsersModel");
 const fs = require("fs");
 const path = require("path");
 const handlebars = require("handlebars");

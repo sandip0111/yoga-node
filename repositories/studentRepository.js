@@ -226,6 +226,16 @@ module.exports = {
       }
     });
   },
+  createLiveClassData: function (data) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = liveCoursesCustomerModel.create(data);
+        return resolve(result);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let getStudentData = async function (pipeline) {
   const studentList = await studentModel.aggregate(pipeline);

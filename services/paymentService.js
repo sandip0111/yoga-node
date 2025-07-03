@@ -493,13 +493,17 @@ function getRazorPaymentResult200TTC(reqBody) {
           reqBody.razorpayPaymentId,
           true
         );
-        await sendPranaArambhMailOn200TTC(user, reqBody);
+        await savePranaArambhOn200TTC(user, reqBody);
+        await saveLiveClassOn200TTC(user, reqBody);
         const mailData = {
           replacements: {
             name: user.name,
             whatsappGroupLink: constants.LINK.WHATSAPP,
             startDate: user.courseStartDate.toDateString(),
             startTime: user.courseTimeDuration,
+            userId: user.email,
+            pass: reqBody.password,
+            courseTitle: reqBody.courseTitle,
           },
           mailTo: user.email,
           contentPath: constants.EMAIL_TEMPLATE["200_HOURS_TTC"],
@@ -652,7 +656,7 @@ function getStripePaymentResult200TTC(reqBody) {
     }
   });
 }
-function sendPranaArambhMailOn200TTC(user, reqBody) {
+function savePranaArambhOn200TTC(user, reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
       let studentData = {
@@ -661,7 +665,10 @@ function sendPranaArambhMailOn200TTC(user, reqBody) {
         isActive: true,
         password: reqBody.password,
         phoneNumber: user.phoneNumber,
-        course: [constants.COURSE.PRANA_ARAMBHA],
+        course: [
+          constants.COURSE.PRANA_ARAMBHA,
+          constants.COURSE.FOUNDATION_SPIRITUALITY,
+        ],
         source: "web",
         is200TTC: true,
       };
@@ -675,43 +682,32 @@ function sendPranaArambhMailOn200TTC(user, reqBody) {
         paymentId: reqBody.razorpayPaymentId,
       };
       await paymentRepo.createPaymentDetails(paymentData);
-      let coursetitle = await studentRepo.getCourseById(
-        constants.COURSE.PRANA_ARAMBHA
-      );
-      let date = new Date();
-      const mailData = {
-        replacements: {
-          name: user.name,
-          course: coursetitle,
-          email: user.email,
-          price: `${user.price} ${user.currency}`,
-          date: date.toString(),
-          password: reqBody.password,
-        },
-        mailTo: user.email,
-        contentPath: constants.EMAIL_TEMPLATE.ORDER_CONFIRMATION,
-        subject: `Purchase Confirmation - ${coursetitle}`,
-      };
-      sendMail.createContent(mailData);
-      const whatsappData = {
-        templateName: "prana_arambha",
-        to: user.phoneNumber,
-        headerParam: [
+      return resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function saveLiveClassOn200TTC(user, reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let studentData = {
+        email: user.email,
+        name: user.name,
+        phone: user.phoneNumber,
+        courses: [
           {
-            type: "text",
-            text: user.name,
+            title: reqBody.courseTitle,
+            quantity: 1,
           },
         ],
-        params: [
-          { type: "text", text: coursetitle },
-          { type: "text", text: coursetitle },
-          { type: "text", text: `${amount} ${currency}` },
-          { type: "text", text: date.toString() },
-          { type: "text", text: user.email },
-          { type: "text", text: reqBody.password },
-        ],
+        paymentStatus: "paid",
+        is200TTC: true,
+        price: user.price,
+        currency: user.currency,
+        paymentId: reqBody.razorpayPaymentId,
       };
-      sendMail.createWhatsAppContent(whatsappData);
+      await studentRepo.createLiveClassData(studentData);
       return resolve(1);
     } catch (error) {
       return reject(error);
