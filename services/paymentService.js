@@ -11,6 +11,8 @@ const axios = require("axios");
 const stripe = require("stripe")(process.env.STRIP_KEY);
 const studentRepo = require("../repositories/studentRepository");
 const sendMail = require("../helpers/nodemail");
+const mongoose = require("mongoose");
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -233,7 +235,11 @@ function getRazorpayPaymentResultForPranarambha(
         amount,
         currency
       );
-      if (couponCodeId !== undefined && couponCodeId !== null && couponCodeId !== '') {
+      if (
+        couponCodeId !== undefined &&
+        couponCodeId !== null &&
+        couponCodeId !== ""
+      ) {
         await paymentRepo.disableCouponCode(couponCodeId);
       }
       const studentDoc = await studentRepo.getStudentById(student);
@@ -487,12 +493,17 @@ function getRazorPaymentResult200TTC(reqBody) {
           reqBody.razorpayPaymentId,
           true
         );
+        await savePranaArambhOn200TTC(user, reqBody);
+        await saveLiveClassOn200TTC(user, reqBody);
         const mailData = {
           replacements: {
             name: user.name,
             whatsappGroupLink: constants.LINK.WHATSAPP,
             startDate: user.courseStartDate.toDateString(),
             startTime: user.courseTimeDuration,
+            userId: user.email,
+            pass: reqBody.password,
+            courseTitle: reqBody.courseTitle,
           },
           mailTo: user.email,
           contentPath: constants.EMAIL_TEMPLATE["200_HOURS_TTC"],
@@ -640,6 +651,64 @@ function getStripePaymentResult200TTC(reqBody) {
           },
         });
       }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function savePranaArambhOn200TTC(user, reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let studentData = {
+        email: user.email,
+        firstName: user.name,
+        isActive: true,
+        password: reqBody.password,
+        phoneNumber: user.phoneNumber,
+        course: [
+          constants.COURSE.PRANA_ARAMBHA,
+          constants.COURSE.FOUNDATION_SPIRITUALITY,
+        ],
+        source: "web",
+        is200TTC: true,
+      };
+      let studentRes = await studentRepo.createStudent(studentData);
+      let paymentData = {
+        courseId: mongoose.Types.ObjectId(constants.COURSE.PRANA_ARAMBHA),
+        studentId: mongoose.Types.ObjectId(studentRes._id),
+        paymentStatus: constants.PAYMENT_STATUS.PAID,
+        amount: user.price,
+        currency: user.currency,
+        paymentId: reqBody.razorpayPaymentId,
+      };
+      await paymentRepo.createPaymentDetails(paymentData);
+      return resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function saveLiveClassOn200TTC(user, reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let studentData = {
+        email: user.email,
+        name: user.name,
+        phone: user.phoneNumber,
+        courses: [
+          {
+            title: reqBody.courseTitle,
+            quantity: 1,
+          },
+        ],
+        paymentStatus: "paid",
+        is200TTC: true,
+        price: user.price,
+        currency: user.currency,
+        paymentId: reqBody.razorpayPaymentId,
+      };
+      await studentRepo.createLiveClassData(studentData);
+      return resolve(1);
     } catch (error) {
       return reject(error);
     }
