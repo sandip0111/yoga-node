@@ -494,7 +494,7 @@ function getRazorPaymentResult200TTC(reqBody) {
           true
         );
         await savePranaArambhOn200TTC(user, reqBody);
-        await saveLiveClassOn200TTC(user, reqBody);
+        // await saveLiveClassOn200TTC(user, reqBody);
         const mailData = {
           replacements: {
             name: user.name,
