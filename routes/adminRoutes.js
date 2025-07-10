@@ -4,6 +4,7 @@ const router = express.Router();
 const studentController = require("../controller/studentController");
 const adminController = require("../controller/adminController");
 const wistiaController = require("../controller/wistiaController");
+const paymentController = require("../controller/paymentController");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 const path = require("path");
@@ -566,4 +567,5 @@ router.post(
 );
 router.post("/getTabVideo", studentController.getTabVideo);
 router.post("/get200ttcData", studentController.get200ttcData);
+router.post("/getPaymentDetailsById", paymentController.getPaymentDetailsById);
 module.exports = router;

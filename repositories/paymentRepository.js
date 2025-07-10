@@ -119,7 +119,7 @@ function create200TTCData(userData) {
     }
   });
 }
-function update200TTCata(id, paymentId, isPaid) {
+function update200TTCata(id, paymentId, isPaid, installment, due) {
   return new Promise(async (resolve, reject) => {
     try {
       let user;
@@ -129,6 +129,8 @@ function update200TTCata(id, paymentId, isPaid) {
           {
             paymentId: paymentId,
             paymentStatus: "paid",
+            installment: installment,
+            dueAmount: due,
           },
           { new: true }
         );
@@ -164,6 +166,51 @@ function createPaymentDetails(data) {
     }
   });
 }
+function secondInstallmentPaymentMail(startDate, endDate) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await twoHundredHourTTCModel
+        .find({
+          created: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          dueAmount: { $ne: 0 },
+        })
+        .lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await twoHundredHourTTCModel.findById(id).lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateInstallmentPayment200TTCata(id, due) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let data = await twoHundredHourTTCModel.findById(id);
+      await twoHundredHourTTCModel.findOneAndUpdate(
+        { _id: id },
+        {
+          price: +data.price + due,
+          dueAmount: 0,
+        }
+      );
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -176,4 +223,6 @@ module.exports = {
   update200TTCata,
   getCoupondataById,
   createPaymentDetails,
+  secondInstallmentPaymentMail,
+  updateInstallmentPayment200TTCata
 };

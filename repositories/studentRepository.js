@@ -184,16 +184,6 @@ module.exports = {
       }
     });
   },
-  getCourseById: function (id) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const data = await courseModel.findOne({ _id: id });
-        return resolve(data.coursetitle);
-      } catch (error) {
-        return reject(error);
-      }
-    });
-  },
   getPranicPurificationData: function (pipeline) {
     return new Promise(async (resolve, reject) => {
       try {

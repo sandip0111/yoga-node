@@ -12,7 +12,7 @@ const stripe = require("stripe")(process.env.STRIP_KEY);
 const studentRepo = require("../repositories/studentRepository");
 const sendMail = require("../helpers/nodemail");
 const mongoose = require("mongoose");
-
+const courseRepo = require("../repositories/courseRepository");
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -247,7 +247,7 @@ function getRazorpayPaymentResultForPranarambha(
         ? studentDoc.course
         : [...studentDoc.course, course];
       await studentRepo.updateStudentCourse(student, updatedCourses);
-      let coursetitle = await studentRepo.getCourseById(course);
+      let coursetitle = await courseRepo.getCourseById(course);
       const { firstName, email, password, phoneNumber } =
         await studentRepo.getStudentById(student);
       let filePath = path.join(
@@ -451,17 +451,25 @@ function disableCouponCode(reqBody) {
 function checkoutRazorpayFor200TTC(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      let userData = {
-        name: reqBody.name,
-        email: reqBody.email,
-        phoneNumber: reqBody.phoneNumber,
-        package: reqBody.package,
-        currency: reqBody.currency,
-        price: reqBody.price,
-        courseStartDate: reqBody.courseStartDate,
-        courseTimeDuration: reqBody.courseTimeDuration,
-      };
-      const pay = await paymentRepo.create200TTCData(userData);
+      let pay;
+      if (reqBody.id) {
+        pay = await paymentRepo.updateInstallmentPayment200TTCata(
+          reqBody.id,
+          reqBody.price
+        );
+      } else {
+        let userData = {
+          name: reqBody.name,
+          email: reqBody.email,
+          phoneNumber: reqBody.phoneNumber,
+          package: reqBody.package,
+          currency: reqBody.currency,
+          price: reqBody.price,
+          courseStartDate: reqBody.courseStartDate,
+          courseTimeDuration: reqBody.courseTimeDuration,
+        };
+        pay = await paymentRepo.create200TTCData(userData);
+      }
       const amountInSubunits = reqBody.price * 100;
       const options = {
         amount: amountInSubunits,
@@ -491,10 +499,18 @@ function getRazorPaymentResult200TTC(reqBody) {
         const user = await paymentRepo.update200TTCata(
           reqBody.payDbId,
           reqBody.razorpayPaymentId,
-          true
+          true,
+          reqBody.installment,
+          reqBody.dueAmnt
         );
-        await savePranaArambhOn200TTC(user, reqBody);
+        if(reqBody.installment == "2nd"){
+          await savePranaArambhOn200TTC(user, reqBody);
+        }
         // await saveLiveClassOn200TTC(user, reqBody);
+        const fileName =
+          reqBody.installment == "1st"
+            ? constants.EMAIL_TEMPLATE["200_HOURS_TTC_1ST"]
+            : constants.EMAIL_TEMPLATE["200_HOURS_TTC"];
         const mailData = {
           replacements: {
             name: user.name,
@@ -506,7 +522,7 @@ function getRazorPaymentResult200TTC(reqBody) {
             courseTitle: reqBody.courseTitle,
           },
           mailTo: user.email,
-          contentPath: constants.EMAIL_TEMPLATE["200_HOURS_TTC"],
+          contentPath: fileName,
           subject: "200 Hours Yoga TTC Registration Confirmation",
         };
         sendMail.createContent(mailData);
@@ -597,7 +613,9 @@ function getStripePaymentResult200TTC(reqBody) {
         const user = await paymentRepo.update200TTCata(
           reqBody.payDbId,
           session.payment_intent,
-          true
+          true,
+          reqBody.installment,
+          reqBody.dueAmnt
         );
         const mailData = {
           replacements: {
@@ -714,6 +732,50 @@ function saveLiveClassOn200TTC(user, reqBody) {
     }
   });
 }
+function secondInstallmentPaymentMail() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const today = new Date();
+      const Fortnight = new Date();
+      Fortnight.setDate(today.getDate() - 14);
+      const threeWeeks = new Date();
+      threeWeeks.setDate(today.getDate() - 21);
+      const paymentData = await paymentRepo.secondInstallmentPaymentMail(
+        threeWeeks,
+        Fortnight
+      );
+      for (const obj of paymentData) {
+        const mailData = {
+          replacements: {
+            NAME: obj.name,
+            AMOUNT: obj.dueAmount,
+            COURSE: "200 Hours Yoga TTC",
+            LINK:
+              process.env.MAIN_URL +
+              `/checkout/200-hours-yoga-teacher-training-online?id=${obj._id}`,
+          },
+          mailTo: obj.email,
+          contentPath: constants.EMAIL_TEMPLATE.SECOND_INSTALLMENT,
+          subject: "200 Hours Yoga TTC Second Installment Payment",
+        };
+        sendMail.createContent(mailData);
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const paymentDetails = await paymentRepo.getPaymentDetailsById(id);
+      resolve(paymentDetails);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   checkoutRazorpayForPranicPurification,
   getRazorPaymentResultPranicPurification,
@@ -726,4 +788,6 @@ module.exports = {
   getRazorPaymentResult200TTC,
   checkoutStripeFor200TTC,
   getStripePaymentResult200TTC,
+  secondInstallmentPaymentMail,
+  getPaymentDetailsById,
 };
