@@ -34,7 +34,7 @@ mongoose
     console.log(error);
   });
 //#region cron jon function
-cron.schedule('21 21 * * *', async function() {
+cron.schedule('0 0 * * *', async function() {
   paymentService.secondInstallmentPaymentMail();
 });
 //#region routes
