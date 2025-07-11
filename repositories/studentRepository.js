@@ -226,6 +226,16 @@ module.exports = {
       }
     });
   },
+  getStudentById: function (id) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await studentModel.findById(id).lean();
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let getStudentData = async function (pipeline) {
   const studentList = await studentModel.aggregate(pipeline);

@@ -3,7 +3,7 @@ const studentRepo = require("../repositories/studentRepository");
 const constants = require("../helpers/constants.json");
 const paymentRepo = require("../repositories/paymentRepository");
 const s3Bucket = require("../services/s3_bucket");
-
+const helper = require("../helpers/helper");
 module.exports = {
   getAllParayanamStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
@@ -359,8 +359,8 @@ module.exports = {
         } else {
           reqBody.email = reqBody.email.toLowerCase();
           const student = await studentRepo.createStudent(reqBody);
-          if (reqBody.source == "web") {
-            //sendRegistrationEmailV2(student._id);
+          if (reqBody.isBreatDox) {
+            await helper.sendRegistrationEmailV2(student._id);
           } else if (reqBody.source == "admin") {
             // sendRegistrationEmail(student._id);
           }
