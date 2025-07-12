@@ -1,5 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const https = require('https');
+const fs = require("fs");
 const app = express();
 const adminRoutes = require("./routes/adminRoutes");
 require("dotenv").config();
@@ -28,7 +30,6 @@ mongoose
   })
   .then((result) => {
     console.log("Database connected");
-    app.listen(3000);
   })
   .catch((error) => {
     console.log(error);
@@ -39,3 +40,12 @@ cron.schedule('0 0 * * *', async function() {
 });
 //#region routes
 app.use("/api/v1", adminRoutes);
+
+const certPath = '/etc/letsencrypt/live/yogavidyaschool.com';
+https.createServer( {
+    key: fs.readFileSync(`${certPath}/privkey.pem`),
+    cert: fs.readFileSync(`${certPath}/fullchain.pem`),
+  },app)
+  .listen(3000, ()=>{
+    console.log('server is runing at port 3000')
+});
