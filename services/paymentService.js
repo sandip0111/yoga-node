@@ -503,7 +503,7 @@ function getRazorPaymentResult200TTC(reqBody) {
           reqBody.installment,
           reqBody.dueAmnt
         );
-        if(reqBody.installment == "2nd"){
+        if (reqBody.installment == "2nd") {
           await savePranaArambhOn200TTC(user, reqBody);
         }
         // await saveLiveClassOn200TTC(user, reqBody);
@@ -563,17 +563,25 @@ function getRazorPaymentResult200TTC(reqBody) {
 function checkoutStripeFor200TTC(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      let userData = {
-        name: reqBody.name,
-        email: reqBody.email,
-        phoneNumber: reqBody.phoneNumber,
-        package: reqBody.package,
-        currency: reqBody.currency,
-        price: reqBody.price,
-        courseStartDate: reqBody.courseStartDate,
-        courseTimeDuration: reqBody.courseTimeDuration,
-      };
-      const pay = await paymentRepo.create200TTCData(userData);
+      let pay;
+      if (reqBody.id) {
+        pay = await paymentRepo.updateInstallmentPayment200TTCata(
+          reqBody.id,
+          reqBody.price
+        );
+      } else {
+        let userData = {
+          name: reqBody.name,
+          email: reqBody.email,
+          phoneNumber: reqBody.phoneNumber,
+          package: reqBody.package,
+          currency: reqBody.currency,
+          price: reqBody.price,
+          courseStartDate: reqBody.courseStartDate,
+          courseTimeDuration: reqBody.courseTimeDuration,
+        };
+        pay = await paymentRepo.create200TTCData(userData);
+      }
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
@@ -617,15 +625,26 @@ function getStripePaymentResult200TTC(reqBody) {
           reqBody.installment,
           reqBody.dueAmnt
         );
+        if (reqBody.installment == "2nd") {
+          await savePranaArambhOn200TTC(user, reqBody);
+        }
+        // await saveLiveClassOn200TTC(user, reqBody);
+        const fileName =
+          reqBody.installment == "1st"
+            ? constants.EMAIL_TEMPLATE["200_HOURS_TTC_1ST"]
+            : constants.EMAIL_TEMPLATE["200_HOURS_TTC"];
         const mailData = {
           replacements: {
             name: user.name,
             whatsappGroupLink: constants.LINK.WHATSAPP,
             startDate: user.courseStartDate.toDateString(),
             startTime: user.courseTimeDuration,
+            userId: user.email,
+            pass: reqBody.password,
+            courseTitle: reqBody.courseTitle,
           },
           mailTo: user.email,
-          contentPath: constants.EMAIL_TEMPLATE["200_HOURS_TTC"],
+          contentPath: fileName,
           subject: "200 Hours Yoga TTC Registration Confirmation",
         };
         sendMail.createContent(mailData);
