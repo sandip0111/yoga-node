@@ -362,7 +362,7 @@ module.exports = {
           if (reqBody.isBreatDox) {
             await helper.sendRegistrationEmailV2(student._id);
           } else if (reqBody.source == "admin") {
-            // sendRegistrationEmail(student._id);
+            await helper.sendRegistrationEmail(student._id);
           }
           return resolve({
             status: "ok",

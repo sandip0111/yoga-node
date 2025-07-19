@@ -12,7 +12,8 @@
     "200_HOURS_TTC": "/emailTemplate/twoHundredTTC.html",
     "200_HOURS_TTC_1ST": "/emailTemplate/twoHundredTTC_1st.html",
     "SECOND_INSTALLMENT": "/emailTemplate/secondInstallmentMail.html",
-    "SIGNUP_BREATH_DTOX": "/emailTemplate/signupV2.html"
+    "SIGNUP_BREATH_DTOX": "/emailTemplate/signupV2.html",
+    "ADMIN_PRANA_ARAMBH": "/emailTemplate/prana.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA"

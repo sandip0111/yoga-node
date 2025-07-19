@@ -1,6 +1,7 @@
 "use strict";
 const studentRepo = require("../repositories/studentRepository");
-const constants = require("./constants.json"); 
+const courseRepo = require("../repositories/courseRepository");
+const constants = require("./constants.json");
 const sendMail = require("./nodemail");
 
 function getTimeBefore(duration) {
@@ -61,5 +62,24 @@ let sendRegistrationEmailV2 = async function (id) {
   };
   sendMail.createContent(mailData);
 };
-
-module.exports = { getTimeBefore, sendRegistrationEmailV2 };
+let sendRegistrationEmail = async function (id) {
+  const student = await studentRepo.getStudentById(id);
+  let course = await courseRepo.getCourseById(constants.COURSE.PRANA_ARAMBHA);
+  const mailData = {
+    replacements: {
+      name: student.firstName,
+      password: student.password,
+      email: student.email,
+      courseTitle: course,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.ADMIN_PRANA_ARAMBH,
+    subject: course,
+  };
+  sendMail.createContent(mailData);
+};
+module.exports = {
+  getTimeBefore,
+  sendRegistrationEmailV2,
+  sendRegistrationEmail,
+};

@@ -44,7 +44,7 @@ const transporter = nodemailer.createTransport({
   secure: false,
   auth: {
     user: "Info@yogavidyaschool.com",
-    pass: "gbpdiztkoofmivha",
+    pass: "zabrpytvxlfasozj",
   },
   logger: true,
   debug: true,
