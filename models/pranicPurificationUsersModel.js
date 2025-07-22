@@ -1,53 +1,51 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
-    required: true
+    required: true,
   },
   phoneNumber: {
     type: String,
-    required: true
+    required: true,
   },
   address: {
-    type: String
+    type: String,
   },
-  created:{
+  created: {
     type: Date,
-    default: function() {
-        return new Date(Date.now() + (5.5 * 60 * 60 * 1000));
-      }
+    default: function () {
+      return new Date(Date.now() + 5.5 * 60 * 60 * 1000);
     },
-    currency:{
-        type:String
-    },
-    price:{
-        type:String
-    }, 
+  },
+  currency: {
+    type: String,
+  },
+  price: {
+    type: String,
+  },
   courseStartDate: {
     type: Date,
-    required: false
+    required: false,
   },
   courseTimeDuration: {
     type: String,
-    required: false
-  },
-  
-  paymentStatus: {
-    type: String, 
-    enum: ['pending', 'paid', 'failed'], 
     required: false,
-    default: 'pending' 
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["pending", "paid", "failed"],
+    required: false,
+    default: "pending",
   },
   paymentId: {
-    type: String, 
-    required: false 
+    type: String,
+    required: false,
   },
-
 });
 
-module.exports = mongoose.model('pranicPurificationUsersModel', userSchema);
+module.exports = mongoose.model("pranicPurificationUsersModel", userSchema);

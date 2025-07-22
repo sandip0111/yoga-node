@@ -46,6 +46,7 @@ const whatsappAccessToken =
   "EAAJpIEWgcakBOwmKbIapeBHzNZCOGcSJzQYQxxr0WknDOAHMbr79BxZAZBZA8ZC5yu0viYXbz4DSFblR9JgSZBEcIe34EeIZABZCK5yfZAzT2yWUaawh8KYDylbI0G8FgZBzL8pCbcQRowddPTZC3EIFPRpaGSH0jf9x0FQM50uvZAyRMLECPElEXKaTv9RdSr0hA8TPOQZDZD";
 const stripe = require("stripe")(process.env.STRIP_KEY);
 const paymentService = require("../services/paymentService");
+const adminService = require("../services/adminService");
 const mentors = [
   {
     topic: "July 2025 : Yoga Sadhana With Prashant ji",
@@ -783,53 +784,35 @@ module.exports = {
   },
 
   registerSwarSadhanaWebinarUser: async function (req, res) {
-    const { name, email, phone, city, company, webinar, timeSlot, password } =
-      req.body;
-
-    let created = new Date();
-    // Validate required fields
-    if (!name || !email || !timeSlot) {
-      return res
-        .status(400)
-        .json({ message: "Name, email, TimeSlot are required." });
-    }
-
     try {
-      // Create new user
-      const newUser = new webinarUser({
-        name,
-        email,
-        phone,
-        city,
-        company,
-        webinar,
-        timeSlot,
-        password,
-        created,
-      });
-
-      if (timeSlot) {
-        if (!mongoose.Types.ObjectId.isValid(timeSlot)) {
-          return res.status(400).json({ error: "Invalid timeSlot ID format." });
-        }
-
-        const existingSlot = await timeSlots.findById(timeSlot);
-        if (!existingSlot) {
-          return res
-            .status(400)
-            .json({ error: "Invalid timeSlot ID. Time slot does not exist." });
-        }
-      }
-      // Save user to database
-      const savedUser = await newUser.save();
-      res.status(200).json({
-        status: "ok",
-        message: "User registered successfully!",
-        userId: savedUser._id,
-      });
+      let result = await adminService.registerSwarSadhanaWebinarUser(req.body);
+      res.status(result.status).json(result.data);
     } catch (error) {
       if (error.code === 11000) {
-        // Duplicate email error
+        res.status(400).json({ message: "Email already registered." });
+      } else {
+        res.status(500).json({ message: "Server error", error });
+      }
+    }
+  },
+  registerPranicPurificationUser: async function (req, res) {
+    try {
+      let result = await adminService.registerPranicPurificationUser(req.body);
+      res.status(result.status).json(result.data);
+    } catch (error) {
+      if (error.code === 11000) {
+        res.status(400).json({ message: "Email already registered." });
+      } else {
+        res.status(500).json({ message: "Server error", error });
+      }
+    }
+  },
+  register200TTCUser: async function (req, res) {
+    try {
+      let result = await adminService.register200TTCUser(req.body);
+      res.status(result.status).json(result.data);
+    } catch (error) {
+      if (error.code === 11000) {
         res.status(400).json({ message: "Email already registered." });
       } else {
         res.status(500).json({ message: "Server error", error });

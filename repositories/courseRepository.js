@@ -1,5 +1,8 @@
 "use strict";
 const courseModel = require("../models/courseModel");
+const mongoose = require("mongoose");
+const timeSlots = require("../models/TimeSlots");
+
 function getCourseBySlug(slug) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -20,4 +23,21 @@ function getCourseById(id) {
     }
   });
 }
-module.exports = { getCourseBySlug, getCourseById };
+function checkCourseTimeSlot(timeSlot) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let data = null;
+      if (!mongoose.Types.ObjectId.isValid(timeSlot)) {
+        data = "Invalid timeSlot ID format.";
+      }
+      const existingSlot = await timeSlots.findById(timeSlot);
+      if (!existingSlot) {
+        data = "Invalid timeSlot ID. Time slot does not exist.";
+      }
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+module.exports = { getCourseBySlug, getCourseById, checkCourseTimeSlot };

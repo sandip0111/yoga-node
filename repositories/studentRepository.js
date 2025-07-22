@@ -4,10 +4,10 @@ const paymentModel = require("../models/paymentModel");
 const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 const webinarRegisterUser = require("../models/webinarRegiserUserModel");
 const mongoose = require("mongoose");
-const courseModel = require("../models/courseModel");
 const pranicPurificationModel = require("../models/pranicPurificationUsersModel");
 const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const onlineVideoModel = require("../models/onlineVideoModel");
+const webinarUser = require("../models/webinarRegiserUserModel");
 
 module.exports = {
   getStudentCountFilter: function (pipeline) {
@@ -231,6 +231,39 @@ module.exports = {
       try {
         const student = await studentModel.findById(id).lean();
         return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  registerSwaraSadhanaStudentByAdmin: function (savedData) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const newUser = new webinarUser(savedData);
+        const savedUser = await newUser.save();
+        return resolve(savedUser);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  registerPranicPurificationStudentByAdmin: function (savedData) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const newUser = new pranicPurificationModel(savedData);
+        const savedUser = await newUser.save();
+        return resolve(savedUser);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  register200TTCStudentByAdmin: function (savedData) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const newUser = new twoHundredHourTTCModel(savedData);
+        const savedUser = await newUser.save();
+        return resolve(savedUser);
       } catch (error) {
         return reject(error);
       }

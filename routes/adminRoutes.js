@@ -220,6 +220,11 @@ router.post(
   adminController.registerSwarSadhanaWebinarUser
 );
 router.post(
+  "/registerPranicPurificationUser",
+  adminController.registerPranicPurificationUser
+);
+router.post("/register200TTCUser", adminController.register200TTCUser);
+router.post(
   "/checkoutSwarSadhanaStripe",
   adminController.checkoutSwarSadhanaStripe
 );

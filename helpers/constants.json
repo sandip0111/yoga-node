@@ -13,10 +13,13 @@
     "200_HOURS_TTC_1ST": "/emailTemplate/twoHundredTTC_1st.html",
     "SECOND_INSTALLMENT": "/emailTemplate/secondInstallmentMail.html",
     "SIGNUP_BREATH_DTOX": "/emailTemplate/signupV2.html",
-    "ADMIN_PRANA_ARAMBH": "/emailTemplate/prana.html"
+    "ADMIN_PRANA_ARAMBH": "/emailTemplate/prana.html",
+    "ADMIN_REGISTER": "/emailTemplate/adminRegister.HTML"
   },
   "LINK": {
-    "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA"
+    "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
+    "WHATSAPP_COMMUNITY_LINK": "https://chat.whatsapp.com/J6rltqcGq82LIIAra1ggvS",
+    "FB_LINK": "https://www.facebook.com/groups/808369497430769/?ref=share&mibextid=NSMWBT"
   },
   "SLUG": {
     "PRANA_ARAMBH": "pranayama-course-online-pranarambha"

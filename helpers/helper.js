@@ -78,8 +78,53 @@ let sendRegistrationEmail = async function (id) {
   };
   sendMail.createContent(mailData);
 };
+let sendWebinerEmail = async function (student) {
+  const mailData = {
+    replacements: {
+      name: student.name,
+      password: student.password,
+      email: student.email,
+      courseTitle: "Swara Sadhana Webiner",
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.ADMIN_PRANA_ARAMBH,
+    subject: `Swara Sadhana Webiner Registration Confirmation`,
+  };
+  sendMail.createContent(mailData);
+};
+let sendPranicEmail = async function (student) {
+  const mailData = {
+    replacements: {
+      NAME: student.name,
+      COURSETITLE: "21 Days Pranic Purification",
+      WLINK: constants.LINK.WHATSAPP_COMMUNITY_LINK,
+      FB: constants.LINK.FB_LINK,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.ADMIN_REGISTER,
+    subject: `21 Days Pranic Purification Registration Confirmation`,
+  };
+  sendMail.createContent(mailData);
+};
+let send200TTCEmail = async function (student) {
+  const mailData = {
+    replacements: {
+      NAME: student.name,
+      COURSETITLE: "200 TTC",
+      WLINK: constants.LINK.WHATSAPP_COMMUNITY_LINK,
+      FB: constants.LINK.FB_LINK,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.ADMIN_REGISTER,
+    subject: `200 TTC Registration Confirmation`,
+  };
+  sendMail.createContent(mailData);
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
   sendRegistrationEmail,
+  sendWebinerEmail,
+  sendPranicEmail,
+  send200TTCEmail,
 };
