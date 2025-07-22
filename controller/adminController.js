@@ -49,33 +49,33 @@ const paymentService = require("../services/paymentService");
 const adminService = require("../services/adminService");
 const mentors = [
   {
-    topic: "July 2025 : Yoga Sadhana With Prashant ji",
-    time: "Jul 1, 2025 06:00 AM India",
+    topic: "August 2025 : Yoga Sadhana With Prashant ji",
+    time: "Aug 4, 2025 07:00 AM India",
     zoomLink:
-      "https://us06web.zoom.us/j/83564779928?pwd=W2G3PTlR5UqDHByHpuFFtQkjbjhC3Q.1",
-    meetingId: "835 6477 9928",
-    passcode: "733109",
-    whatsappLink: "https://chat.whatsapp.com/ISyRHR3rK3G4NQIUeGRZlo",
+      "https://us06web.zoom.us/j/85877078350?pwd=w4aoUhIwmCHykDNGfWS2MvupfL6wkF.1",
+    meetingId: "858 7707 8350",
+    passcode: "153707",
+    whatsappLink: "https://chat.whatsapp.com/LqTDT2hXCkSC1ChgkFuJVd",
     name: "Acharya Prashant Jakhmola",
   },
   {
-    topic: "July 2025: Women Wellness With Taniya ji",
-    time: "Jul 1, 2025 05:00 PM India",
+    topic: "August 2025: Women Wellness With Taniya ji",
+    time: "Aug 4, 2025 05:00 PM India",
     zoomLink:
-      "https://us02web.zoom.us/j/89233171924?pwd=WpxN9xbGg99amrYZT0KXcEis0VHVGp.1",
-    meetingId: "892 3317 1924",
-    passcode: "678971",
-    whatsappLink: "https://chat.whatsapp.com/Ie1SQ8qwrz8A7YrQGDTKQa",
+      "https://us02web.zoom.us/j/83173733973?pwd=mJK2taSMsVEekm7DTVarH6JWrxRzRo.1",
+    meetingId: "831 7373 3973",
+    passcode: "928629",
+    whatsappLink: "https://chat.whatsapp.com/DEsqbOSf8OiG2V7RYs03Dn",
     name: "Taniya",
   },
   {
-    topic: "July 2025: HathaYoga With Anuj ji",
-    time: "Jul 7, 2025 05:30 AM India",
+    topic: "August 2025: HathaYoga With Anuj ji",
+    time: "Aug 4, 2025 05:30 AM India",
     zoomLink:
-      "https://us02web.zoom.us/j/83047327844?pwd=cFydHZza9Ol3hadplFqaVyFi2Mp2As.1",
-    meetingId: "830 4732 7844",
-    passcode: "821384",
-    whatsappLink: "https://chat.whatsapp.com/FG9UGxl8jSk74iKBEVmXlq",
+      "https://us02web.zoom.us/j/81639400371?pwd=L6GQg0MfEUImQ5iud3z0vin4b5r6i2.1",
+    meetingId: "816 3940 0371",
+    passcode: "314083",
+    whatsappLink: "https://chat.whatsapp.com/FQ3anlns4MM4Q1RVqqo85r",
     name: "Anuj Pareek online",
   },
   {
@@ -89,13 +89,13 @@ const mentors = [
     name: "Shivam",
   },
   {
-    topic: "July 2025: Intermediate class with Anuj ji",
-    time: "Jul 7, 2025 06:00 PM India",
+    topic: "August 2025: Intermediate class with Anuj ji",
+    time: "Aug 4, 2025 06:00 PM India",
     zoomLink:
-      "https://us02web.zoom.us/j/81409113380?pwd=nADRDKNeK47wWRpF61S2fKOxnCTPuM.1",
-    meetingId: "814 0911 3380",
-    passcode: "030216",
-    whatsappLink: "https://chat.whatsapp.com/IM1kN4EMlUwJHKn1cpcXMD",
+      "https://us02web.zoom.us/j/82089244265?pwd=aBLAQmoqM7NQjzv6Cg5yMjiaU5vPgC.1",
+    meetingId: "820 8924 4265",
+    passcode: "995772",
+    whatsappLink: "https://chat.whatsapp.com/B7f4VmLnCQF3wL1pPc7Oj9",
     name: "Anuj Pareek Intermediate",
   },
 ];
