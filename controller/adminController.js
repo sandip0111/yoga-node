@@ -50,7 +50,7 @@ const adminService = require("../services/adminService");
 const mentors = [
   {
     topic: "July 2025 : Yoga Sadhana With Prashant ji",
-    time: "Jul 1, 2025 06:00 AM India",
+    time: "Jul 1, 2025 07:00 AM India",
     zoomLink:
       "https://us06web.zoom.us/j/83564779928?pwd=W2G3PTlR5UqDHByHpuFFtQkjbjhC3Q.1",
     meetingId: "835 6477 9928",
