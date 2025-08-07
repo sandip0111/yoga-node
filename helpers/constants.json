@@ -14,12 +14,14 @@
     "SECOND_INSTALLMENT": "/emailTemplate/secondInstallmentMail.html",
     "SIGNUP_BREATH_DTOX": "/emailTemplate/signupV2.html",
     "ADMIN_PRANA_ARAMBH": "/emailTemplate/prana.html",
-    "ADMIN_REGISTER": "/emailTemplate/adminRegister.HTML"
+    "ADMIN_REGISTER": "/emailTemplate/adminRegister.HTML",
+    "RISHIKESH": "/emailTemplate/rishikesh.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
     "WHATSAPP_COMMUNITY_LINK": "https://chat.whatsapp.com/J6rltqcGq82LIIAra1ggvS",
-    "FB_LINK": "https://www.facebook.com/groups/808369497430769/?ref=share&mibextid=NSMWBT"
+    "FB_LINK": "https://www.facebook.com/groups/808369497430769/?ref=share&mibextid=NSMWBT",
+    "WHATSAPP_RISHIKESH_200": "https://bit.ly/200hrs-oct-2025"
   },
   "SLUG": {
     "PRANA_ARAMBH": "pranayama-course-online-pranarambha"

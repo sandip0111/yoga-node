@@ -573,4 +573,12 @@ router.post(
 router.post("/getTabVideo", studentController.getTabVideo);
 router.post("/get200ttcData", studentController.get200ttcData);
 router.post("/getPaymentDetailsById", paymentController.getPaymentDetailsById);
+router.post(
+  "/checkoutRazorpayRishikesh",
+  studentController.checkoutRazorpayRishikesh
+);
+router.post(
+  "/getRazorPaymentResultRishikesh",
+  studentController.getRazorPaymentResultRishikesh
+);
 module.exports = router;

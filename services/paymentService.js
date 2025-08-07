@@ -795,6 +795,66 @@ function getPaymentDetailsById(id) {
     }
   });
 }
+function checkoutRazorpayRishikesh(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let pay = await paymentRepo.createRishikeshData(reqBody);
+      const amountInSubunits = reqBody.price * 100;
+      const options = {
+        amount: amountInSubunits,
+        currency: reqBody.currency,
+        receipt: `rishikesh_${reqBody.hour}_${pay._id}`,
+        payment_capture: 1,
+      };
+      const order = await razorpay.orders.create(options);
+      return resolve({
+        orderId: order.id,
+        razorpayKey: process.env.RAZORPAY_KEY_ID,
+        payDbId: pay._id,
+        amount: amountInSubunits,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getRazorPaymentResultRishikesh(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const hmac = crypto.createHmac("sha256", razorpay.key_secret);
+      hmac.update(reqBody.razorpayOrderId + "|" + reqBody.razorpayPaymentId);
+      const generatedSignature = hmac.digest("hex");
+      if (generatedSignature === reqBody.razorpaySignature) {
+        const user = await paymentRepo.updateRishikeshStudentData(
+          reqBody.payDbId,
+          reqBody.razorpayPaymentId,
+          true
+        );
+        const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
+        const mailData = {
+          replacements: {
+            NAME: user.name,
+            COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
+            WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+          },
+          mailTo: user.email,
+          contentPath: fileName,
+          subject: "🕉 Welcome to the Yoga Vidya Family!",
+        };
+        sendMail.createContent(mailData);
+        return resolve({
+          amount: +user.price,
+          currency: user.currency,
+        });
+      } else {
+        await paymentRepo.updatePranicUserData(reqBody.payDbId, null, false);
+        return reject("Payment verification failed");
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   checkoutRazorpayForPranicPurification,
   getRazorPaymentResultPranicPurification,
@@ -809,4 +869,6 @@ module.exports = {
   getStripePaymentResult200TTC,
   secondInstallmentPaymentMail,
   getPaymentDetailsById,
+  checkoutRazorpayRishikesh,
+  getRazorPaymentResultRishikesh,
 };

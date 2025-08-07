@@ -3,6 +3,7 @@ const pranicPurificationUsers = require("../models/pranicPurificationUsersModel"
 const couponCourse = require("../models/couponCodeModel");
 const paymentModel = require("../models/paymentModel");
 const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
+const rishikeshStudentModel = require("../models/rishikeshStudent");
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
@@ -211,6 +212,41 @@ function updateInstallmentPayment200TTCata(id, due) {
     }
   });
 }
+function createRishikeshData(userData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await rishikeshStudentModel.create(userData);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateRishikeshStudentData(id, paymentId, isPaid) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user;
+      if (isPaid) {
+        user = await rishikeshStudentModel.findOneAndUpdate(
+          { _id: id },
+          {
+            paymentId: paymentId,
+            paymentStatus: "paid",
+          },
+          { new: true }
+        );
+      } else {
+        await twoHundredHourTTCModel.findOneAndUpdate(
+          { _id: id },
+          { paymentStatus: "failed" }
+        );
+      }
+      return resolve(user);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -224,5 +260,7 @@ module.exports = {
   getCoupondataById,
   createPaymentDetails,
   secondInstallmentPaymentMail,
-  updateInstallmentPayment200TTCata
+  updateInstallmentPayment200TTCata,
+  createRishikeshData,
+  updateRishikeshStudentData
 };

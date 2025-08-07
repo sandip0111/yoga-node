@@ -6,6 +6,7 @@ const transporter = require("../helpers/nodemail");
 const courseModel = require("../models/courseModel");
 const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 const studentService = require("../services/studentService");
+const paymentService = require("../services/paymentService");
 module.exports = {
   createUpdateStudent: async function (req, res) {
     {
@@ -501,6 +502,28 @@ module.exports = {
       res.status(404).json({ status: "error", msg: err.message });
     }
   },
+  checkoutRazorpayRishikesh: async function (req, res) {
+    {
+      try {
+        const result = await paymentService.checkoutRazorpayRishikesh(req.body);
+        res.status(200).json(result);
+      } catch (err) {
+        res.status(400).json(err);
+      }
+    }
+  },
+  getRazorPaymentResultRishikesh: async function (req, res) {
+    {
+      try {
+        const result = await paymentService.getRazorPaymentResultRishikesh(
+          req.body
+        );
+        res.status(200).json(result);
+      } catch (err) {
+        res.status(400).json(err);
+      }
+    }
+  },
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });
@@ -539,17 +562,7 @@ let sendRegistrationEmail = async function (id) {
 let sendRegistrationEmailV3 = async function (id) {
   const student = await Student.findOne({ _id: id });
   let course = await courseModel.findOne({ _id: "63c4de4a2bce43a907211c74" });
-  // const student = await Student.findOne({_id:id});
-  //    console.log(student.courseId,'----------------------------',course);
-  // let courseTitleArray = []
-  // for(let data of course){
-  //     courseTitleArray.push(data.coursetitle);
-  // }
-  // let courseTitle = courseTitleArray.join();
-  // return
   let mailOptions;
-
-  // let student = await studentModel.findOne({_id:req.body.studentId});
   const filePath = path.join(__dirname, "/emailTemplate/prana.html");
   const source = fs.readFileSync(filePath, "utf-8").toString();
   const template = handlebars.compile(source);
@@ -558,7 +571,6 @@ let sendRegistrationEmailV3 = async function (id) {
     password: student.password,
     email: student.email,
     courseTitle: course.coursetitle,
-    // "question3":req.body.question3,
   };
   const htmlToSend = template(replacements);
 
