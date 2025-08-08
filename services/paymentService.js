@@ -847,8 +847,89 @@ function getRazorPaymentResultRishikesh(reqBody) {
           currency: user.currency,
         });
       } else {
-        await paymentRepo.updatePranicUserData(reqBody.payDbId, null, false);
+        await paymentRepo.updateRishikeshStudentData(reqBody.payDbId, null, false);
         return reject("Payment verification failed");
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function checkoutStripeForRishikesh(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let pay = await paymentRepo.createRishikeshData(reqBody);
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: reqBody.currency,
+              unit_amount: reqBody.price * 100,
+              product_data: {
+                name: "Custom Payment",
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: process.env.STRIP_URL,
+        cancel_url: process.env.STRIP_URL,
+        customer_email: reqBody.email,
+      });
+      return resolve({
+        sessionId: session.id,
+        payDbId: pay._id,
+        url: session.url,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getStripePaymentResultRishikesh(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(
+        reqBody.sessionId
+      );
+      if (session.payment_status == "paid") {
+        const user = await paymentRepo.updateRishikeshStudentData(
+          reqBody.payDbId,
+          session.payment_intent,
+          true
+        );
+        const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
+        const mailData = {
+          replacements: {
+            NAME: user.name,
+            COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
+            WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+          },
+          mailTo: user.email,
+          contentPath: fileName,
+          subject: "🕉 Welcome to the Yoga Vidya Family!",
+        };
+        sendMail.createContent(mailData);
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: session.payment_intent,
+            amount: session.amount_total / 100,
+            currency: session.currency,
+          },
+        });
+      } else {
+        await paymentRepo.updateRishikeshStudentData(reqBody.payDbId, null, false);
+        return resolve({
+          status: 200,
+          data: {
+            status: "failed",
+            sessionId: reqBody.pranicPurificationSessionId,
+          },
+        });
       }
     } catch (error) {
       return reject(error);
@@ -871,4 +952,6 @@ module.exports = {
   getPaymentDetailsById,
   checkoutRazorpayRishikesh,
   getRazorPaymentResultRishikesh,
+  checkoutStripeForRishikesh,
+  getStripePaymentResultRishikesh,
 };

@@ -8,4 +8,26 @@ async function getPaymentDetailsById(req, res) {
     res.status(500).json({ msg: err });
   }
 }
-module.exports = { getPaymentDetailsById };
+async function checkoutStripeForRishikesh(req, res) {
+  try {
+    let result = await paymentService.checkoutStripeForRishikesh(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getStripePaymentResultRishikesh(req, res) {
+  try {
+    let result = await paymentService.getStripePaymentResultRishikesh(
+      req.body
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+module.exports = {
+  getPaymentDetailsById,
+  checkoutStripeForRishikesh,
+  getStripePaymentResultRishikesh,
+};

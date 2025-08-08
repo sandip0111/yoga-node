@@ -581,4 +581,12 @@ router.post(
   "/getRazorPaymentResultRishikesh",
   studentController.getRazorPaymentResultRishikesh
 );
+router.post(
+  "/checkoutStripeForRishikesh",
+  paymentController.checkoutStripeForRishikesh
+);
+router.post(
+  "/getStripePaymentResultRishikesh",
+  paymentController.getStripePaymentResultRishikesh
+);
 module.exports = router;
