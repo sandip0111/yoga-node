@@ -502,28 +502,6 @@ module.exports = {
       res.status(404).json({ status: "error", msg: err.message });
     }
   },
-  checkoutRazorpayRishikesh: async function (req, res) {
-    {
-      try {
-        const result = await paymentService.checkoutRazorpayRishikesh(req.body);
-        res.status(200).json(result);
-      } catch (err) {
-        res.status(400).json(err);
-      }
-    }
-  },
-  getRazorPaymentResultRishikesh: async function (req, res) {
-    {
-      try {
-        const result = await paymentService.getRazorPaymentResultRishikesh(
-          req.body
-        );
-        res.status(200).json(result);
-      } catch (err) {
-        res.status(400).json(err);
-      }
-    }
-  },
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });

@@ -830,24 +830,42 @@ function getRazorPaymentResultRishikesh(reqBody) {
           reqBody.razorpayPaymentId,
           true
         );
-        const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
-        const mailData = {
-          replacements: {
-            NAME: user.name,
-            COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
-            WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
-          },
-          mailTo: user.email,
-          contentPath: fileName,
-          subject: "🕉 Welcome to the Yoga Vidya Family!",
-        };
+        let mailData;
+        if (user.hour == 200) {
+          const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
+          mailData = {
+            replacements: {
+              NAME: user.name,
+              COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
+              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+            },
+            mailTo: user.email,
+            contentPath: fileName,
+            subject: "🕉 Welcome to the Yoga Vidya Family!",
+          };
+        } else if (user.hour == 300) {
+          const fileName = constants.EMAIL_TEMPLATE.RISHI300;
+          mailData = {
+            replacements: {
+              NAME: user.name,
+              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+            },
+            mailTo: user.email,
+            contentPath: fileName,
+            subject: "🕉 Welcome to the Next Step – 300 Hrs TTC",
+          };
+        }
         sendMail.createContent(mailData);
         return resolve({
           amount: +user.price,
           currency: user.currency,
         });
       } else {
-        await paymentRepo.updateRishikeshStudentData(reqBody.payDbId, null, false);
+        await paymentRepo.updateRishikeshStudentData(
+          reqBody.payDbId,
+          null,
+          false
+        );
         return reject("Payment verification failed");
       }
     } catch (error) {
@@ -900,17 +918,31 @@ function getStripePaymentResultRishikesh(reqBody) {
           session.payment_intent,
           true
         );
-        const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
-        const mailData = {
-          replacements: {
-            NAME: user.name,
-            COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
-            WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
-          },
-          mailTo: user.email,
-          contentPath: fileName,
-          subject: "🕉 Welcome to the Yoga Vidya Family!",
-        };
+        let mailData;
+        if (user.hour == 200) {
+          const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
+          mailData = {
+            replacements: {
+              NAME: user.name,
+              COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
+              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+            },
+            mailTo: user.email,
+            contentPath: fileName,
+            subject: "🕉 Welcome to the Yoga Vidya Family!",
+          };
+        } else if (user.hour == 300) {
+          const fileName = constants.EMAIL_TEMPLATE.RISHI300;
+          mailData = {
+            replacements: {
+              NAME: user.name,
+              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+            },
+            mailTo: user.email,
+            contentPath: fileName,
+            subject: "🕉 Welcome to the Next Step – 300 Hrs TTC",
+          };
+        }
         sendMail.createContent(mailData);
         return resolve({
           status: 200,
@@ -922,7 +954,11 @@ function getStripePaymentResultRishikesh(reqBody) {
           },
         });
       } else {
-        await paymentRepo.updateRishikeshStudentData(reqBody.payDbId, null, false);
+        await paymentRepo.updateRishikeshStudentData(
+          reqBody.payDbId,
+          null,
+          false
+        );
         return resolve({
           status: 200,
           data: {

@@ -575,11 +575,11 @@ router.post("/get200ttcData", studentController.get200ttcData);
 router.post("/getPaymentDetailsById", paymentController.getPaymentDetailsById);
 router.post(
   "/checkoutRazorpayRishikesh",
-  studentController.checkoutRazorpayRishikesh
+  paymentController.checkoutRazorpayRishikesh
 );
 router.post(
   "/getRazorPaymentResultRishikesh",
-  studentController.getRazorPaymentResultRishikesh
+  paymentController.getRazorPaymentResultRishikesh
 );
 router.post(
   "/checkoutStripeForRishikesh",
