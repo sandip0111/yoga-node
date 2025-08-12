@@ -919,7 +919,18 @@ function getStripePaymentResultRishikesh(reqBody) {
           true
         );
         let mailData;
-        if (user.hour == 200) {
+        if (user.hour == 100) {
+          const fileName = constants.EMAIL_TEMPLATE.RISHI100;
+          mailData = {
+            replacements: {
+              NAME: user.name,
+              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+            },
+            mailTo: user.email,
+            contentPath: fileName,
+            subject: "🕉 Welcome to Your Yogic Journey – 100 Hrs TTC",
+          };
+        } else if (user.hour == 200) {
           const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
           mailData = {
             replacements: {
