@@ -51,11 +51,10 @@ const mentors = [
   {
     topic: "August 2025 : Yoga Sadhana With Prashant ji",
     time: "Aug 4, 2025 06:00 AM India",
-    zoomLink:
-      "https://us06web.zoom.us/j/85877078350?pwd=w4aoUhIwmCHykDNGfWS2MvupfL6wkF.1",
+    zoomLink: "https://bit.ly/sadhana_zoom",
     meetingId: "858 7707 8350",
     passcode: "153707",
-    whatsappLink: "https://chat.whatsapp.com/LqTDT2hXCkSC1ChgkFuJVd",
+    whatsappLink: "https://bit.ly/4oSs8EW",
     name: "Acharya Prashant Jakhmola",
   },
   {
