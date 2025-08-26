@@ -70,11 +70,10 @@ const mentors = [
   {
     topic: "August 2025: HathaYoga With Anuj ji",
     time: "Aug 4, 2025 05:30 AM India",
-    zoomLink:
-      "https://us02web.zoom.us/j/81639400371?pwd=L6GQg0MfEUImQ5iud3z0vin4b5r6i2.1",
+    zoomLink: "https://bit.ly/Zoom-Hatha-Anuji-S",
     meetingId: "816 3940 0371",
     passcode: "314083",
-    whatsappLink: "https://chat.whatsapp.com/FQ3anlns4MM4Q1RVqqo85r",
+    whatsappLink: "https://bit.ly/Hatha_Anuji_S",
     name: "Anuj Pareek online",
   },
   {
