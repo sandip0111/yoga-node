@@ -89,11 +89,10 @@ const mentors = [
   {
     topic: "August 2025: Intermediate class with Anuj ji",
     time: "Aug 4, 2025 06:00 PM India",
-    zoomLink:
-      "https://us02web.zoom.us/j/82089244265?pwd=aBLAQmoqM7NQjzv6Cg5yMjiaU5vPgC.1",
+    zoomLink: "https://bit.ly/Intermediate_Anuji_Zoom",
     meetingId: "820 8924 4265",
     passcode: "995772",
-    whatsappLink: "https://chat.whatsapp.com/B7f4VmLnCQF3wL1pPc7Oj9",
+    whatsappLink: "https://bit.ly/Intermediate_Anuji_S",
     name: "Anuj Pareek Intermediate",
   },
 ];
