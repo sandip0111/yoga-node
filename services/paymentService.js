@@ -523,7 +523,7 @@ function getRazorPaymentResult200TTC(reqBody) {
           },
           mailTo: user.email,
           contentPath: fileName,
-          subject: "200 Hours Yoga TTC Registration Confirmation",
+          subject: "🕉 Welcome to the Yoga Vidya Family!",
         };
         sendMail.createContent(mailData);
         // const whatsappData = {
@@ -645,7 +645,7 @@ function getStripePaymentResult200TTC(reqBody) {
           },
           mailTo: user.email,
           contentPath: fileName,
-          subject: "200 Hours Yoga TTC Registration Confirmation",
+          subject: "🕉 Welcome to the Yoga Vidya Family!",
         };
         sendMail.createContent(mailData);
         // const whatsappData = {
