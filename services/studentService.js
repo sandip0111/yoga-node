@@ -581,8 +581,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       try {
         console.log(reqBody);
-        const fileName =
-          "/emailTemplate/OrderConfirmationForLiveClassesPrashant.html";
+        const fileName = constants.EMAIL_TEMPLATE.ONLINE_PRASHANT;
         let mailData = {
           replacements: {
             NAME: reqBody.name,

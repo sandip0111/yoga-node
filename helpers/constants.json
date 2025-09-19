@@ -17,7 +17,8 @@
     "ADMIN_REGISTER": "/emailTemplate/adminRegister.HTML",
     "RISHIKESH": "/emailTemplate/rishikesh.html",
     "RISHI300": "/emailTemplate/rishikesh300.html",
-    "RISHI100": "/emailTemplate/rishikesh100.html"
+    "RISHI100": "/emailTemplate/rishikesh100.html",
+    "ONLINE_PRASHANT": "/emailTemplate/OrderConfirmationForLiveClassesPrashant.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
