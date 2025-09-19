@@ -589,4 +589,6 @@ router.post(
   "/getStripePaymentResultRishikesh",
   paymentController.getStripePaymentResultRishikesh
 );
+router.post("/sendMailToPrashantJi", studentController.sendMailToPrashantJi);
+
 module.exports = router;

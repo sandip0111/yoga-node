@@ -4,6 +4,8 @@ const constants = require("../helpers/constants.json");
 const paymentRepo = require("../repositories/paymentRepository");
 const s3Bucket = require("../services/s3_bucket");
 const helper = require("../helpers/helper");
+const sendMail = require("../helpers/nodemail");
+
 module.exports = {
   getAllParayanamStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
@@ -575,6 +577,27 @@ module.exports = {
       }
     });
   },
+  sendMailToPrashantJi: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log(reqBody);
+        const fileName =
+          "/emailTemplate/OrderConfirmationForLiveClassesPrashant.html";
+        let mailData = {
+          replacements: {
+            NAME: reqBody.name,
+          },
+          mailTo: reqBody.email,
+          contentPath: fileName,
+          subject: "Welcome to Your Online Sadhana with Prashantji",
+        };
+        sendMail.createContent(mailData);
+        return resolve(1);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let pranaySadhanaCourseVideo = function (getVideoData) {
   return new Promise(async (resolve, reject) => {
@@ -856,7 +879,6 @@ let getBrathDtoxAllData = async function (
   );
   return { studentList, totalData };
 };
-
 let getBrathDtoxCount = async function (
   courseId,
   searchText,
