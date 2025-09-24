@@ -107,6 +107,7 @@ module.exports = {
         const searchText = reqBody.searchText;
         let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
         let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
+        const month = reqBody.month ? reqBody.month : null;
         if (startDate) {
           startDate.setHours(0, 0, 0, 0);
         }
@@ -117,7 +118,7 @@ module.exports = {
           { $sort: { created: -1 } },
           {
             $match: {
-              "courses.title": course,
+                "courses.title": { $regex: course, $options: "i" },
             },
           },
           { $skip: skip },
@@ -131,6 +132,7 @@ module.exports = {
               price: "$price",
               paymentStatus: "$paymentStatus",
               created: "$created",
+              month: "$month",
               courseTimming: {
                 $let: {
                   vars: {
@@ -201,6 +203,13 @@ module.exports = {
               ],
             },
           });
+        }
+
+         // 🗓️ Month filter (direct column in DB)
+        if (month) {
+          const monthMatch = { month: month }; // exact match
+          pipeLine.splice(1, 0, { $match: monthMatch });
+          pipeLineCount.splice(1, 0, { $match: monthMatch });
         }
         const studentObj = await studentRepo.getAllLiveClassStudent(
           pipeLine,
