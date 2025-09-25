@@ -40,6 +40,10 @@ const liveCoursesCustomerSchema = new mongoose.Schema({
     type: Date,
     default: () => new Date(),
   },
+  month: {
+    type: String,
+    default: () => "October",
+  },
 });
 
 module.exports = mongoose.model(
