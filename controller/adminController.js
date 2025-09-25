@@ -57,7 +57,7 @@ const mentors = [
     whatsappLink: "https://bit.ly/4oSs8EW",
     name: "Yoga Sadhana",
     subject: "Welcome to Your Online Sadhana with Prashantji",
-    emailTemplate: "OrderConfirmationForLiveClassesPrashant.html"
+    emailTemplate: "OrderConfirmationForLiveClassesPrashant.html",
   },
   {
     topic: "August 2025: Women Wellness With Taniya ji",
@@ -69,7 +69,7 @@ const mentors = [
     whatsappLink: "https://chat.whatsapp.com/DEsqbOSf8OiG2V7RYs03Dn",
     name: "Woman Wellness Yoga",
     subject: "Welcome to Your Online Woman Wellness Yoga with Tanya",
-    emailTemplate: "OrderConfirmationForLiveClassesTaniya.html"
+    emailTemplate: "OrderConfirmationForLiveClassesTaniya.html",
   },
   {
     topic: "August 2025: HathaYoga With Anuj ji",
@@ -79,8 +79,8 @@ const mentors = [
     passcode: "314083",
     whatsappLink: "https://bit.ly/Hatha_Anuji_S",
     name: "Therapeutic Hatha Yoga",
-    subject : "Welcome to Your Online Hatha Yoga Classes with Anuji",
-    emailTemplate: "OrderConfirmationForLiveClassesHathaAnuj.html"
+    subject: "Welcome to Your Online Hatha Yoga Classes with Anuji",
+    emailTemplate: "OrderConfirmationForLiveClassesHathaAnuj.html",
   },
   {
     topic: "July 2025: Weekend Classes with shivam ji",
@@ -100,8 +100,9 @@ const mentors = [
     passcode: "995772",
     whatsappLink: "https://bit.ly/Intermediate_Anuji_S",
     name: "Intermediate Alignment Based Class",
-    subject: "Welcome to Your Online Intermediate Alignment Yoga Classes with Anuji",
-    emailTemplate: "OrderConfirmationForLiveClassesAnujIntermediate.html"
+    subject:
+      "Welcome to Your Online Intermediate Alignment Yoga Classes with Anuji",
+    emailTemplate: "OrderConfirmationForLiveClassesAnujIntermediate.html",
   },
 ];
 const maxAge = 3 * 24 * 60 * 60;
@@ -478,8 +479,8 @@ module.exports = {
           },
         ],
         mode: "payment",
-        success_url: "https://swaryoga.yogavidyaschool.com/success.html",
-        cancel_url: "https://swaryoga.yogavidyaschool.com/failed.html",
+        success_url: process.env.STRIP_URL,
+        cancel_url: process.env.STRIP_URL,
         customer_email: req.body.custEmail,
       });
 
@@ -1995,21 +1996,23 @@ module.exports = {
       }));
 
       // Customer Email
-      
-      for(var i = 0; i< courseList.length;i++){
-        var item = mentors.find(obj => courseList[i].title.includes(obj.name));
-        const custTemplateName = item.emailTemplate;      
+
+      for (var i = 0; i < courseList.length; i++) {
+        var item = mentors.find((obj) =>
+          courseList[i].title.includes(obj.name)
+        );
+        const custTemplateName = item.emailTemplate;
         const custTemplatePath = path.join(
           __dirname,
           "emailTemplate",
           custTemplateName
         );
-        
+
         const custSource = fs.readFileSync(custTemplatePath, "utf-8");
-        const template = handlebars.compile(custSource);     
+        const template = handlebars.compile(custSource);
 
         const replacements = {
-          name: name
+          name: name,
         };
         const htmlToSend = template(replacements);
         transporter.sendMail(
@@ -2027,9 +2030,7 @@ module.exports = {
             }
           }
         );
-        }
-      
-      
+      }
 
       // Admin Email
       const adminTemplatePath = path.join(
@@ -2564,20 +2565,22 @@ module.exports = {
               });
               return acc;
             }, []);
-            for(var i = 0; i< courseList.length;i++){
-              var item = mentors.find(obj => courseList[i].title.includes(obj.name));
+            for (var i = 0; i < courseList.length; i++) {
+              var item = mentors.find((obj) =>
+                courseList[i].title.includes(obj.name)
+              );
               const custTemplateName = item.emailTemplate;
               const custTemplatePath = path.join(
                 __dirname,
                 "emailTemplate",
                 custTemplateName
               );
-              
+
               const custSource = fs.readFileSync(custTemplatePath, "utf-8");
-              const template = handlebars.compile(custSource);                   
+              const template = handlebars.compile(custSource);
 
               const replacements = {
-                name: name
+                name: name,
               };
               const htmlToSend = template(replacements);
               transporter.sendMail(
@@ -2595,7 +2598,7 @@ module.exports = {
                   }
                 }
               );
-              }
+            }
           } catch (e) {
             console.log("Customer email send error!");
           }
