@@ -584,17 +584,8 @@ module.exports = {
             if (err) {
               res.status(400).json("Opps error occured");
             } else {
-              axios
-                .post(whatsappCloudApiUrl, messageData, {
-                  headers: {
-                    Authorization: `Bearer ${whatsappAccessToken}`,
-                    "Content-Type": "application/json",
-                  },
-                })
-                .then((response) => {})
-                .catch((error) => {
-                  res.status(400).json("Opps error occured");
-                });
+             
+             
 
               res.status(200).json({
                 status: "success",
@@ -754,17 +745,17 @@ module.exports = {
             }
           });
 
-          axios
-            .post(whatsappCloudApiUrl, messageData, {
-              headers: {
-                Authorization: `Bearer ${whatsappAccessToken}`,
-                "Content-Type": "application/json",
-              },
-            })
-            .then((response) => {})
-            .catch((error) => {
-              res.status(400).json("Oops error occurred in WhatsApp message");
-            });
+          // axios
+          //   .post(whatsappCloudApiUrl, messageData, {
+          //     headers: {
+          //       Authorization: `Bearer ${whatsappAccessToken}`,
+          //       "Content-Type": "application/json",
+          //     },
+          //   })
+          //   .then((response) => {})
+          //   .catch((error) => {
+          //     res.status(400).json("Oops error occurred in WhatsApp message");
+          //   });
 
           res.status(200).json({
             status: "success",
@@ -1479,13 +1470,13 @@ module.exports = {
             // If lastTimeLoggedIn has a value, check if 48 hours have passed
             const lastLoggedInTime = new Date(webinarUserData.lastTimeLoggedIn);
             const timeAfter96Hours = new Date(
-              lastLoggedInTime.getTime() + 48 * 60 * 60 * 1000
+              lastLoggedInTime.getTime() + 24 *30 * 60 * 60 * 1000
             ); // Add 48 hours
 
             if (currentTime > timeAfter96Hours) {
               res.status(200).json({
                 status: "ok",
-                msg: "You exceed the 48 hours time after logged in",
+                msg: "You exceed the 1 month time after logged in",
               });
               return;
             }

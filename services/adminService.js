@@ -29,7 +29,7 @@ function registerSwarSadhanaWebinarUser(reqBody) {
         password,
         created,
       });
-      await helper.sendWebinerEmail(savedUser);
+     // await helper.sendWebinerEmail(savedUser);
       return resolve({
         data: {
           status: "ok",
