@@ -836,7 +836,7 @@ function getRazorPaymentResultRishikesh(reqBody) {
           mailData = {
             replacements: {
               NAME: user.name,
-              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+              WLINK: constants.LINK["100_HOURS_RISHIKESH"],
             },
             mailTo: user.email,
             contentPath: fileName,
@@ -848,7 +848,7 @@ function getRazorPaymentResultRishikesh(reqBody) {
             replacements: {
               NAME: user.name,
               COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
-              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+              WLINK: constants.LINK["100_HOURS_RISHIKESH"],
             },
             mailTo: user.email,
             contentPath: fileName,
@@ -859,7 +859,7 @@ function getRazorPaymentResultRishikesh(reqBody) {
           mailData = {
             replacements: {
               NAME: user.name,
-              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+              WLINK: constants.LINK["300_HOURS_RISHIKESH"],
             },
             mailTo: user.email,
             contentPath: fileName,
@@ -935,7 +935,7 @@ function getStripePaymentResultRishikesh(reqBody) {
           mailData = {
             replacements: {
               NAME: user.name,
-              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+              WLINK: constants.LINK["100_HOURS_RISHIKESH"],
             },
             mailTo: user.email,
             contentPath: fileName,
@@ -947,7 +947,7 @@ function getStripePaymentResultRishikesh(reqBody) {
             replacements: {
               NAME: user.name,
               COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
-              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+              WLINK: constants.LINK["100_HOURS_RISHIKESH"],
             },
             mailTo: user.email,
             contentPath: fileName,
@@ -958,7 +958,7 @@ function getStripePaymentResultRishikesh(reqBody) {
           mailData = {
             replacements: {
               NAME: user.name,
-              WLINK: constants.LINK.WHATSAPP_RISHIKESH_200,
+              WLINK: constants.LINK["300_HOURS_RISHIKESH"],
             },
             mailTo: user.email,
             contentPath: fileName,
