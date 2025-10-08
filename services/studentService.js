@@ -108,6 +108,7 @@ module.exports = {
         let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
         let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
         const month = reqBody.month ? reqBody.month : null;
+        const payStatus = reqBody.paymentStatus;
         if (startDate) {
           startDate.setHours(0, 0, 0, 0);
         }
@@ -204,12 +205,16 @@ module.exports = {
             },
           });
         }
-
          // 🗓️ Month filter (direct column in DB)
         if (month) {
-          const monthMatch = { month: month }; // exact match
+          const monthMatch = { month: month };
           pipeLine.splice(1, 0, { $match: monthMatch });
           pipeLineCount.splice(1, 0, { $match: monthMatch });
+        }
+        if(payStatus != 'all'){
+          const payStatusMatch = { paymentStatus: payStatus };
+          pipeLine.splice(1, 0, { $match: payStatusMatch });
+          pipeLineCount.splice(1, 0, { $match: payStatusMatch });
         }
         const studentObj = await studentRepo.getAllLiveClassStudent(
           pipeLine,
