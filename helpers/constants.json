@@ -18,7 +18,8 @@
     "RISHIKESH": "/emailTemplate/rishikesh.html",
     "RISHI300": "/emailTemplate/rishikesh300.html",
     "RISHI100": "/emailTemplate/rishikesh100.html",
-    "ONLINE_PRASHANT": "/emailTemplate/OrderConfirmationForLiveClassesPrashant.html"
+    "ONLINE_PRASHANT": "/emailTemplate/OrderConfirmationForLiveClassesPrashant.html",
+    "SWARA": "/emailTemplate/swarayoga.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",

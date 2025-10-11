@@ -58,7 +58,12 @@ const userSchema = new mongoose.Schema({
     type: String, 
     required: false 
   },
-
+  paymentType: {
+    type: String, 
+    enum: ['razorpay', 'stripe', 'paypal'], 
+    required: false,
+    default: null
+  }
 });
 
 module.exports = mongoose.model('WebinarRegisterUser', userSchema);

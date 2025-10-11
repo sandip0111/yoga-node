@@ -18,6 +18,8 @@ function registerSwarSadhanaWebinarUser(reqBody) {
           });
         }
       }
+      const paymentStatus = 'paid';
+      const paymentType = 'paypal';
       const savedUser = await studentRepo.registerSwaraSadhanaStudentByAdmin({
         name,
         email,
@@ -28,8 +30,18 @@ function registerSwarSadhanaWebinarUser(reqBody) {
         timeSlot,
         password,
         created,
+        paymentStatus,
+        paymentType
       });
-     // await helper.sendWebinerEmail(savedUser);
+      await helper.sendSwaraSadhnaEmail(
+        {
+          name: name,
+          webinar: webinar,
+          email: email,
+          password: password,
+        },
+        email
+      );
       return resolve({
         data: {
           status: "ok",
@@ -72,14 +84,13 @@ function registerPranicPurificationUser(reqBody) {
 function register200TTCUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      const savedUser =
-        await studentRepo.register200TTCStudentByAdmin({
-          name: reqBody.name,
-          email: reqBody.email,
-          phoneNumber: reqBody.phone,
-          paymentStatus: constant.PAYMENT_STATUS.PAID,
-          created: new Date(),
-        });
+      const savedUser = await studentRepo.register200TTCStudentByAdmin({
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phone,
+        paymentStatus: constant.PAYMENT_STATUS.PAID,
+        created: new Date(),
+      });
       await helper.send200TTCEmail(savedUser);
       return resolve({
         data: {
@@ -97,5 +108,5 @@ function register200TTCUser(reqBody) {
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
-  register200TTCUser
+  register200TTCUser,
 };
