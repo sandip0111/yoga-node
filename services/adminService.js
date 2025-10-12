@@ -7,8 +7,18 @@ const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
 function registerSwarSadhanaWebinarUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      const { name, email, phone, city, company, webinar, timeSlot, password } =
-        reqBody;
+      var {
+        name,
+        email,
+        phone,
+        city,
+        company,
+        webinar,
+        timeSlot,
+        password,
+        isWebsite,
+        paymentType,
+      } = reqBody;
       let created = new Date();
       if (timeSlot) {
         const errMsg = await courseRepo.checkCourseTimeSlot(timeSlot);
@@ -19,8 +29,15 @@ function registerSwarSadhanaWebinarUser(reqBody) {
           });
         }
       }
-      const paymentStatus = "paid";
-      const paymentType = "paypal";
+      var paymentStatus = "";
+      if (isWebsite) {
+        paymentStatus = constant.PAYMENT_STATUS.PENDING;
+      } else {
+        paymentType = "paypal";
+        paymentStatus = constant.PAYMENT_STATUS.PAID;
+        isWebsite = false;
+      }
+
       const savedUser = await studentRepo.registerSwaraSadhanaStudentByAdmin({
         name,
         email,
@@ -34,15 +51,17 @@ function registerSwarSadhanaWebinarUser(reqBody) {
         paymentStatus,
         paymentType,
       });
-      await helper.sendSwaraSadhnaEmail(
-        {
-          name: name,
-          webinar: webinar,
-          email: email,
-          password: password,
-        },
-        email
-      );
+      if (!isWebsite) {
+        await helper.sendSwaraSadhnaEmail(
+          {
+            name: name,
+            webinar: webinar,
+            email: email,
+            password: password,
+          },
+          email
+        );
+      }
       return resolve({
         data: {
           status: "ok",
