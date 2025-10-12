@@ -109,14 +109,11 @@ let sendPranicEmail = async function (student) {
 let send200TTCEmail = async function (student) {
   const mailData = {
     replacements: {
-      NAME: student.name,
-      COURSETITLE: "200 TTC",
-      WLINK: constants.LINK.WHATSAPP_COMMUNITY_LINK,
-      FB: constants.LINK.FB_LINK,
+      name: student.name,
     },
     mailTo: student.email,
-    contentPath: constants.EMAIL_TEMPLATE.ADMIN_REGISTER,
-    subject: `200 TTC Registration Confirmation`,
+    contentPath: constants.EMAIL_TEMPLATE["200_HOURS_TTC"],
+    subject: "🕉 Welcome to the Yoga Vidya Family!",
   };
   sendMail.createContent(mailData);
 };
@@ -146,5 +143,5 @@ module.exports = {
   sendPranicEmail,
   send200TTCEmail,
   sendSwaraSadhnaEmail,
-  sendLiveCourseEmail
+  sendLiveCourseEmail,
 };

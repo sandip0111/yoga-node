@@ -119,7 +119,7 @@ module.exports = {
           { $sort: { created: -1 } },
           {
             $match: {
-                "courses.title": { $regex: course, $options: "i" },
+              "courses.title": { $regex: course, $options: "i" },
             },
           },
           { $skip: skip },
@@ -132,6 +132,7 @@ module.exports = {
               currency: "$currency",
               price: "$price",
               paymentStatus: "$paymentStatus",
+              paymentType: "$paymentType",
               created: "$created",
               month: "$month",
               courseTimming: {
@@ -205,13 +206,13 @@ module.exports = {
             },
           });
         }
-         // 🗓️ Month filter (direct column in DB)
+        // 🗓️ Month filter (direct column in DB)
         if (month) {
           const monthMatch = { month: month };
           pipeLine.splice(1, 0, { $match: monthMatch });
           pipeLineCount.splice(1, 0, { $match: monthMatch });
         }
-        if(payStatus != 'all'){
+        if (payStatus != "all") {
           const payStatusMatch = { paymentStatus: payStatus };
           pipeLine.splice(1, 0, { $match: payStatusMatch });
           pipeLineCount.splice(1, 0, { $match: payStatusMatch });
@@ -262,6 +263,7 @@ module.exports = {
               paymentStatus: "$paymentStatus",
               created: "$created",
               password: "$password",
+              paymentType: "$paymentType",
             },
           },
         ];

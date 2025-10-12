@@ -467,6 +467,7 @@ function checkoutRazorpayFor200TTC(reqBody) {
           price: reqBody.price,
           courseStartDate: reqBody.courseStartDate,
           courseTimeDuration: reqBody.courseTimeDuration,
+          paymentType: "razorpay",
         };
         pay = await paymentRepo.create200TTCData(userData);
       }
@@ -506,7 +507,6 @@ function getRazorPaymentResult200TTC(reqBody) {
         if (reqBody.installment == "2nd") {
           await savePranaArambhOn200TTC(user, reqBody);
         }
-        // await saveLiveClassOn200TTC(user, reqBody);
         const fileName =
           reqBody.installment == "1st"
             ? constants.EMAIL_TEMPLATE["200_HOURS_TTC_1ST"]
@@ -579,6 +579,7 @@ function checkoutStripeFor200TTC(reqBody) {
           price: reqBody.price,
           courseStartDate: reqBody.courseStartDate,
           courseTimeDuration: reqBody.courseTimeDuration,
+          paymentType: "stripe",
         };
         pay = await paymentRepo.create200TTCData(userData);
       }

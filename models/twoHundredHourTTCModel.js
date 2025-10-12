@@ -48,11 +48,17 @@ const twoHundredHourTTCSchema = new mongoose.Schema({
   },
   installment: {
     type: String,
-    default: "",
+    default: "2nd",
   },
   dueAmount: {
     type: Number,
     default: 0,
+  },
+  paymentType: {
+    type: String,
+    enum: ["razorpay", "stripe", "paypal"],
+    required: false,
+    default: null,
   },
 });
 

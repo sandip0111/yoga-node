@@ -110,6 +110,7 @@ function register200TTCUser(reqBody) {
         phoneNumber: reqBody.phone,
         paymentStatus: constant.PAYMENT_STATUS.PAID,
         created: new Date(),
+        paymentType: "paypal",
       });
       await helper.send200TTCEmail(savedUser);
       return resolve({
