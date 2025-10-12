@@ -590,5 +590,5 @@ router.post(
   paymentController.getStripePaymentResultRishikesh
 );
 router.post("/sendMailToPrashantJi", studentController.sendMailToPrashantJi);
-
+router.post("/createLiveCourseCustomer", adminController.createLiveCourseCustomer);
 module.exports = router;

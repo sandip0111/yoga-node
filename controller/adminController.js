@@ -584,9 +584,6 @@ module.exports = {
             if (err) {
               res.status(400).json("Opps error occured");
             } else {
-             
-             
-
               res.status(200).json({
                 status: "success",
                 sessionId: req.body.sessionId,
@@ -1470,7 +1467,7 @@ module.exports = {
             // If lastTimeLoggedIn has a value, check if 48 hours have passed
             const lastLoggedInTime = new Date(webinarUserData.lastTimeLoggedIn);
             const timeAfter96Hours = new Date(
-              lastLoggedInTime.getTime() + 24 *30 * 60 * 60 * 1000
+              lastLoggedInTime.getTime() + 24 * 30 * 60 * 60 * 1000
             ); // Add 48 hours
 
             if (currentTime > timeAfter96Hours) {
@@ -1876,6 +1873,7 @@ module.exports = {
         currency: req.body.currency,
         phone: req.body.phone,
         courses: req.body.courses,
+        paymentType: "stripe",
       };
       const pay = await liveCoursesCustomermodel.create(paymentData);
       const session = await stripe.checkout.sessions.create({
@@ -1917,12 +1915,13 @@ module.exports = {
         price: req.body.price,
         paymentStatus: "unpaid",
         courses: req.body.courses,
+        paymentType: "razorpay",
       };
 
       const pay = await liveCoursesCustomermodel.create(paymentData);
 
       const order = await razorpay.orders.create({
-        amount: req.body.price * 100, // in paise
+        amount: req.body.price * 100,
         currency: req.body.currency,
         receipt: `LiveClass_${pay._id}`,
         notes: { dbId: pay._id.toString() },
@@ -3008,6 +3007,19 @@ module.exports = {
       res.status(returnData.status).json(returnData.data);
     } catch (error) {
       res.status(500).json("Internal server error");
+    }
+  },
+  createLiveCourseCustomer: async function (req, res) {
+    {
+      try {
+        const returnData = await adminService.createLiveCourseCustomer(
+          req.body,
+          mentors
+        );
+        res.status(returnData.status).json(returnData.data);
+      } catch (err) {
+        res.status(400).json({ err });
+      }
     }
   },
 };

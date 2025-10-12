@@ -129,6 +129,15 @@ let sendSwaraSadhnaEmail = async function (data, email) {
   };
   sendMail.createContent(mailData);
 };
+let sendLiveCourseEmail = async function (data, email, emailTemplate, subject) {
+  const mailData = {
+    replacements: data,
+    mailTo: email,
+    contentPath: emailTemplate,
+    subject: subject,
+  };
+  sendMail.createContent(mailData);
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -137,4 +146,5 @@ module.exports = {
   sendPranicEmail,
   send200TTCEmail,
   sendSwaraSadhnaEmail,
+  sendLiveCourseEmail
 };

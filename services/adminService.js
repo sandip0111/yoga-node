@@ -3,6 +3,7 @@ const studentRepo = require("../repositories/studentRepository");
 const courseRepo = require("../repositories/courseRepository");
 const helper = require("../helpers/helper");
 const constant = require("../helpers/constants.json");
+const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
 function registerSwarSadhanaWebinarUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -18,8 +19,8 @@ function registerSwarSadhanaWebinarUser(reqBody) {
           });
         }
       }
-      const paymentStatus = 'paid';
-      const paymentType = 'paypal';
+      const paymentStatus = "paid";
+      const paymentType = "paypal";
       const savedUser = await studentRepo.registerSwaraSadhanaStudentByAdmin({
         name,
         email,
@@ -31,7 +32,7 @@ function registerSwarSadhanaWebinarUser(reqBody) {
         password,
         created,
         paymentStatus,
-        paymentType
+        paymentType,
       });
       await helper.sendSwaraSadhnaEmail(
         {
@@ -105,8 +106,46 @@ function register200TTCUser(reqBody) {
     }
   });
 }
+function createLiveCourseCustomer(reqBody, mentors) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const paymentData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phone: reqBody.phone,
+        paymentStatus: "paid",
+        courses: reqBody.course,
+        paymentType: "paypal",
+      };
+      await liveCoursesCustomermodel.create(paymentData);
+      for (let coursObj of reqBody.courseList) {
+        var item = mentors.find((obj) => coursObj.includes(obj.name));
+        if (item) {
+          await helper.sendLiveCourseEmail(
+            {
+              name: reqBody.name,
+            },
+            reqBody.email,
+            `/emailTemplate/${item.emailTemplate}`,
+            item.subject
+          );
+        }
+      }
+      return resolve({
+        data: {
+          status: "ok",
+          message: "User registered successfully!",
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
   register200TTCUser,
+  createLiveCourseCustomer,
 };
