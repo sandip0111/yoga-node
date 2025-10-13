@@ -108,7 +108,6 @@ module.exports = {
         let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
         let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
         const month = reqBody.month ? reqBody.month : null;
-        const payStatus = reqBody.paymentStatus;
         if (startDate) {
           startDate.setHours(0, 0, 0, 0);
         }
@@ -188,6 +187,22 @@ module.exports = {
             },
           });
         }
+        if (reqBody.paymentType) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+          pipeLineCount.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+        }
         if (startDate && endDate) {
           pipeLine.splice(1, 0, {
             $match: {
@@ -212,8 +227,8 @@ module.exports = {
           pipeLine.splice(1, 0, { $match: monthMatch });
           pipeLineCount.splice(1, 0, { $match: monthMatch });
         }
-        if (payStatus != "all") {
-          const payStatusMatch = { paymentStatus: payStatus };
+        if (reqBody.paymentStatus) {
+          const payStatusMatch = { paymentStatus: reqBody.paymentStatus };
           pipeLine.splice(1, 0, { $match: payStatusMatch });
           pipeLineCount.splice(1, 0, { $match: payStatusMatch });
         }
@@ -290,6 +305,27 @@ module.exports = {
               ],
             },
           });
+        }
+        if (reqBody.paymentType) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+          pipeLineCount.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+        }
+        if (reqBody.paymentStatus) {
+          const payStatusMatch = { paymentStatus: reqBody.paymentStatus };
+          pipeLine.splice(1, 0, { $match: payStatusMatch });
+          pipeLineCount.splice(1, 0, { $match: payStatusMatch });
         }
         if (startDate && endDate) {
           pipeLine.splice(1, 0, {
@@ -560,6 +596,27 @@ module.exports = {
               ],
             },
           });
+        }
+        if (reqBody.paymentType) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+          pipeLineCount.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+        }
+        if (reqBody.paymentStatus) {
+          const payStatusMatch = { paymentStatus: reqBody.paymentStatus };
+          pipeLine.splice(1, 0, { $match: payStatusMatch });
+          pipeLineCount.splice(1, 0, { $match: payStatusMatch });
         }
         if (startDate && endDate) {
           pipeLine.splice(1, 0, {
