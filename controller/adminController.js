@@ -1833,7 +1833,6 @@ module.exports = {
         studentId: req.body.studentId,
         paymentStatus: req.body.paymentStatus,
         paymentBy: req.body.paymentBy,
-        paymentType: "stripe",
       };
       const pay = await paymentModel.create(paymentData);
       const session = await stripe.checkout.sessions.create({
@@ -2250,7 +2249,6 @@ module.exports = {
         studentId,
         paymentStatus,
         paymentBy,
-        paymentType: "razorpay",
       };
       const pay = await paymentModel.create(paymentData);
 

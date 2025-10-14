@@ -203,7 +203,7 @@ function createPranaArambhCustomer(reqBody) {
         courseId: "644f9dfc499ffcfb45df35cd",
         studentId: student._id,
         paymentStatus: "paid",
-        paymentType: "paypal",
+        paymentBy: "Paypal",
       };
       await paymentModel.create(paymentData);
       let coursetitle = await courseRepo.getCourseById(
