@@ -799,6 +799,7 @@ function getPaymentDetailsById(id) {
 function checkoutRazorpayRishikesh(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
+      reqBody.paymentType = "razorpay";
       let pay = await paymentRepo.createRishikeshData(reqBody);
       const amountInSubunits = reqBody.price * 100;
       const options = {
@@ -888,6 +889,7 @@ function getRazorPaymentResultRishikesh(reqBody) {
 function checkoutStripeForRishikesh(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
+      reqBody.paymentType = "stripe";
       let pay = await paymentRepo.createRishikeshData(reqBody);
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],

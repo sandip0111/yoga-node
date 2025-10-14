@@ -4,6 +4,7 @@ const courseRepo = require("../repositories/courseRepository");
 const helper = require("../helpers/helper");
 const constant = require("../helpers/constants.json");
 const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
+const paymentRepo = require("../repositories/paymentRepository");
 function registerSwarSadhanaWebinarUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -163,9 +164,35 @@ function createLiveCourseCustomer(reqBody, mentors) {
     }
   });
 }
+function createRishikeshCustomer(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const paymentData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phone: reqBody.phone,
+        hour: reqBody.hour,
+        paymentStatus: "paid",
+        paymentType: "paypal",
+      };
+      await paymentRepo.createRishikeshData(paymentData);
+      await helper.sendRishikeshCourseEmail(reqBody);
+      return resolve({
+        data: {
+          status: "ok",
+          message: "User registered successfully!",
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
   register200TTCUser,
   createLiveCourseCustomer,
+  createRishikeshCustomer
 };

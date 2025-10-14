@@ -3022,6 +3022,16 @@ module.exports = {
       }
     }
   },
+  createRishikeshCustomer: async function (req, res) {
+    {
+      try {
+        const returnData = await adminService.createRishikeshCustomer(req.body);
+        res.status(returnData.status).json(returnData.data);
+      } catch (err) {
+        res.status(400).json({ err });
+      }
+    }
+  },
 };
 
 let updatePayment = async function (data) {

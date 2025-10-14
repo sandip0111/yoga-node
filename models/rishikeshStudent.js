@@ -11,7 +11,6 @@ const rishikeshStudentSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    required: true,
   },
   hour: {
     type: Number,
@@ -40,6 +39,12 @@ const rishikeshStudentSchema = new mongoose.Schema({
   paymentId: {
     type: String,
     required: false,
+  },
+  paymentType: {
+    type: String,
+    enum: ["razorpay", "stripe", "paypal"],
+    required: false,
+    default: null,
   },
 });
 
