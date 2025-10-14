@@ -174,6 +174,16 @@ let sendRishikeshCourseEmail = async function (user) {
   }
   sendMail.createContent(mailData);
 };
+let sendPranaArambhEmail = async function (replacement) {
+  const fileName = constants.EMAIL_TEMPLATE.ORDER_CONFIRMATION;
+  let mailData = {
+    replacements: replacement,
+    mailTo: replacement.email,
+    contentPath: fileName,
+    subject: `Purchase Confirmation - ${replacement.course}`,
+  };
+  sendMail.createContent(mailData);
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -184,4 +194,5 @@ module.exports = {
   sendSwaraSadhnaEmail,
   sendLiveCourseEmail,
   sendRishikeshCourseEmail,
+  sendPranaArambhEmail,
 };

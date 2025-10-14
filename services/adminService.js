@@ -5,6 +5,7 @@ const helper = require("../helpers/helper");
 const constant = require("../helpers/constants.json");
 const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
 const paymentRepo = require("../repositories/paymentRepository");
+const paymentModel = require("../models/paymentModel");
 function registerSwarSadhanaWebinarUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -189,10 +190,51 @@ function createRishikeshCustomer(reqBody) {
     }
   });
 }
+function createPranaArambhCustomer(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const student = await studentRepo.createStudent({
+        firstName: reqBody.name,
+        email: reqBody.email,
+        password: reqBody.password,
+        course: ["644f9dfc499ffcfb45df35cd"],
+      });
+      const paymentData = {
+        courseId: "644f9dfc499ffcfb45df35cd",
+        studentId: student._id,
+        paymentStatus: "paid",
+        paymentType: "paypal",
+      };
+      await paymentModel.create(paymentData);
+      let coursetitle = await courseRepo.getCourseById(
+        "644f9dfc499ffcfb45df35cd"
+      );
+      let date = new Date();
+      let replacement = {
+        name: reqBody.name,
+        course: coursetitle,
+        email: reqBody.email,
+        date: date.toString(),
+        password: reqBody.password,
+      };
+      await helper.sendPranaArambhEmail(replacement);
+      return resolve({
+        data: {
+          status: "ok",
+          message: "User registered successfully!",
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
   register200TTCUser,
   createLiveCourseCustomer,
-  createRishikeshCustomer
+  createRishikeshCustomer,
+  createPranaArambhCustomer,
 };

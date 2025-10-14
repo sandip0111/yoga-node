@@ -598,5 +598,9 @@ router.post(
   "/createRishikeshCustomer",
   adminController.createRishikeshCustomer
 );
+router.post(
+  "/createPranaArambhCustomer",
+  adminController.createPranaArambhCustomer
+);
 
 module.exports = router;

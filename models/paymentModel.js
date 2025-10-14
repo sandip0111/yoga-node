@@ -28,6 +28,12 @@ const paymentSchema = new mongoose.Schema({
     type: Date,
     default: () => new Date(),
   },
+  paymentType: {
+    type: String,
+    enum: ["razorpay", "stripe", "paypal"],
+    required: false,
+    default: null,
+  },
 });
 
 const blog = mongoose.model("payment", paymentSchema);
