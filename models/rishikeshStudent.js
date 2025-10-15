@@ -46,6 +46,10 @@ const rishikeshStudentSchema = new mongoose.Schema({
     required: false,
     default: null,
   },
+  orderId: {
+    type: String,
+    required: false,
+  },
 });
 
 module.exports = mongoose.model(

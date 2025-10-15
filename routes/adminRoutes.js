@@ -602,5 +602,9 @@ router.post(
   "/createPranaArambhCustomer",
   adminController.createPranaArambhCustomer
 );
+router.post(
+  "/updatePaymentId200ttc",
+  paymentController.updatePaymentId200ttc
+);
 
 module.exports = router;

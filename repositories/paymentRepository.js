@@ -227,7 +227,7 @@ function updateRishikeshStudentData(id, paymentId, isPaid) {
     try {
       let user;
       if (isPaid) {
-        user = await rishikeshStudentModel.findOneAndUpdate(
+        user = await twoHundredHourTTCModel.findOneAndUpdate(
           { _id: id },
           {
             paymentId: paymentId,
@@ -242,6 +242,35 @@ function updateRishikeshStudentData(id, paymentId, isPaid) {
         );
       }
       return resolve(user);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function update200ttcPayment(data, id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await twoHundredHourTTCModel.findOneAndUpdate({ _id: id }, data);
+      return resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updatePaymentStatusForcefully(startDate, endDate) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await twoHundredHourTTCModel
+        .find({
+          created: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          paymentStatus: { $ne: "paid" },
+          isPaymentCheck: false
+        })
+        .lean();
+      return resolve(data);
     } catch (error) {
       return reject(error);
     }
@@ -262,5 +291,7 @@ module.exports = {
   secondInstallmentPaymentMail,
   updateInstallmentPayment200TTCata,
   createRishikeshData,
-  updateRishikeshStudentData
+  updateRishikeshStudentData,
+  update200ttcPayment,
+  updatePaymentStatusForcefully,
 };

@@ -46,10 +46,19 @@ async function getStripePaymentResultRishikesh(req, res) {
     res.status(500).json(error);
   }
 }
+async function updatePaymentId200ttc(req, res) {
+  try {
+    let result = await paymentService.updatePaymentId200ttc(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
 module.exports = {
   getPaymentDetailsById,
   checkoutStripeForRishikesh,
   getStripePaymentResultRishikesh,
   checkoutRazorpayRishikesh,
-  getRazorPaymentResultRishikesh
+  getRazorPaymentResultRishikesh,
+  updatePaymentId200ttc
 };

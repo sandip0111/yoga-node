@@ -997,6 +997,68 @@ function getStripePaymentResultRishikesh(reqBody) {
     }
   });
 }
+function updatePaymentId200ttc(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let data;
+      if (reqBody.isRazorPay) {
+        data = {
+          paymentId: reqBody.paymentId,
+          orderId: reqBody.orderId,
+        };
+      } else {
+        data = {
+          paymentId: reqBody.paymentId,
+        };
+      }
+      await paymentRepo.update200ttcPayment(data, reqBody.id);
+      return resolve({
+        status: 200,
+        status: "success",
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updatePaymentStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const now = new Date();
+      now.get;
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
+      const paymentData = await paymentRepo.updatePaymentStatusForcefully(
+        tenMinutesAhead.toISOString(),
+        fiveMinutesAhead.toISOString()
+      );
+      for (const obj of paymentData) {
+        if (obj.paymentType == "stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId
+          );
+          if (
+            session.payment_status == "paid" &&
+            obj.paymentStatus == "pending"
+          ) {
+            await paymentRepo.update200ttcPayment(
+              { paymentStatus: "paid" },
+              obj._id
+            );
+          } else {
+            await paymentRepo.update200ttcPayment(
+              { isPaymentCheck: true },
+              obj._id
+            );
+          }
+        }
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   checkoutRazorpayForPranicPurification,
   getRazorPaymentResultPranicPurification,
@@ -1015,4 +1077,6 @@ module.exports = {
   getRazorPaymentResultRishikesh,
   checkoutStripeForRishikesh,
   getStripePaymentResultRishikesh,
+  updatePaymentId200ttc,
+  updatePaymentStatusForcefully,
 };

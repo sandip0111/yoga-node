@@ -39,6 +39,9 @@ mongoose
 cron.schedule('0 0 * * *', async function() {
   paymentService.secondInstallmentPaymentMail();
 });
+cron.schedule('*/1 * * * *', async function() {
+  paymentService.updatePaymentStatusForcefully();
+});
 //#region routes
 app.use("/api/v1", adminRoutes);
 

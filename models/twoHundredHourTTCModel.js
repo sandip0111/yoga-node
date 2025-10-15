@@ -60,6 +60,10 @@ const twoHundredHourTTCSchema = new mongoose.Schema({
     required: false,
     default: null,
   },
+  isPaymentCheck: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 module.exports = mongoose.model(
