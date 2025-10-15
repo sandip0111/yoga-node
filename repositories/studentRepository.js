@@ -36,7 +36,8 @@ module.exports = {
     searchText,
     courseId,
     skip,
-    limit
+    limit,
+    paymentStatus
   ) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -53,12 +54,14 @@ module.exports = {
           studentIds,
           skip,
           limit,
-          searchText
+          searchText,
+          paymentStatus
         );
         const studentListCount = await getTotalStudentCount(
           courseId,
           studentIds,
-          searchText
+          searchText,
+          paymentStatus
         );
         let total = studentListCount.length > 0 ? studentListCount[0].total : 0;
         return resolve({ studentList, total });
@@ -279,7 +282,8 @@ let getTotalStudent = async function (
   studentIds,
   skip,
   limit,
-  searchText
+  searchText,
+  paymentStatus
 ) {
   let pipeline = [
     { $match: { _id: { $in: studentIds }, course: courseId } },
@@ -292,6 +296,15 @@ let getTotalStudent = async function (
         localField: "_id",
         foreignField: "studentId",
         as: "paymentDetails",
+        pipeline: [
+          {
+            $match: paymentStatus
+              ? {
+                  paymentStatus: { $regex: paymentStatus, $options: "i" },
+                }
+              : {},
+          },
+        ],
       },
     },
   ];
@@ -308,7 +321,12 @@ let getTotalStudent = async function (
   let studentList = await getStudentData(pipeline);
   return studentList;
 };
-let getTotalStudentCount = async function (courseId, studentIds, searchText) {
+let getTotalStudentCount = async function (
+  courseId,
+  studentIds,
+  searchText,
+  paymentStatus
+) {
   let pipeline = [
     { $match: { _id: { $in: studentIds }, course: courseId } },
     { $sort: { created: -1 } },
@@ -319,6 +337,15 @@ let getTotalStudentCount = async function (courseId, studentIds, searchText) {
         localField: "_id",
         foreignField: "studentId",
         as: "paymentDetails",
+        pipeline: [
+          {
+            $match: paymentStatus
+              ? {
+                  paymentStatus: { $regex: paymentStatus, $options: "i" },
+                }
+              : {},
+          },
+        ],
       },
     },
   ];

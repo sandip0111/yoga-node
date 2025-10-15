@@ -32,7 +32,8 @@ module.exports = {
             courseId,
             skip,
             limit,
-            searchText
+            searchText,
+            reqBody.paymentStatus
           );
           studentList = studentObj.studentList;
           totalStudent = studentObj.totalData;
@@ -43,7 +44,8 @@ module.exports = {
             searchText,
             courseId,
             skip,
-            limit
+            limit,
+            reqBody.paymentStatus
           );
           studentList = studentObj.studentList;
           totalStudent = studentObj.total;
@@ -843,7 +845,13 @@ let getPranaArmbhAllData2 = async function (courseId, skip, limit, searchText) {
 
   return { studentList, totalData };
 };
-let getPranaArmbhAllData = async function (courseId, skip, limit, searchText) {
+let getPranaArmbhAllData = async function (
+  courseId,
+  skip,
+  limit,
+  searchText,
+  paymentStatus
+) {
   let studentList;
   let pipeline = [{ $match: { course: courseId } }, { $sort: { created: -1 } }];
   if (searchText) {
@@ -862,6 +870,15 @@ let getPranaArmbhAllData = async function (courseId, skip, limit, searchText) {
       localField: "_id",
       foreignField: "studentId",
       as: "paymentDetails",
+      pipeline: [
+        {
+          $match: paymentStatus
+            ? {
+                paymentStatus: { $regex: paymentStatus, $options: "i" },
+              }
+            : {},
+        },
+      ],
     },
   });
   // pipeline.push({ $unwind: "$paymentDetails" });
