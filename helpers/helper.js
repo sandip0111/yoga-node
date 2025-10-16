@@ -117,6 +117,17 @@ let send200TTCEmail = async function (student) {
   };
   sendMail.createContent(mailData);
 };
+let complete200TTCEmail = async function (student) {
+  const mailData = {
+    replacements: {
+      NAME: student.name,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_200_TTC_PAYMENT,
+    subject: "Complete your journey with Yoga Vidya School",
+  };
+  sendMail.createContent(mailData);
+};
 let sendSwaraSadhnaEmail = async function (data, email) {
   const mailData = {
     replacements: data,
@@ -195,4 +206,5 @@ module.exports = {
   sendLiveCourseEmail,
   sendRishikeshCourseEmail,
   sendPranaArambhEmail,
+  complete200TTCEmail,
 };

@@ -13,6 +13,7 @@ const studentRepo = require("../repositories/studentRepository");
 const sendMail = require("../helpers/nodemail");
 const mongoose = require("mongoose");
 const courseRepo = require("../repositories/courseRepository");
+const helper = require("../helpers/helper");
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -479,6 +480,7 @@ function checkoutRazorpayFor200TTC(reqBody) {
         payment_capture: 1,
       };
       const order = await razorpay.orders.create(options);
+      await paymentRepo.update200ttcPayment({ paymentId: order.id }, pay._id);
       return resolve({
         orderId: order.id,
         razorpayKey: process.env.RAZORPAY_KEY_ID,
@@ -602,6 +604,7 @@ function checkoutStripeFor200TTC(reqBody) {
         cancel_url: process.env.STRIP_URL,
         customer_email: reqBody.email,
       });
+      await paymentRepo.update200ttcPayment({ paymentId: session.id }, pay._id);
       return resolve({
         sessionId: session.id,
         payDbId: pay._id,
@@ -1025,7 +1028,6 @@ function updatePaymentStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
       const now = new Date();
-      now.get;
       const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
       const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
       const paymentData = await paymentRepo.updatePaymentStatusForcefully(
@@ -1042,14 +1044,47 @@ function updatePaymentStatusForcefully() {
             obj.paymentStatus == "pending"
           ) {
             await paymentRepo.update200ttcPayment(
-              { paymentStatus: "paid" },
+              { paymentStatus: "paid", isPaymentCheck: true },
               obj._id
             );
+            await helper.send200TTCEmail(obj);
           } else {
             await paymentRepo.update200ttcPayment(
               { isPaymentCheck: true },
               obj._id
             );
+            await helper.complete200TTCEmail(obj);
+          }
+        } else {
+          const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+          if (
+            payments.items &&
+            payments.items.length > 0 &&
+            obj.paymentStatus == "pending"
+          ) {
+            const payment = payments.items[0];
+            if (payment.status === "captured") {
+              const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(obj.paymentId + "|" + payment.id)
+                .digest("hex");
+              if (
+                generatedSignature === payment.signature ||
+                !payment.signature
+              ) {
+                await paymentRepo.update200ttcPayment(
+                  { paymentStatus: "paid", isPaymentCheck: true },
+                  obj._id
+                );
+                await helper.send200TTCEmail(obj);
+              }
+            }
+          } else {
+            await paymentRepo.update200ttcPayment(
+              { isPaymentCheck: true },
+              obj._id
+            );
+            await helper.complete200TTCEmail(obj);
           }
         }
       }
