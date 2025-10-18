@@ -8,7 +8,7 @@ require("dotenv").config();
 var cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
-const cron = require('node-cron');
+const cron = require("node-cron");
 const paymentService = require("./services/paymentService");
 
 //middleware
@@ -36,16 +36,17 @@ mongoose
     console.log(error);
   });
 //#region cron jon function
-cron.schedule('0 0 * * *', async function() {
+cron.schedule("0 0 * * *", async function () {
   paymentService.secondInstallmentPaymentMail();
 });
-cron.schedule('*/1 * * * *', async function() {
+cron.schedule("*/1 * * * *", async function () {
   paymentService.updatePaymentStatusForcefully();
+  paymentService.updateSwaraSadhanaPaymentStatusForcefully();
 });
 //#region routes
 app.use("/api/v1", adminRoutes);
 
-const certPath = '/etc/letsencrypt/live/yogavidyaschool.com';
+const certPath = "/etc/letsencrypt/live/yogavidyaschool.com";
 // https.createServer( {
 //     key: fs.readFileSync(`${certPath}/privkey.pem`),
 //     cert: fs.readFileSync(`${certPath}/fullchain.pem`),

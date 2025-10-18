@@ -195,6 +195,17 @@ let sendPranaArambhEmail = async function (replacement) {
   };
   sendMail.createContent(mailData);
 };
+let completeSwaraSadhanaEmail = async function (student) {
+  const mailData = {
+    replacements: {
+      NAME: student.name,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_SWARA_SADHANA,
+    subject: "Complete your journey with Yoga Vidya School",
+  };
+  sendMail.createContent(mailData);
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -207,4 +218,5 @@ module.exports = {
   sendRishikeshCourseEmail,
   sendPranaArambhEmail,
   complete200TTCEmail,
+  completeSwaraSadhanaEmail
 };

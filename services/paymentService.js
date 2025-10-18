@@ -1028,7 +1028,7 @@ function updatePaymentStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
       const now = new Date();
-      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
       const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
       const paymentData = await paymentRepo.updatePaymentStatusForcefully(
         tenMinutesAhead.toISOString(),
@@ -1094,6 +1094,155 @@ function updatePaymentStatusForcefully() {
     }
   });
 }
+function checkoutRazorpayNewSwarSadhana(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { price, userId, currency } = reqBody;
+      const paymentData = {
+        price,
+        userId,
+        currency,
+      };
+      const pay = await paymentRepo.webinnerUpdateById(paymentData.userId, {
+        priceId: paymentData.priceId,
+      });
+      const options = {
+        amount: price * 100,
+        currency: currency,
+        receipt: "swara_" + Date.now(),
+        payment_capture: 1,
+      };
+      const order = await razorpay.orders.create(options);
+      await paymentRepo.webinnerUpdateById(paymentData.userId, {
+        paymentId: order.id,
+      });
+      resolve({
+        success: true,
+        orderId: order.id,
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+        payDbId: pay._id,
+        amount: order.amount,
+        currency: order.currency,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateSwaraSadhanaPaymentStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const now = new Date();
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
+      const paymentData =
+        await paymentRepo.updateSwaraSadhanaPaymentStatusForcefully(
+          tenMinutesAhead.toISOString(),
+          fiveMinutesAhead.toISOString()
+        );
+      for (const obj of paymentData) {
+        if (obj.paymentType == "stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId
+          );
+          if (session.payment_status == "paid") {
+            await paymentRepo.webinnerUpdateById(obj._id, {
+              paymentStatus: "paid",
+              isPaymentCheck: true,
+            });
+            await helper.sendSwaraSadhnaEmail(
+              {
+                name: obj.name,
+                webinar: obj.webinar,
+                email: obj.email,
+                password: obj.password,
+              },
+              obj.email
+            );
+          } else {
+            await paymentRepo.webinnerUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeSwaraSadhanaEmail(obj);
+          }
+        } else {
+          const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+          if (payments.items && payments.items.length > 0) {
+            const payment = payments.items[0];
+            if (payment.status === "captured") {
+              const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(obj.paymentId + "|" + payment.id)
+                .digest("hex");
+              if (
+                generatedSignature === payment.signature ||
+                !payment.signature
+              ) {
+                await paymentRepo.webinnerUpdateById(obj._id, {
+                  paymentStatus: "paid",
+                  isPaymentCheck: true,
+                });
+                await helper.sendSwaraSadhnaEmail(
+                  {
+                    name: obj.name,
+                    webinar: obj.webinar,
+                    email: obj.email,
+                    password: obj.password,
+                  },
+                  obj.email
+                );
+              }
+            }
+          } else {
+            await paymentRepo.webinnerUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeSwaraSadhanaEmail(obj);
+          }
+        }
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function checkoutSwarSadhanaStripe(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let paymentData = {
+        priceId: reqBody.priceId,
+        userId: reqBody.userId,
+      };
+      const pay = await paymentRepo.webinnerUpdateById(paymentData.userId, {
+        priceId: paymentData.priceId,
+      });
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price: reqBody.priceId,
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: process.env.STRIP_URL,
+        cancel_url: process.env.STRIP_URL,
+        customer_email: reqBody.custEmail,
+      });
+      await paymentRepo.webinnerUpdateById(paymentData.userId, {
+        paymentId: session.id,
+      });
+      resolve({
+        sessionId: session.id,
+        payDbId: pay._id,
+        url: session.url,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   checkoutRazorpayForPranicPurification,
   getRazorPaymentResultPranicPurification,
@@ -1114,4 +1263,7 @@ module.exports = {
   getStripePaymentResultRishikesh,
   updatePaymentId200ttc,
   updatePaymentStatusForcefully,
+  checkoutRazorpayNewSwarSadhana,
+  updateSwaraSadhanaPaymentStatusForcefully,
+  checkoutSwarSadhanaStripe,
 };

@@ -462,31 +462,8 @@ module.exports = {
 
   checkoutSwarSadhanaStripe: async function (req, res) {
     try {
-      let paymentData = {
-        priceId: req.body.priceId,
-        userId: req.body.userId,
-      };
-      const pay = await webinarUser.findOneAndUpdate(
-        { _id: paymentData.userId },
-        { priceId: paymentData.priceId }
-      );
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price: req.body.priceId,
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: process.env.STRIP_URL,
-        cancel_url: process.env.STRIP_URL,
-        customer_email: req.body.custEmail,
-      });
-
-      res
-        .status(200)
-        .json({ sessionId: session.id, payDbId: pay._id, url: session.url });
+      let result = await paymentService.checkoutSwarSadhanaStripe(req.body);
+      res.status(200).json(result);
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal Server Error");
@@ -609,37 +586,11 @@ module.exports = {
   },
   checkoutRazorpayNewSwarSadhana: async function (req, res) {
     try {
-      const { price, userId, currency } = req.body;
-
-      // Save initial payment intent in DB
-      const paymentData = {
-        price,
-        userId,
-        currency,
-      };
-      // const pay = await paymentModel.create(paymentData);
-      const pay = await webinarUser.findOneAndUpdate(
-        { _id: paymentData.userId },
-        { priceId: paymentData.priceId }
+      let result = await paymentService.checkoutRazorpayNewSwarSadhana(
+        req.body
       );
-      // Create Razorpay order
-      const options = {
-        amount: price * 100, // Razorpay accepts amount in paise (for INR)
-        currency: currency,
-        receipt: "swara_" + Date.now(),
-        payment_capture: 1, // Auto-capture
-      };
-
-      const order = await razorpay.orders.create(options);
       res.setHeader("Access-Control-Expose-Headers", "x-rtb-fingerprint-id");
-      res.status(200).json({
-        success: true,
-        orderId: order.id,
-        razorpayKeyId: process.env.RAZORPAY_KEY_ID,
-        payDbId: pay._id,
-        amount: order.amount,
-        currency: order.currency,
-      });
+      res.status(200).json(result);
     } catch (err) {
       console.error(err);
       res.status(500).send("Internal Server Error");
@@ -3035,7 +2986,9 @@ module.exports = {
   createPranaArambhCustomer: async function (req, res) {
     {
       try {
-        const returnData = await adminService.createPranaArambhCustomer(req.body);
+        const returnData = await adminService.createPranaArambhCustomer(
+          req.body
+        );
         res.status(returnData.status).json(returnData.data);
       } catch (err) {
         res.status(400).json({ err });
