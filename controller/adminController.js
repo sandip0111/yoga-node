@@ -1816,40 +1816,8 @@ module.exports = {
 
   checkoutStripeForLiveClasses: async function (req, res) {
     try {
-      let paymentData = {
-        name: req.body.name,
-        email: req.body.email,
-        paymentStatus: "unpaid",
-        price: req.body.price,
-        currency: req.body.currency,
-        phone: req.body.phone,
-        courses: req.body.courses,
-        paymentType: "stripe",
-      };
-      const pay = await liveCoursesCustomermodel.create(paymentData);
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: req.body.currency,
-              unit_amount: req.body.price * 100, // Amount in cents
-              product_data: {
-                name: "Custom Payment",
-              },
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: process.env.STRIP_URL,
-        cancel_url: process.env.STRIP_URL,
-        customer_email: req.body.email,
-      });
-
-      res
-        .status(200)
-        .json({ sessionId: session.id, payDbId: pay._id, url: session.url });
+      let result = await paymentService.checkoutStripeForLiveClasses(req.body);
+      res.status(200).json(result);
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal Server Error");
@@ -1858,31 +1826,11 @@ module.exports = {
 
   checkoutRazorpayForLiveClasses: async function (req, res) {
     try {
-      const paymentData = {
-        name: req.body.name,
-        email: req.body.email,
-        phone: req.body.phone,
-        currency: req.body.currency,
-        price: req.body.price,
-        paymentStatus: "unpaid",
-        courses: req.body.courses,
-        paymentType: "razorpay",
-      };
-
-      const pay = await liveCoursesCustomermodel.create(paymentData);
-
-      const order = await razorpay.orders.create({
-        amount: req.body.price * 100,
-        currency: req.body.currency,
-        receipt: `LiveClass_${pay._id}`,
-        notes: { dbId: pay._id.toString() },
-      });
+      let result = await paymentService.checkoutRazorpayForLiveClasses(
+        req.body
+      );
       res.setHeader("Access-Control-Expose-Headers", "x-rtb-fingerprint-id");
-      res.status(200).json({
-        key: process.env.RAZORPAY_KEY_ID,
-        orderId: order.id,
-        payDbId: pay._id,
-      });
+      res.status(200).json(result);
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal Server Error");

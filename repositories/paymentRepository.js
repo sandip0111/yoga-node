@@ -5,6 +5,7 @@ const paymentModel = require("../models/paymentModel");
 const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const rishikeshStudentModel = require("../models/rishikeshStudent");
 const webinerUserModel = require("../models/webinarRegiserUserModel");
+const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
@@ -306,6 +307,38 @@ function updateSwaraSadhanaPaymentStatusForcefully(startDate, endDate) {
     }
   });
 }
+function liveCourseUpdateById(id, data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pay = await liveCoursesCustomerModel.findOneAndUpdate(
+        { _id: id },
+        data
+      );
+      return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateOnlineSadhanaPaymentStatusForcefully(startDate, endDate) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await liveCoursesCustomerModel
+        .find({
+          created: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          paymentStatus: { $ne: "paid" },
+          isPaymentCheck: false,
+        })
+        .lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -326,4 +359,6 @@ module.exports = {
   updatePaymentStatusForcefully,
   webinnerUpdateById,
   updateSwaraSadhanaPaymentStatusForcefully,
+  liveCourseUpdateById,
+  updateOnlineSadhanaPaymentStatusForcefully
 };

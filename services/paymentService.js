@@ -652,27 +652,6 @@ function getStripePaymentResult200TTC(reqBody) {
           subject: "🕉 Welcome to the Yoga Vidya Family!",
         };
         sendMail.createContent(mailData);
-        // const whatsappData = {
-        //   templateName: "pranic_purification",
-        //   to: user.phoneNumber,
-        //   headerParam: [
-        //     {
-        //       type: "text",
-        //       text: user.name,
-        //     },
-        //   ],
-        //   params: [
-        //     {
-        //       type: "text",
-        //       text: "Pranic Purification - Best online pranayama sadhana prashanJ",
-        //     },
-        //     { type: "text", text: constants.LINK.WHATSAPP },
-        //     { type: "text", text: user.courseStartDate.toDateString() },
-        //     { type: "text", text: user.courseTimeDuration },
-        //     { type: "text", text: couponCode },
-        //   ],
-        // };
-        // sendMail.createWhatsAppContent(whatsappData);
         return resolve({
           status: 200,
           data: {
@@ -1029,7 +1008,7 @@ function updatePaymentStatusForcefully() {
     try {
       const now = new Date();
       const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
-      const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 30 * 60 * 1000);
       const paymentData = await paymentRepo.updatePaymentStatusForcefully(
         tenMinutesAhead.toISOString(),
         fiveMinutesAhead.toISOString()
@@ -1133,8 +1112,8 @@ function updateSwaraSadhanaPaymentStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
       const now = new Date();
-      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
-      const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
+      const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 30 * 60 * 1000);
       const paymentData =
         await paymentRepo.updateSwaraSadhanaPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),
@@ -1243,6 +1222,187 @@ function checkoutSwarSadhanaStripe(reqBody) {
     }
   });
 }
+function checkoutRazorpayForLiveClasses(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const paymentData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phone: reqBody.phone,
+        currency: reqBody.currency,
+        price: reqBody.price,
+        paymentStatus: "unpaid",
+        courses: reqBody.courses,
+        paymentType: "razorpay",
+      };
+      const pay = await studentRepo.createLiveClassData(paymentData);
+      const order = await razorpay.orders.create({
+        amount: reqBody.price * 100,
+        currency: reqBody.currency,
+        receipt: `LiveClass_${pay._id}`,
+        notes: { dbId: pay._id.toString() },
+      });
+      await paymentRepo.liveCourseUpdateById(pay._id, {
+        paymentId: order.id,
+      });
+      resolve({
+        key: process.env.RAZORPAY_KEY_ID,
+        orderId: order.id,
+        payDbId: pay._id,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function checkoutStripeForLiveClasses(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let paymentData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        paymentStatus: "unpaid",
+        price: reqBody.price,
+        currency: reqBody.currency,
+        phone: reqBody.phone,
+        courses: reqBody.courses,
+        paymentType: "stripe",
+      };
+      const pay = await studentRepo.createLiveClassData(paymentData);
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: reqBody.currency,
+              unit_amount: reqBody.price * 100,
+              product_data: {
+                name: "Custom Payment",
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: process.env.STRIP_URL,
+        cancel_url: process.env.STRIP_URL,
+        customer_email: reqBody.email,
+      });
+      await paymentRepo.liveCourseUpdateById(pay._id, {
+        paymentId: session.id,
+      });
+      resolve({
+        sessionId: session.id,
+        payDbId: pay._id,
+        url: session.url,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateOnlineSadhanaPaymentStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const mentors = [
+        {
+          name: "Acharya Prashant Jakhmola - Yoga Sadhana",
+          subject: "Welcome to Your Online Sadhana with Prashantji",
+          emailTemplate: "OrderConfirmationForLiveClassesPrashant.html",
+        },
+        {
+          name: "Taniya Verma - Woman Wellness Yoga",
+          subject: "Welcome to Your Online Woman Wellness Yoga with Tanya",
+          emailTemplate: "OrderConfirmationForLiveClassesTaniya.html",
+        },
+      ];
+      const now = new Date();
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 30 * 60 * 1000);
+      const paymentData =
+        await paymentRepo.updateOnlineSadhanaPaymentStatusForcefully(
+          tenMinutesAhead.toISOString(),
+          fiveMinutesAhead.toISOString()
+        );
+      for (const obj of paymentData) {
+        if (obj.paymentType == "stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId
+          );
+          if (session.payment_status == "paid") {
+            await paymentRepo.liveCourseUpdateById(obj._id, {
+              paymentStatus: "paid",
+              isPaymentCheck: true,
+            });
+            for (let coursObj of obj.courses) {
+              var item = mentors.find((obj) =>
+                coursObj.title.includes(obj.name)
+              );
+              if (item) {
+                await helper.sendLiveCourseEmail(
+                  {
+                    name: obj.name,
+                  },
+                  obj.email,
+                  `/emailTemplate/${item.emailTemplate}`,
+                  item.subject
+                );
+              }
+            }
+          } else {
+            await paymentRepo.liveCourseUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeOnlineSadhanaEmail(obj);
+          }
+        } else {
+          const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+          if (payments.items && payments.items.length > 0) {
+            const payment = payments.items[0];
+            if (payment.status === "captured") {
+              const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(obj.paymentId + "|" + payment.id)
+                .digest("hex");
+              if (
+                generatedSignature === payment.signature ||
+                !payment.signature
+              ) {
+                await paymentRepo.liveCourseUpdateById(obj._id, {
+                  paymentStatus: "paid",
+                  isPaymentCheck: true,
+                });
+                for (let coursObj of obj.courses) {
+                  var item = mentors.find((obj) =>
+                    coursObj.title.includes(obj.name)
+                  );
+                  if (item) {
+                    await helper.sendLiveCourseEmail(
+                      {
+                        name: obj.name,
+                      },
+                      obj.email,
+                      `/emailTemplate/${item.emailTemplate}`,
+                      item.subject
+                    );
+                  }
+                }
+              }
+            }
+          } else {
+            await paymentRepo.liveCourseUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeOnlineSadhanaEmail(obj);
+          }
+        }
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   checkoutRazorpayForPranicPurification,
   getRazorPaymentResultPranicPurification,
@@ -1266,4 +1426,7 @@ module.exports = {
   checkoutRazorpayNewSwarSadhana,
   updateSwaraSadhanaPaymentStatusForcefully,
   checkoutSwarSadhanaStripe,
+  checkoutRazorpayForLiveClasses,
+  checkoutStripeForLiveClasses,
+  updateOnlineSadhanaPaymentStatusForcefully,
 };
