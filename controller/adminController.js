@@ -51,10 +51,10 @@ const mentors = [
   {
     topic: "August 2025 : Yoga Sadhana With Prashant ji",
     time: "Aug 4, 2025 06:00 AM India",
-    zoomLink: "https://bit.ly/sadhana_zoom",
+    zoomLink: "https://bit.ly/47r6ukp",
     meetingId: "858 7707 8350",
     passcode: "153707",
-    whatsappLink: "https://bit.ly/4oSs8EW",
+    whatsappLink: "https://bit.ly/4qgdsjv",
     name: "Yoga Sadhana",
     subject: "Welcome to Your Online Sadhana with Prashantji",
     emailTemplate: "OrderConfirmationForLiveClassesPrashant.html",
