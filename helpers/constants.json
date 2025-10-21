@@ -22,7 +22,8 @@
     "SWARA": "/emailTemplate/swarayoga.html",
     "COMPLETE_200_TTC_PAYMENT": "/emailTemplate/complete200ttcPayment.html",
     "COMPLETE_SWARA_SADHANA": "/emailTemplate/completeSwaraSadhana.html",
-    "COMPLETE_ONLINE_SADHANA": "/emailTemplate/completeOnlineSadhana.html"
+    "COMPLETE_ONLINE_SADHANA": "/emailTemplate/completeOnlineSadhana.html",
+    "FREE_WEBINAR_CONFIRMATION": "/emailTemplate/freeWebinarConfirmation.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",

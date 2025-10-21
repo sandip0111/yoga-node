@@ -206,6 +206,24 @@ let completeSwaraSadhanaEmail = async function (student) {
   };
   sendMail.createContent(mailData);
 };
+
+let sendFreeWebinarConfirmationEmail = async function (data) {
+  try {
+    const mailData = {
+      replacements: {
+        FirstName: data.name,
+      },          
+      mailTo: data.email,             
+      contentPath: constants.EMAIL_TEMPLATE.FREE_WEBINAR_CONFIRMATION, 
+      subject: data.subject,            
+    };
+
+    await sendMail.createContent(mailData);
+  } catch (error) {
+    console.error(`❌ Failed to send webinar confirmation email to ${email}`, error);
+  }
+};
+
 let completeOnlineSadhanaEmail = async function (student) {
   const mailData = {
     replacements: {
@@ -231,4 +249,5 @@ module.exports = {
   complete200TTCEmail,
   completeSwaraSadhanaEmail,
   completeOnlineSadhanaEmail,
+  sendFreeWebinarConfirmationEmail,
 };

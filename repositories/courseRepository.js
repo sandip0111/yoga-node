@@ -2,7 +2,7 @@
 const courseModel = require("../models/courseModel");
 const mongoose = require("mongoose");
 const timeSlots = require("../models/TimeSlots");
-
+const freeWebinarModel = require("../models/freeWebinarModel");
 function getCourseBySlug(slug) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -40,4 +40,15 @@ function checkCourseTimeSlot(timeSlot) {
     }
   });
 }
-module.exports = { getCourseBySlug, getCourseById, checkCourseTimeSlot };
+
+function createFreeWebinarCustomer(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const course = await freeWebinarModel.create(reqBody);
+      return resolve(course);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+module.exports = { getCourseBySlug, getCourseById, checkCourseTimeSlot, createFreeWebinarCustomer };

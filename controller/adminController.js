@@ -2921,6 +2921,20 @@ module.exports = {
       }
     }
   },
+ 
+  createFreeWebinarCustomer: async function (req, res) {
+    {
+      try {
+        const returnData = await adminService.createFreeWebinarCustomer(
+          req.body
+        );
+        res.status(returnData.status).json(returnData.data);
+      } catch (err) {
+        res.status(400).json({ err });
+      }
+    }
+  },
+
   createRishikeshCustomer: async function (req, res) {
     {
       try {

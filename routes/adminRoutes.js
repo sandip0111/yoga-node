@@ -280,6 +280,11 @@ router.post(
 
 router.post("/getCourseVideosById", studentController.getCourseVideosById);
 
+router.post(
+  "/createFreeWebinarCustomer",
+  adminController.createFreeWebinarCustomer
+);
+
 router.post("/getWebinarVideosByName", async (req, res) => {
   try {
     // console.log(getVideoData,'---');

@@ -165,6 +165,35 @@ function createLiveCourseCustomer(reqBody, mentors) {
     }
   });
 }
+
+function createFreeWebinarCustomer(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const customerData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        webinarDate: reqBody.webinarDate
+      };
+      await courseRepo.createFreeWebinarCustomer(customerData);
+      const savedUser ={
+        name: reqBody.name,
+        email: reqBody.email,
+        subject: "Your spot is confirmed – “Sadhana to Seva” Webinar Access Inside"
+      }
+      await helper.sendFreeWebinarConfirmationEmail(savedUser);
+      return resolve({
+        data: {
+          status: "ok",
+          message: "User registered successfully!",
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 function createRishikeshCustomer(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -237,4 +266,5 @@ module.exports = {
   createLiveCourseCustomer,
   createRishikeshCustomer,
   createPranaArambhCustomer,
+  createFreeWebinarCustomer,
 };
