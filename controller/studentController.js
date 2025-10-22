@@ -464,6 +464,17 @@ module.exports = {
       res.status(404).json({ status: "error", msg: err.message });
     }
   },
+
+  getAllFreeWebinarData: async function (req, res) {
+    try {
+      const result = await studentService.getAllFreeWebinarData(req.body);
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.totalData });
+    } catch (err) {
+      res.status(404).json({ status: "error", msg: err.message });
+    }
+  },
   getCourseVideosById: async function (req, res) {
     try {
       const result = await studentService.getCourseVideosById(req.body);

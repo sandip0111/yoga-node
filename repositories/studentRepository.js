@@ -8,6 +8,7 @@ const pranicPurificationModel = require("../models/pranicPurificationUsersModel"
 const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const onlineVideoModel = require("../models/onlineVideoModel");
 const webinarUser = require("../models/webinarRegiserUserModel");
+const freeWebinarModel = require("../models/freeWebinarModel");
 
 module.exports = {
   getStudentCountFilter: function (pipeline) {
@@ -131,6 +132,19 @@ module.exports = {
       }
     });
   },
+
+  getAllFreeWebinarData: function (pipeLine, pipeLineCount) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const totalData = await freeWebinarModel.aggregate(pipeLineCount);
+        const studentList = await freeWebinarModel.aggregate(pipeLine);
+        return resolve({ studentList, totalData });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+
   getAggregateStudentData: function (pipeLine) {
     return new Promise(async (resolve, reject) => {
       try {

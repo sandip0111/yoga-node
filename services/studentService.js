@@ -359,6 +359,63 @@ module.exports = {
       }
     });
   },
+
+  getAllFreeWebinarData: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+       
+        let size = reqBody.size || 10;
+        let pageNo = reqBody.pageNo || 1;
+        const skip = Number(size * (pageNo - 1));
+        const limit = Number(size) || 0;
+        const searchText = reqBody.searchText;
+        
+        let pipeLine = [        
+          { $sort: { _id: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $project: {
+              name: "$name",
+              email: "$email",             
+              created: "$created",
+              webinarDate: "$webinarDate"
+            },
+          },
+        ];
+        let pipeLineCount = [        
+          { $count: "total" },
+        ];
+        if (searchText) {
+          pipeLine.splice(0, 0, {
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } }               
+              ],
+            },
+          });
+          pipeLineCount.splice(0, 0, {
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } }              
+              ],
+            },
+          });
+        }      
+        const freeData = await studentRepo.getAllFreeWebinarData(
+          pipeLine,
+          pipeLineCount
+        );
+        const studentList = freeData?.studentList;
+        const totalData = freeData?.totalData[0]?.total;
+        return resolve({ studentList, totalData });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
   getAllFoundationOfSpiritualityStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {

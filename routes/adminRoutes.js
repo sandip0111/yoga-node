@@ -280,6 +280,7 @@ router.post(
 
 router.post("/getCourseVideosById", studentController.getCourseVideosById);
 
+router.post("/getAllFreeWebinarData", studentController.getAllFreeWebinarData);
 router.post(
   "/createFreeWebinarCustomer",
   adminController.createFreeWebinarCustomer
