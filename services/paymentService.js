@@ -1488,6 +1488,7 @@ function updatePranaArambhPaymentStatusForcefully() {
       const now = new Date();
       const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
       const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
+      let course = "644f9dfc499ffcfb45df35cd";
       const paymentData =
         await paymentRepo.updatePranaArambhPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),
@@ -1516,11 +1517,19 @@ function updatePranaArambhPaymentStatusForcefully() {
               password: studentData.password,
             };
             await helper.sendPranaArambhEmail(replacement);
+            let updatedCourses = studentData.course.includes(course)
+              ? studentData.course
+              : [...studentData.course, course];
+            await studentRepo.updateStudentCourse(obj.studentId, updatedCourses);
           } else {
             await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
               isPaymentCheck: true,
             });
             await helper.completePranaArambhEmail(studentData);
+            let updatedCourses = studentData.course.includes(course)
+              ? studentData.course
+              : [...studentData.course, course];
+            await studentRepo.updateStudentCourse(obj.studentId, updatedCourses);
           }
         } else {
           const payments = await razorpay.orders.fetchPayments(obj.paymentId);
@@ -1548,13 +1557,21 @@ function updatePranaArambhPaymentStatusForcefully() {
                   password: studentData.password,
                 };
                 await helper.sendPranaArambhEmail(replacement);
-              }
+                let updatedCourses = studentData.course.includes(course)
+                  ? studentData.course
+                  : [...studentData.course, course];
+                  await studentRepo.updateStudentCourse(obj.studentId, updatedCourses);
+                  }
             }
           } else {
             await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
               isPaymentCheck: true,
             });
             await helper.completePranaArambhEmail(studentData);
+            let updatedCourses = studentData.course.includes(course)
+              ? studentData.course
+              : [...studentData.course, course];
+            await studentRepo.updateStudentCourse(obj.studentId, updatedCourses);
           }
         }
       }
