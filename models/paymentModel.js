@@ -28,6 +28,10 @@ const paymentSchema = new mongoose.Schema({
     type: Date,
     default: () => new Date(),
   },
+  isPaymentCheck: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const blog = mongoose.model("payment", paymentSchema);

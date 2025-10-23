@@ -1779,39 +1779,12 @@ module.exports = {
   },
   checkoutStripe: async function (req, res) {
     try {
-      let paymentData = {
-        courseId: req.body.courseId,
-        studentId: req.body.studentId,
-        paymentStatus: req.body.paymentStatus,
-        paymentBy: req.body.paymentBy,
-      };
-      const pay = await paymentModel.create(paymentData);
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price: req.body.priceId,
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: process.env.STRIP_URL,
-        cancel_url: process.env.STRIP_URL,
-        customer_email: req.body.custEmail,
-      });
-
-      res
-        .status(200)
-        .json({ sessionId: session.id, payDbId: pay._id, url: session.url });
+      let result = await paymentService.checkoutStripe(req.body);
+      res.status(200).json(result);
     } catch (error) {
       console.error(error);
       res.status(500).send("Internal Server Error");
     }
-
-    //    success_url: 'https://www.yogavidyaschool.com/confirmation',
-    // cancel_url: 'https://www.yogavidyaschool.com/confirmation',
-    // success_url: 'http://localhost:4200/confirmation',
-    // cancel_url: 'http://localhost:4200/confirmation',
   },
 
   checkoutStripeForLiveClasses: async function (req, res) {
@@ -2132,43 +2105,11 @@ module.exports = {
 
   checkoutRazorpayNewPranaarabha: async function (req, res) {
     try {
-      const {
-        courseId,
-        studentId,
-        paymentStatus,
-        paymentBy,
-        price,
-        currency,
-        email,
-      } = req.body;
-
-      // Save initial payment intent in DB
-      const paymentData = {
-        courseId,
-        studentId,
-        paymentStatus,
-        paymentBy,
-      };
-      const pay = await paymentModel.create(paymentData);
-
-      // Create Razorpay order
-      const options = {
-        amount: price * 100, // Razorpay accepts amount in paise (for INR)
-        currency: currency || "INR",
-        receipt: "pranaarabha_" + Date.now(),
-        payment_capture: 1, // Auto-capture
-      };
-
-      const order = await razorpay.orders.create(options);
+      let result = await paymentService.checkoutRazorpayNewPranaarabha(
+        req.body
+      );
       res.setHeader("Access-Control-Expose-Headers", "x-rtb-fingerprint-id");
-      res.status(200).json({
-        success: true,
-        orderId: order.id,
-        razorpayKeyId: process.env.RAZORPAY_KEY_ID,
-        payDbId: pay._id,
-        amount: order.amount,
-        currency: order.currency,
-      });
+      res.status(200).json(result);
     } catch (err) {
       console.error(err);
       res.status(500).send("Internal Server Error");
@@ -2921,7 +2862,7 @@ module.exports = {
       }
     }
   },
- 
+
   createFreeWebinarCustomer: async function (req, res) {
     {
       try {

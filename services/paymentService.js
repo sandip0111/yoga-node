@@ -14,6 +14,7 @@ const sendMail = require("../helpers/nodemail");
 const mongoose = require("mongoose");
 const courseRepo = require("../repositories/courseRepository");
 const helper = require("../helpers/helper");
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -230,12 +231,12 @@ function getRazorpayPaymentResultForPranarambha(
       }
       const amount = reqAmount;
       const currency = reqCurrency;
-      await paymentRepo.updatePranaArambhPaymentUserData(
-        payDbId,
-        razorpay_payment_id,
-        amount,
-        currency
-      );
+      await paymentRepo.updatePranaArambhPaymentUserData(payDbId, {
+        paymentId: razorpay_payment_id,
+        amount: amount,
+        currency: currency,
+        paymentStatus: "paid",
+      });
       if (
         couponCodeId !== undefined &&
         couponCodeId !== null &&
@@ -1403,6 +1404,166 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
     }
   });
 }
+function checkoutRazorpayNewPranaarabha(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const {
+        courseId,
+        studentId,
+        paymentStatus,
+        paymentBy,
+        price,
+        currency,
+        email,
+      } = reqBody;
+      const paymentData = {
+        courseId,
+        studentId,
+        paymentStatus,
+        paymentBy,
+      };
+      const pay = await paymentRepo.createPaymentDetails(paymentData);
+      const options = {
+        amount: price * 100,
+        currency: currency || "INR",
+        receipt: "pranaarabha_" + Date.now(),
+        payment_capture: 1,
+      };
+      const order = await razorpay.orders.create(options);
+      await paymentRepo.updatePranaArambhPaymentUserData(pay._id, {
+        paymentId: order.id,
+      });
+      resolve({
+        success: true,
+        orderId: order.id,
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+        payDbId: pay._id,
+        amount: order.amount,
+        currency: order.currency,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function checkoutStripe(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let paymentData = {
+        courseId: reqBody.courseId,
+        studentId: reqBody.studentId,
+        paymentStatus: reqBody.paymentStatus,
+        paymentBy: reqBody.paymentBy,
+      };
+      const pay = await paymentRepo.createPaymentDetails(paymentData);
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price: reqBody.priceId,
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: process.env.STRIP_URL,
+        cancel_url: process.env.STRIP_URL,
+        customer_email: reqBody.custEmail,
+      });
+      await paymentRepo.updatePranaArambhPaymentUserData(pay._id, {
+        paymentId: session.id,
+      });
+      resolve({
+        sessionId: session.id,
+        payDbId: pay._id,
+        url: session.url,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updatePranaArambhPaymentStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const now = new Date();
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
+      const paymentData =
+        await paymentRepo.updatePranaArambhPaymentStatusForcefully(
+          tenMinutesAhead.toISOString(),
+          fiveMinutesAhead.toISOString()
+        );
+      for (const obj of paymentData) {
+        let coursetitle = await courseRepo.getCourseById(
+          "644f9dfc499ffcfb45df35cd"
+        );
+        let studentData = await studentRepo.getStudentById(obj.studentId);
+        if (obj.paymentBy == "Stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId
+          );
+          if (session.payment_status == "paid") {
+            await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+              paymentStatus: "paid",
+              isPaymentCheck: true,
+            });
+            let date = new Date();
+            let replacement = {
+              name: studentData.firstName,
+              course: coursetitle,
+              email: studentData.email,
+              date: date.toString(),
+              password: studentData.password,
+            };
+            await helper.sendPranaArambhEmail(replacement);
+          } else {
+            await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completePranaArambhEmail(studentData);
+          }
+        } else {
+          const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+          if (payments.items && payments.items.length > 0) {
+            const payment = payments.items[0];
+            if (payment.status === "captured") {
+              const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(obj.paymentId + "|" + payment.id)
+                .digest("hex");
+              if (
+                generatedSignature === payment.signature ||
+                !payment.signature
+              ) {
+                await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+                  paymentStatus: "paid",
+                  isPaymentCheck: true,
+                });
+                let date = new Date();
+                let replacement = {
+                  name: studentData.firstName,
+                  course: coursetitle,
+                  email: studentData.email,
+                  date: date.toString(),
+                  password: studentData.password,
+                };
+                await helper.sendPranaArambhEmail(replacement);
+              }
+            }
+          } else {
+            await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completePranaArambhEmail(studentData);
+          }
+        }
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   checkoutRazorpayForPranicPurification,
   getRazorPaymentResultPranicPurification,
@@ -1429,4 +1590,7 @@ module.exports = {
   checkoutRazorpayForLiveClasses,
   checkoutStripeForLiveClasses,
   updateOnlineSadhanaPaymentStatusForcefully,
+  checkoutRazorpayNewPranaarabha,
+  checkoutStripe,
+  updatePranaArambhPaymentStatusForcefully,
 };

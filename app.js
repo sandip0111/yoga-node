@@ -42,6 +42,7 @@ cron.schedule("0 0 * * *", async function () {
 cron.schedule("*/1 * * * *", async function () {
   paymentService.updatePaymentStatusForcefully();
   paymentService.updateSwaraSadhanaPaymentStatusForcefully();
+  paymentService.updatePranaArambhPaymentStatusForcefully();
   paymentService.updateOnlineSadhanaPaymentStatusForcefully();
 });
 //#region routes

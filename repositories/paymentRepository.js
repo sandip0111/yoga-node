@@ -64,23 +64,10 @@ function getCouponByEmail(data) {
     }
   });
 }
-function updatePranaArambhPaymentUserData(
-  payDbId,
-  razorpay_payment_id,
-  amount,
-  currency
-) {
+function updatePranaArambhPaymentUserData(payDbId, data) {
   return new Promise(async (resolve, reject) => {
     try {
-      await paymentModel.findOneAndUpdate(
-        { _id: payDbId },
-        {
-          paymentId: razorpay_payment_id,
-          amount: amount,
-          currency: currency,
-          paymentStatus: "paid",
-        }
-      );
+      await paymentModel.findOneAndUpdate({ _id: payDbId }, data);
       return resolve(1);
     } catch (error) {
       return reject(error);
@@ -339,6 +326,25 @@ function updateOnlineSadhanaPaymentStatusForcefully(startDate, endDate) {
     }
   });
 }
+function updatePranaArambhPaymentStatusForcefully(startDate, endDate) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await paymentModel
+        .find({
+          created: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          paymentStatus: { $ne: "paid" },
+          isPaymentCheck: false,
+        })
+        .lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -360,5 +366,6 @@ module.exports = {
   webinnerUpdateById,
   updateSwaraSadhanaPaymentStatusForcefully,
   liveCourseUpdateById,
-  updateOnlineSadhanaPaymentStatusForcefully
+  updateOnlineSadhanaPaymentStatusForcefully,
+  updatePranaArambhPaymentStatusForcefully,
 };
