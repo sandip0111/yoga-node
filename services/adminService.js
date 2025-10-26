@@ -274,6 +274,7 @@ function sendBulkMailFreeWebiner() {
         await courseRepo.updateFreeWebinarCustomer(obj._id, {
           isAdminMailSend: true,
         });
+        await new Promise((resolve) => setTimeout(resolve, 10000));
       }
       let msg;
       if (data.length > 0) {
