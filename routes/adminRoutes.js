@@ -57,7 +57,6 @@ router.get("/getSlider", adminController.getSlider);
 router.post("/createcategory", adminController.createCategory);
 router.get("/getAllCategory", adminController.getAllCatV2);
 router.get("/getCategoryTree", adminController.getCategoryTree);
-router.get("/createrootCat", adminController.getAllCategoryCreated);
 
 router.get("/getCategoryById/:id", adminController.getCategoryById);
 router.post("/getSubCategoryByCatId", adminController.getSubCategoryByCatId);
@@ -608,9 +607,7 @@ router.post(
   "/createPranaArambhCustomer",
   adminController.createPranaArambhCustomer
 );
-router.post(
-  "/updatePaymentId200ttc",
-  paymentController.updatePaymentId200ttc
-);
+router.post("/updatePaymentId200ttc", paymentController.updatePaymentId200ttc);
+router.get("/sendBulkMailFreeWebiner", adminController.sendBulkMailFreeWebiner);
 
 module.exports = router;

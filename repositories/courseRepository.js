@@ -51,4 +51,31 @@ function createFreeWebinarCustomer(reqBody) {
     }
   });
 }
-module.exports = { getCourseBySlug, getCourseById, checkCourseTimeSlot, createFreeWebinarCustomer };
+function getFreeWebinarCustomer(data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const course = await freeWebinarModel.find(data);
+      return resolve(course);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+function updateFreeWebinarCustomer(id, data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const course = await freeWebinarModel.findOneAndUpdate({ _id: id }, data);
+      return resolve(course);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+module.exports = {
+  getCourseBySlug,
+  getCourseById,
+  checkCourseTimeSlot,
+  createFreeWebinarCustomer,
+  getFreeWebinarCustomer,
+  updateFreeWebinarCustomer,
+};

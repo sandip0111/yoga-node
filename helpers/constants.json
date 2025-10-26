@@ -24,7 +24,8 @@
     "COMPLETE_SWARA_SADHANA": "/emailTemplate/completeSwaraSadhana.html",
     "COMPLETE_ONLINE_SADHANA": "/emailTemplate/completeOnlineSadhana.html",
     "FREE_WEBINAR_CONFIRMATION": "/emailTemplate/freeWebinarConfirmation.html",
-    "COMPLETE_PRANA_ARAMBH": "/emailTemplate/completePranaArambhPayment.html"
+    "COMPLETE_PRANA_ARAMBH": "/emailTemplate/completePranaArambhPayment.html",
+    "BULK_FREE_WEB": "/emailTemplate/freeWebinerBulkMail.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",

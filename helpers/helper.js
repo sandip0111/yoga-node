@@ -212,15 +212,18 @@ let sendFreeWebinarConfirmationEmail = async function (data) {
     const mailData = {
       replacements: {
         FirstName: data.name,
-      },          
-      mailTo: data.email,             
-      contentPath: constants.EMAIL_TEMPLATE.FREE_WEBINAR_CONFIRMATION, 
-      subject: data.subject,            
+      },
+      mailTo: data.email,
+      contentPath: constants.EMAIL_TEMPLATE.FREE_WEBINAR_CONFIRMATION,
+      subject: data.subject,
     };
 
     await sendMail.createContent(mailData);
   } catch (error) {
-    console.error(`❌ Failed to send webinar confirmation email to ${email}`, error);
+    console.error(
+      `❌ Failed to send webinar confirmation email to ${email}`,
+      error
+    );
   }
 };
 
@@ -246,6 +249,15 @@ let completePranaArambhEmail = async function (student) {
   };
   sendMail.createContent(mailData);
 };
+let sendBulkFreeWebinerMail = async function (email) {
+  const mailData = {
+    replacements: {},
+    mailTo: email,
+    contentPath: constants.EMAIL_TEMPLATE.BULK_FREE_WEB,
+    subject: "Thank you for joining Sadhana to Seva",
+  };
+  await sendMail.createContent(mailData);
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -261,5 +273,6 @@ module.exports = {
   completeSwaraSadhanaEmail,
   completeOnlineSadhanaEmail,
   sendFreeWebinarConfirmationEmail,
-  completePranaArambhEmail
+  completePranaArambhEmail,
+  sendBulkFreeWebinerMail,
 };

@@ -261,6 +261,38 @@ function createPranaArambhCustomer(reqBody) {
     }
   });
 }
+function sendBulkMailFreeWebiner() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const customerData = {
+        isAdminMailSend: false,
+        // email: "kaushik.das.mca18@gmail.com",
+      };
+      let data = await courseRepo.getFreeWebinarCustomer(customerData);
+      for (let obj of data) {
+        await helper.sendBulkFreeWebinerMail(obj.email);
+        await courseRepo.updateFreeWebinarCustomer(obj._id, {
+          isAdminMailSend: true,
+        });
+      }
+      let msg;
+      if (data.length > 0) {
+        msg = "Email send succesfully";
+      } else {
+        msg = "No new user exist";
+      }
+      return resolve({
+        data: {
+          status: "ok",
+          message: msg,
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
@@ -269,4 +301,5 @@ module.exports = {
   createRishikeshCustomer,
   createPranaArambhCustomer,
   createFreeWebinarCustomer,
+  sendBulkMailFreeWebiner,
 };

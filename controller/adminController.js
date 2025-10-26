@@ -801,7 +801,6 @@ module.exports = {
     }
   },
   checkEmail: async function (req, res) {
-    // console.log(req.body);
     try {
       const checkUser = await studentModel.countDocuments({
         isActive: true,
@@ -828,33 +827,6 @@ module.exports = {
     } catch (err) {
       res.status(500).json({ msg: err });
     }
-  },
-  getAllCategoryCreated: async function (req, res) {
-    // let categoryData = await categoryModel.find({isActive:true})
-    // let data =JSON.parse(JSON.stringify(categoryData));
-    // for (let cat of data) {
-    //    let SubCatCont =  await subcategoryModel.count({categoryId:cat._id});
-    //     if(SubCatCont>0){
-    //         // console.log(SubCatCont,'find sub categoy count');
-    //         cat['subCatData'] = await subcategoryModel.find({categoryId:cat._id});
-    //         cat['subCatData'] = JSON.parse(JSON.stringify( cat['subCatData']));
-    //         for(let subCat of cat['subCatData']){
-    //          const courceCount = await subcoursecategoryModel.count({subcategoryId:subCat._id});
-    //          if(courceCount>0){
-    //             subCat['subCatData'] = await subcoursecategoryModel.find({subcategoryId:subCat._id});
-    //             console.log(subCat['subCatData'],'find cource page details ');
-    //          }else{
-    //             subCat['subCatData'] = []
-    //          }
-    //         }
-    //     }else{
-    //         cat['subCatData'] = []
-    //     }
-    // }
-    // // console.log(data);
-    // let dbCat = {'rootCat':data}
-    // const test = await categoryTreeModel.create(dbCat);
-    //     res.status(200).json({data});
   },
   getCategoryById: async function (req, res) {
     try {
@@ -2898,23 +2870,16 @@ module.exports = {
       }
     }
   },
-};
-
-let updatePayment = async function (data) {
-  try {
-    const pay = await paymentModel.findOneAndUpdate(
-      { _id: data.payDbId },
-      {
-        paymentId: data.paymentId,
-        amount: data.amount,
-        currency: data.currency,
-        paymentStatus: data.paymentStatus,
+  sendBulkMailFreeWebiner: async function (req, res) {
+    {
+      try {
+        const returnData = await adminService.sendBulkMailFreeWebiner();
+        res.status(returnData.status).json(returnData.data);
+      } catch (err) {
+        res.status(400).json({ err });
       }
-    );
-    res.status(200).json({ status: "ok" });
-  } catch (error) {
-    // res.staus(500).json("Internal server error");
-  }
+    }
+  },
 };
 
 let updatePaymentV2 = async function (data) {
@@ -2959,51 +2924,7 @@ let updateStudentCourse = async function (data) {
     };
     let up = await studentModel.findOneAndUpdate({ _id: data.student }, bodyUp);
     res.status(200).json({ status: "ok" });
-    // console.log(up,'--');
   } catch (error) {
     res.status(500).json("Internal server error");
   }
-};
-
-let sendOrderConfirmation = async function (data) {
-  const { coursetitle } = await courseModel.findOne({ _id: data.course });
-  const { firstName, email } = await studentModel.findOne({
-    _id: data.student,
-  });
-  let mailOptions;
-
-  // let student = await studentModel.findOne({_id:req.body.studentId});
-  const filePath = path.join(
-    __dirname,
-    "/emailTemplate/orderConfirmation.html"
-  );
-  const source = fs.readFileSync(filePath, "utf-8").toString();
-  const template = handlebars.compile(source);
-  const replacements = {
-    name: firstName,
-    course: coursetitle,
-    email: email,
-    price: data.price,
-    date: data.date,
-  };
-  const htmlToSend = template(replacements);
-
-  mailOptions = {
-    from: "Yoga Vidya School info@yogavidyaschool.com",
-    to: email,
-    subject: `Purchase Confirmation - ${coursetitle}`,
-    // text: body,
-    replyTo: "info@yogavidyaschool.com",
-    html: htmlToSend,
-  };
-
-  transporter.sendMail(mailOptions, async (err, result) => {
-    if (err) {
-      //  res.status(400).json('Opps error occured')
-      // console.log('oo');
-    } else {
-      // const blog = await feedbackModel.create(req.body);
-      res.status(200).json({ status: "ok", msg: "Mail has been sent!" });
-    }
-  });
 };
