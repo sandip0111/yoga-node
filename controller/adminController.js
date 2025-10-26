@@ -47,6 +47,7 @@ const whatsappAccessToken =
 const stripe = require("stripe")(process.env.STRIP_KEY);
 const paymentService = require("../services/paymentService");
 const adminService = require("../services/adminService");
+const courseService = require('../services/courseService');
 const mentors = [
   {
     topic: "August 2025 : Yoga Sadhana With Prashant ji",
@@ -370,14 +371,8 @@ module.exports = {
   },
   getCourseBySlug: async function (req, res) {
     try {
-      const cs = req.body.slug;
-
-      const course = await courseModel.findOne({ slug: cs });
-
-      if (!course) {
-        return res.status(200).json({ data: [], msg: `No course with Slug` });
-      }
-      res.status(200).json({ data: [course] });
+      let result = await courseService.getCourseBySlug(req.body.slug);
+      res.status(result.status).json(result.data);
     } catch (err) {
       res.status(500).json({ msg: "Internal Server error" });
     }
