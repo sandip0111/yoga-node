@@ -451,11 +451,6 @@ module.exports = {
           },
           { $skip: skip },
           { $limit: limit },
-          // {
-          //   $match: {
-          //     "paymentDetails.0": { $exists: true },
-          //   },
-          // },
         ]);
         return resolve({ studentList, totalStudent });
       } catch (error) {

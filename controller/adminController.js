@@ -2067,41 +2067,41 @@ module.exports = {
     }
   },
 
-  checkoutStripeNewPranaarabha: async function (req, res) {
-    try {
-      let paymentData = {
-        courseId: req.body.courseId,
-        studentId: req.body.studentId,
-        paymentStatus: req.body.paymentStatus,
-        paymentBy: req.body.paymentBy,
-      };
-      const pay = await paymentModel.create(paymentData);
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: req.body.currency,
-              unit_amount: req.body.price * 100,
-              product_data: {
-                name: "PRANA ARAMBHA Yoga Course",
-              },
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: "https://pranaarambha.yogavidyaschool.com/success.html",
-        cancel_url: "https://pranaarambha.yogavidyaschool.com/failed.html",
-        customer_email: req.body.email,
-      });
-      res
-        .status(200)
-        .json({ sessionId: session.id, payDbId: pay._id, url: session.url });
-    } catch (err) {
-      res.status(500).send("Internal Server Error");
-    }
-  },
+  // checkoutStripeNewPranaarabha: async function (req, res) {
+  //   try {
+  //     let paymentData = {
+  //       courseId: req.body.courseId,
+  //       studentId: req.body.studentId,
+  //       paymentStatus: req.body.paymentStatus,
+  //       paymentBy: req.body.paymentBy,
+  //     };
+  //     const pay = await paymentModel.create(paymentData);
+  //     const session = await stripe.checkout.sessions.create({
+  //       payment_method_types: ["card"],
+  //       line_items: [
+  //         {
+  //           price_data: {
+  //             currency: req.body.currency,
+  //             unit_amount: req.body.price * 100,
+  //             product_data: {
+  //               name: "PRANA ARAMBHA Yoga Course",
+  //             },
+  //           },
+  //           quantity: 1,
+  //         },
+  //       ],
+  //       mode: "payment",
+  //       success_url: "https://pranaarambha.yogavidyaschool.com/success.html",
+  //       cancel_url: "https://pranaarambha.yogavidyaschool.com/failed.html",
+  //       customer_email: req.body.email,
+  //     });
+  //     res
+  //       .status(200)
+  //       .json({ sessionId: session.id, payDbId: pay._id, url: session.url });
+  //   } catch (err) {
+  //     res.status(500).send("Internal Server Error");
+  //   }
+  // },
 
   checkoutRazorpayNewPranaarabha: async function (req, res) {
     try {

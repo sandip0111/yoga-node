@@ -172,14 +172,15 @@ function createFreeWebinarCustomer(reqBody) {
       const customerData = {
         name: reqBody.name,
         email: reqBody.email,
-        webinarDate: reqBody.webinarDate
+        webinarDate: reqBody.webinarDate,
       };
       await courseRepo.createFreeWebinarCustomer(customerData);
-      const savedUser ={
+      const savedUser = {
         name: reqBody.name,
         email: reqBody.email,
-        subject: "Your spot is confirmed – “Sadhana to Seva” Webinar Access Inside"
-      }
+        subject:
+          "Your spot is confirmed – “Sadhana to Seva” Webinar Access Inside",
+      };
       await helper.sendFreeWebinarConfirmationEmail(savedUser);
       return resolve({
         data: {
@@ -227,6 +228,7 @@ function createPranaArambhCustomer(reqBody) {
         email: reqBody.email,
         password: reqBody.password,
         course: ["644f9dfc499ffcfb45df35cd"],
+        isActive: true,
       });
       const paymentData = {
         courseId: "644f9dfc499ffcfb45df35cd",

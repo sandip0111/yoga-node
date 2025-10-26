@@ -273,10 +273,10 @@ router.post("/getAnalyticsByDate", adminController.getAnalyticsByDate);
 
 //new landinga page form
 router.post("/getPranaPageData", studentController.pranaPageRegister);
-router.post(
-  "/stripeNewPranaarabha",
-  adminController.checkoutStripeNewPranaarabha
-);
+// router.post(
+//   "/stripeNewPranaarabha",
+//   adminController.checkoutStripeNewPranaarabha
+// );
 
 router.post("/getCourseVideosById", studentController.getCourseVideosById);
 
