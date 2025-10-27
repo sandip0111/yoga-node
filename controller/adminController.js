@@ -2791,7 +2791,7 @@ module.exports = {
   },
   getRazorPaymentResult200TTC: async function (req, res) {
     try {
-      result = await paymentService.getRazorPaymentResult200TTC(req.body);
+      result = await paymentService.getRazorPaymentResult200TTC(req.body, req);
       res.status(200).json(result);
     } catch (error) {
       console.error("Error verifying Razorpay payment:", error);
@@ -2809,7 +2809,7 @@ module.exports = {
   getStripePaymentResult200TTC: async function (req, res) {
     try {
       const returnData = await paymentService.getStripePaymentResult200TTC(
-        req.body
+        req.body, req
       );
       res.status(returnData.status).json(returnData.data);
     } catch (error) {
