@@ -14,6 +14,28 @@ const sendMail = require("../helpers/nodemail");
 const mongoose = require("mongoose");
 const courseRepo = require("../repositories/courseRepository");
 const helper = require("../helpers/helper");
+const paymentTrackingService = require("./paymentTrackingService");
+
+function extractClientData(req) {
+  if (!req) {
+    return {
+      clientIp: "",
+      userAgent: "",
+      fbc: "",
+      fbp: ""
+    };
+  }
+  
+  return {
+    clientIp: req.ip || req.connection?.remoteAddress || req.socket?.remoteAddress || 
+              (req.connection?.socket ? req.connection.socket.remoteAddress : null) ||
+              req.headers?.['x-forwarded-for']?.split(',')[0] || 
+              req.headers?.['x-real-ip'] || "",
+    userAgent: req.get?.('User-Agent') || "",
+    fbc: req.body?.fbc || req.query?.fbc || req.cookies?._fbc || "",
+    fbp: req.body?.fbp || req.query?.fbp || req.cookies?._fbp || ""
+  };
+}
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -493,7 +515,7 @@ function checkoutRazorpayFor200TTC(reqBody) {
     }
   });
 }
-function getRazorPaymentResult200TTC(reqBody) {
+function getRazorPaymentResult200TTC(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
       const hmac = crypto.createHmac("sha256", razorpay.key_secret);
@@ -550,6 +572,12 @@ function getRazorPaymentResult200TTC(reqBody) {
         //   ],
         // };
         // sendMail.createWhatsAppContent(whatsappData);
+
+        const clientData = req ? extractClientData(req) : {};
+        paymentTrackingService.track200TTCPurchase({
+          paymentId: reqBody.razorpayPaymentId,
+          ...clientData
+        }, user);
         return resolve({
           amount: +user.price,
           currency: user.currency,
@@ -616,7 +644,7 @@ function checkoutStripeFor200TTC(reqBody) {
     }
   });
 }
-function getStripePaymentResult200TTC(reqBody) {
+function getStripePaymentResult200TTC(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await stripe.checkout.sessions.retrieve(
@@ -653,6 +681,12 @@ function getStripePaymentResult200TTC(reqBody) {
           subject: "🕉 Welcome to the Yoga Vidya Family!",
         };
         sendMail.createContent(mailData);
+
+         const clientData = req ? extractClientData(req) : {};
+          paymentTrackingService.track200TTCPurchase({
+            paymentId: session.payment_intent,
+            ...clientData
+          }, user);
         return resolve({
           status: 200,
           data: {
@@ -1028,6 +1062,21 @@ function updatePaymentStatusForcefully() {
               obj._id
             );
             await helper.send200TTCEmail(obj);
+            
+            // Track purchase event with Meta Conversions API
+            paymentTrackingService.track200TTCPurchase({
+              paymentId: session.payment_intent,
+              clientIp: "",
+              userAgent: "",
+              fbc: "",
+              fbp: ""
+            }, {
+              email: obj.email,
+              phoneNumber: obj.phoneNumber,
+              name: obj.name,
+              price: obj.price,
+              currency: obj.currency
+            });
           } else {
             await paymentRepo.update200ttcPayment(
               { isPaymentCheck: true },
@@ -1057,6 +1106,21 @@ function updatePaymentStatusForcefully() {
                   obj._id
                 );
                 await helper.send200TTCEmail(obj);
+                
+                // Track purchase event with Meta Conversions API
+                paymentTrackingService.track200TTCPurchase({
+                  paymentId: payment.id,
+                  clientIp: "",
+                  userAgent: "",
+                  fbc: "",
+                  fbp: ""
+                }, {
+                  email: obj.email,
+                  phoneNumber: obj.phoneNumber,
+                  name: obj.name,
+                  price: obj.price,
+                  currency: obj.currency
+                });
               }
             }
           } else {
@@ -1335,6 +1399,25 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
               paymentStatus: "paid",
               isPaymentCheck: true,
             });
+            // Track Live Class purchase (Stripe - forced status check)
+            try {
+              await paymentTrackingService.trackLiveClassPurchase(
+                {
+                  paymentId: session.payment_intent,
+                  clientIp: "",
+                  userAgent: "",
+                },
+                {
+                  email: obj.email,
+                  phone: obj.phone,
+                  name: obj.name,
+                  price: obj.price,
+                  currency: obj.currency,
+                }
+              );
+            } catch (e) {
+              console.error("Live Class purchase tracking (Stripe force) failed:", e?.message || e);
+            }
             for (let coursObj of obj.courses) {
               var item = mentors.find((obj) =>
                 coursObj.title.includes(obj.name)
@@ -1373,6 +1456,25 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                   paymentStatus: "paid",
                   isPaymentCheck: true,
                 });
+                // Track Live Class purchase (Razorpay - forced status check)
+                try {
+                  await paymentTrackingService.trackLiveClassPurchase(
+                    {
+                      paymentId: payment.id,
+                      clientIp: "",
+                      userAgent: "",
+                    },
+                    {
+                      email: obj.email,
+                      phone: obj.phone,
+                      name: obj.name,
+                      price: obj.price,
+                      currency: obj.currency,
+                    }
+                  );
+                } catch (e) {
+                  console.error("Live Class purchase tracking (Razorpay force) failed:", e?.message || e);
+                }
                 for (let coursObj of obj.courses) {
                   var item = mentors.find((obj) =>
                     coursObj.title.includes(obj.name)
