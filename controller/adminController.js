@@ -1824,6 +1824,29 @@ module.exports = {
         shortDescription: course.shortDescription,
       }));
 
+      // Track Live Class purchase (Razorpay)
+      try {
+        const clientIp = req.headers["x-forwarded-for"] || req.connection?.remoteAddress || "";
+        const userAgent = req.headers["user-agent"] || "";
+        const paymentTrackingService = require("../services/paymentTrackingService");
+        await paymentTrackingService.trackLiveClassPurchase(
+          {
+            paymentId: val.paymentId,
+            clientIp,
+            userAgent,
+          },
+          {
+            email,
+            phone,
+            name,
+            price,
+            currency,
+          }
+        );
+      } catch (e) {
+        console.error("Live Class purchase tracking (Razorpay) failed:", e?.message || e);
+      }
+
       // Customer Email
 
       for (var i = 0; i < courseList.length; i++) {
@@ -2411,6 +2434,29 @@ module.exports = {
               paymentStatus,
               paymentId,
             } = await liveCoursesCustomermodel.findOne({ _id: val.payDbId });
+
+            // Track Live Class purchase (Stripe)
+            try {
+              const clientIp = req.headers["x-forwarded-for"] || req.connection?.remoteAddress || "";
+              const userAgent = req.headers["user-agent"] || "";
+              const paymentTrackingService = require("../services/paymentTrackingService");
+              await paymentTrackingService.trackLiveClassPurchase(
+                {
+                  paymentId: paymentId || session.payment_intent,
+                  clientIp,
+                  userAgent,
+                },
+                {
+                  email,
+                  phone,
+                  name,
+                  price,
+                  currency,
+                }
+              );
+            } catch (e) {
+              console.error("Live Class purchase tracking (Stripe) failed:", e?.message || e);
+            }
             let mailOptions;
             const courseList = courses.reduce((acc, course) => {
               acc.push({

@@ -1399,6 +1399,25 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
               paymentStatus: "paid",
               isPaymentCheck: true,
             });
+            // Track Live Class purchase (Stripe - forced status check)
+            try {
+              await paymentTrackingService.trackLiveClassPurchase(
+                {
+                  paymentId: session.payment_intent,
+                  clientIp: "",
+                  userAgent: "",
+                },
+                {
+                  email: obj.email,
+                  phone: obj.phone,
+                  name: obj.name,
+                  price: obj.price,
+                  currency: obj.currency,
+                }
+              );
+            } catch (e) {
+              console.error("Live Class purchase tracking (Stripe force) failed:", e?.message || e);
+            }
             for (let coursObj of obj.courses) {
               var item = mentors.find((obj) =>
                 coursObj.title.includes(obj.name)
@@ -1437,6 +1456,25 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                   paymentStatus: "paid",
                   isPaymentCheck: true,
                 });
+                // Track Live Class purchase (Razorpay - forced status check)
+                try {
+                  await paymentTrackingService.trackLiveClassPurchase(
+                    {
+                      paymentId: payment.id,
+                      clientIp: "",
+                      userAgent: "",
+                    },
+                    {
+                      email: obj.email,
+                      phone: obj.phone,
+                      name: obj.name,
+                      price: obj.price,
+                      currency: obj.currency,
+                    }
+                  );
+                } catch (e) {
+                  console.error("Live Class purchase tracking (Razorpay force) failed:", e?.message || e);
+                }
                 for (let coursObj of obj.courses) {
                   var item = mentors.find((obj) =>
                     coursObj.title.includes(obj.name)
