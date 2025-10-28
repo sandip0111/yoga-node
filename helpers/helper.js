@@ -214,10 +214,9 @@ let sendFreeWebinarConfirmationEmail = async function (data) {
         FirstName: data.name,
       },
       mailTo: data.email,
-      contentPath: constants.EMAIL_TEMPLATE.FREE_WEBINAR_CONFIRMATION,
-      subject: data.subject,
+      contentPath: constants.EMAIL_TEMPLATE.BULK_FREE_WEB,
+      subject: 'Replay: “From Sadhana to Seva”',
     };
-
     await sendMail.createContent(mailData);
   } catch (error) {
     console.error(
