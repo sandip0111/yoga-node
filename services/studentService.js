@@ -252,7 +252,7 @@ module.exports = {
   getAllSwaraSadhanaData: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
-        const courseId = constants.COURSE.SWAR_SADHNA;
+        const courseId = 'Swara Sadhana';
         let size = reqBody.size || 10;
         let pageNo = reqBody.pageNo || 1;
         const skip = Number(size * (pageNo - 1));
@@ -363,35 +363,32 @@ module.exports = {
   getAllFreeWebinarData: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
-       
         let size = reqBody.size || 10;
         let pageNo = reqBody.pageNo || 1;
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
         const searchText = reqBody.searchText;
-        
-        let pipeLine = [        
+
+        let pipeLine = [
           { $sort: { _id: -1 } },
           { $skip: skip },
           { $limit: limit },
           {
             $project: {
               name: "$name",
-              email: "$email",             
+              email: "$email",
               created: "$created",
-              webinarDate: "$webinarDate"
+              webinarDate: "$webinarDate",
             },
           },
         ];
-        let pipeLineCount = [        
-          { $count: "total" },
-        ];
+        let pipeLineCount = [{ $count: "total" }];
         if (searchText) {
           pipeLine.splice(0, 0, {
             $match: {
               $or: [
                 { name: { $regex: searchText, $options: "i" } },
-                { email: { $regex: searchText, $options: "i" } }               
+                { email: { $regex: searchText, $options: "i" } },
               ],
             },
           });
@@ -399,11 +396,11 @@ module.exports = {
             $match: {
               $or: [
                 { name: { $regex: searchText, $options: "i" } },
-                { email: { $regex: searchText, $options: "i" } }              
+                { email: { $regex: searchText, $options: "i" } },
               ],
             },
           });
-        }      
+        }
         const freeData = await studentRepo.getAllFreeWebinarData(
           pipeLine,
           pipeLineCount
@@ -905,7 +902,10 @@ let getPranaArmbhAllData = async function (
   paymentStatus
 ) {
   let studentList;
-  let pipeline = [{ $match: { course: courseId } }, { $sort: { created: -1 } }];
+  let pipeline = [
+    { $match: { course: courseId, is200TTC: false } },
+    { $sort: { created: -1 } },
+  ];
   if (searchText) {
     pipeline.splice(1, 0, {
       $match: {
