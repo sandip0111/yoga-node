@@ -38,10 +38,7 @@ const studentSchema = new mongoose.Schema({
       return new Date(Date.now() + 5.5 * 60 * 60 * 1000);
     },
   },
-  is200TTC: {
-    type: Boolean,
-    default: false,
-  },
+  paymentCourseId: String,
 });
 
 const Student = mongoose.model("student", studentSchema);

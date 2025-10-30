@@ -286,6 +286,15 @@ module.exports = {
       }
     });
   },
+  abc: function (id) {
+    return new Promise(async (resolve, reject) => {
+      const abc = await studentModel.find({
+        course: id,
+        paymentCourseId: { $ne: id },
+      });
+      return resolve(abc);
+    });
+  },
 };
 let getStudentData = async function (pipeline) {
   const studentList = await studentModel.aggregate(pipeline);

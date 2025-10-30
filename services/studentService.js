@@ -252,7 +252,7 @@ module.exports = {
   getAllSwaraSadhanaData: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
-        const courseId = 'Swara Sadhana';
+        const courseId = "Swara Sadhana";
         let size = reqBody.size || 10;
         let pageNo = reqBody.pageNo || 1;
         const skip = Number(size * (pageNo - 1));
@@ -820,8 +820,6 @@ let getPranaArmbhAllData2 = async function (courseId, skip, limit, searchText) {
       },
     });
   }
-
-  // Lookup to join payment details (this is kept before unwinding for fetching)
   pipeline.push({
     $lookup: {
       from: "payments",
@@ -830,15 +828,8 @@ let getPranaArmbhAllData2 = async function (courseId, skip, limit, searchText) {
       as: "paymentDetails",
     },
   });
-
-  // Unwind the paymentDetails array to flatten it
   pipeline.push({ $unwind: "$paymentDetails" });
-
-  // Pagination logic (skip and limit)
   pipeline.push({ $skip: skip }, { $limit: limit });
-  // studentList = await studentRepo.getStudentDataFilter(pipeline);
-
-  // Use the same pipeline for both counting and fetching data using $facet
   let facetPipeline = [
     { $match: { course: courseId } }, // Match students by course
   ];
@@ -885,8 +876,6 @@ let getPranaArmbhAllData2 = async function (courseId, skip, limit, searchText) {
       ],
     },
   });
-
-  // Execute the pipeline to fetch both student data and total count concurrently
   const result = await studentRepo.getStudentDataFilter(facetPipeline);
   studentList = result[0].data;
   const totalData =
@@ -903,7 +892,12 @@ let getPranaArmbhAllData = async function (
 ) {
   let studentList;
   let pipeline = [
-    { $match: { course: courseId, is200TTC: false } },
+    {
+      $match: {
+        course: courseId,
+        paymentCourseId: constants.COURSE.PRANA_ARAMBHA,
+      },
+    },
     { $sort: { created: -1 } },
   ];
   if (searchText) {
@@ -933,9 +927,6 @@ let getPranaArmbhAllData = async function (
       ],
     },
   });
-  // pipeline.push({ $unwind: "$paymentDetails" });
-  // const allStudentList = await studentRepo.getStudentDataFilter(pipeline);
-  // const totalData = allStudentList?.length;
   pipeline.push({ $skip: skip }, { $limit: limit });
   studentList = await studentRepo.getStudentDataFilter(pipeline);
   const totalData = await getPranaArmbhCount(courseId, searchText);

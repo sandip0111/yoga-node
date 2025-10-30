@@ -45,6 +45,9 @@ cron.schedule("*/1 * * * *", async function () {
   paymentService.updateOnlineSadhanaPaymentStatusForcefully();
   paymentService.updatePranaArambhPaymentStatusForcefully();
 });
+cron.schedule("10 18 17 * * *", async function () {
+    // paymentService.updateabc();
+});
 //#region routes
 app.use("/api/v1", adminRoutes);
 

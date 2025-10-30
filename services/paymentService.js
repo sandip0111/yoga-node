@@ -22,18 +22,22 @@ function extractClientData(req) {
       clientIp: "",
       userAgent: "",
       fbc: "",
-      fbp: ""
+      fbp: "",
     };
   }
-  
+
   return {
-    clientIp: req.ip || req.connection?.remoteAddress || req.socket?.remoteAddress || 
-              (req.connection?.socket ? req.connection.socket.remoteAddress : null) ||
-              req.headers?.['x-forwarded-for']?.split(',')[0] || 
-              req.headers?.['x-real-ip'] || "",
-    userAgent: req.get?.('User-Agent') || "",
+    clientIp:
+      req.ip ||
+      req.connection?.remoteAddress ||
+      req.socket?.remoteAddress ||
+      (req.connection?.socket ? req.connection.socket.remoteAddress : null) ||
+      req.headers?.["x-forwarded-for"]?.split(",")[0] ||
+      req.headers?.["x-real-ip"] ||
+      "",
+    userAgent: req.get?.("User-Agent") || "",
     fbc: req.body?.fbc || req.query?.fbc || req.cookies?._fbc || "",
-    fbp: req.body?.fbp || req.query?.fbp || req.cookies?._fbp || ""
+    fbp: req.body?.fbp || req.query?.fbp || req.cookies?._fbp || "",
   };
 }
 
@@ -574,10 +578,13 @@ function getRazorPaymentResult200TTC(reqBody, req = null) {
         // sendMail.createWhatsAppContent(whatsappData);
 
         const clientData = req ? extractClientData(req) : {};
-        paymentTrackingService.track200TTCPurchase({
-          paymentId: reqBody.razorpayPaymentId,
-          ...clientData
-        }, user);
+        paymentTrackingService.track200TTCPurchase(
+          {
+            paymentId: reqBody.razorpayPaymentId,
+            ...clientData,
+          },
+          user
+        );
         return resolve({
           amount: +user.price,
           currency: user.currency,
@@ -661,7 +668,6 @@ function getStripePaymentResult200TTC(reqBody, req = null) {
         if (reqBody.installment == "2nd") {
           await savePranaArambhOn200TTC(user, reqBody);
         }
-        // await saveLiveClassOn200TTC(user, reqBody);
         const fileName =
           reqBody.installment == "1st"
             ? constants.EMAIL_TEMPLATE["200_HOURS_TTC_1ST"]
@@ -682,11 +688,14 @@ function getStripePaymentResult200TTC(reqBody, req = null) {
         };
         sendMail.createContent(mailData);
 
-         const clientData = req ? extractClientData(req) : {};
-          paymentTrackingService.track200TTCPurchase({
+        const clientData = req ? extractClientData(req) : {};
+        paymentTrackingService.track200TTCPurchase(
+          {
             paymentId: session.payment_intent,
-            ...clientData
-          }, user);
+            ...clientData,
+          },
+          user
+        );
         return resolve({
           status: 200,
           data: {
@@ -724,8 +733,8 @@ function savePranaArambhOn200TTC(user, reqBody) {
           constants.COURSE.PRANA_ARAMBHA,
           constants.COURSE.FOUNDATION_SPIRITUALITY,
         ],
-        source: "web",
-        is200TTC: true,
+        source: "200TTC",
+        paymentCourseId: constants.COURSE.TWO_THOUSANDS_TTC,
       };
       let studentRes = await studentRepo.createStudent(studentData);
       let paymentData = {
@@ -737,32 +746,6 @@ function savePranaArambhOn200TTC(user, reqBody) {
         paymentId: reqBody.razorpayPaymentId,
       };
       await paymentRepo.createPaymentDetails(paymentData);
-      return resolve(1);
-    } catch (error) {
-      return reject(error);
-    }
-  });
-}
-function saveLiveClassOn200TTC(user, reqBody) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let studentData = {
-        email: user.email,
-        name: user.name,
-        phone: user.phoneNumber,
-        courses: [
-          {
-            title: reqBody.courseTitle,
-            quantity: 1,
-          },
-        ],
-        paymentStatus: "paid",
-        is200TTC: true,
-        price: user.price,
-        currency: user.currency,
-        paymentId: reqBody.razorpayPaymentId,
-      };
-      await studentRepo.createLiveClassData(studentData);
       return resolve(1);
     } catch (error) {
       return reject(error);
@@ -1062,21 +1045,24 @@ function updatePaymentStatusForcefully() {
               obj._id
             );
             await helper.send200TTCEmail(obj);
-            
+
             // Track purchase event with Meta Conversions API
-            paymentTrackingService.track200TTCPurchase({
-              paymentId: session.payment_intent,
-              clientIp: "",
-              userAgent: "",
-              fbc: "",
-              fbp: ""
-            }, {
-              email: obj.email,
-              phoneNumber: obj.phoneNumber,
-              name: obj.name,
-              price: obj.price,
-              currency: obj.currency
-            });
+            paymentTrackingService.track200TTCPurchase(
+              {
+                paymentId: session.payment_intent,
+                clientIp: "",
+                userAgent: "",
+                fbc: "",
+                fbp: "",
+              },
+              {
+                email: obj.email,
+                phoneNumber: obj.phoneNumber,
+                name: obj.name,
+                price: obj.price,
+                currency: obj.currency,
+              }
+            );
           } else {
             await paymentRepo.update200ttcPayment(
               { isPaymentCheck: true },
@@ -1106,21 +1092,24 @@ function updatePaymentStatusForcefully() {
                   obj._id
                 );
                 await helper.send200TTCEmail(obj);
-                
+
                 // Track purchase event with Meta Conversions API
-                paymentTrackingService.track200TTCPurchase({
-                  paymentId: payment.id,
-                  clientIp: "",
-                  userAgent: "",
-                  fbc: "",
-                  fbp: ""
-                }, {
-                  email: obj.email,
-                  phoneNumber: obj.phoneNumber,
-                  name: obj.name,
-                  price: obj.price,
-                  currency: obj.currency
-                });
+                paymentTrackingService.track200TTCPurchase(
+                  {
+                    paymentId: payment.id,
+                    clientIp: "",
+                    userAgent: "",
+                    fbc: "",
+                    fbp: "",
+                  },
+                  {
+                    email: obj.email,
+                    phoneNumber: obj.phoneNumber,
+                    name: obj.name,
+                    price: obj.price,
+                    currency: obj.currency,
+                  }
+                );
               }
             }
           } else {
@@ -1416,7 +1405,10 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                 }
               );
             } catch (e) {
-              console.error("Live Class purchase tracking (Stripe force) failed:", e?.message || e);
+              console.error(
+                "Live Class purchase tracking (Stripe force) failed:",
+                e?.message || e
+              );
             }
             for (let coursObj of obj.courses) {
               var item = mentors.find((obj) =>
@@ -1473,7 +1465,10 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                     }
                   );
                 } catch (e) {
-                  console.error("Live Class purchase tracking (Razorpay force) failed:", e?.message || e);
+                  console.error(
+                    "Live Class purchase tracking (Razorpay force) failed:",
+                    e?.message || e
+                  );
                 }
                 for (let coursObj of obj.courses) {
                   var item = mentors.find((obj) =>
@@ -1598,7 +1593,7 @@ function updatePranaArambhPaymentStatusForcefully() {
         );
       for (const obj of paymentData) {
         let coursetitle = await courseRepo.getCourseById(
-          "644f9dfc499ffcfb45df35cd"
+          "644f9dfc949ffcfb45df35cd"
         );
         let studentData = await studentRepo.getStudentById(obj.studentId);
         if (obj.paymentBy == "Stripe") {
@@ -1622,7 +1617,10 @@ function updatePranaArambhPaymentStatusForcefully() {
             let updatedCourses = studentData.course.includes(course)
               ? studentData.course
               : [...studentData.course, course];
-            await studentRepo.updateStudentCourse(obj.studentId, updatedCourses);
+            await studentRepo.updateStudentCourse(
+              obj.studentId,
+              updatedCourses
+            );
           } else {
             await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
               isPaymentCheck: true,
@@ -1631,7 +1629,10 @@ function updatePranaArambhPaymentStatusForcefully() {
             let updatedCourses = studentData.course.includes(course)
               ? studentData.course
               : [...studentData.course, course];
-            await studentRepo.updateStudentCourse(obj.studentId, updatedCourses);
+            await studentRepo.updateStudentCourse(
+              obj.studentId,
+              updatedCourses
+            );
           }
         } else {
           const payments = await razorpay.orders.fetchPayments(obj.paymentId);
@@ -1662,8 +1663,11 @@ function updatePranaArambhPaymentStatusForcefully() {
                 let updatedCourses = studentData.course.includes(course)
                   ? studentData.course
                   : [...studentData.course, course];
-                  await studentRepo.updateStudentCourse(obj.studentId, updatedCourses);
-                  }
+                await studentRepo.updateStudentCourse(
+                  obj.studentId,
+                  updatedCourses
+                );
+              }
             }
           } else {
             await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
@@ -1673,7 +1677,10 @@ function updatePranaArambhPaymentStatusForcefully() {
             let updatedCourses = studentData.course.includes(course)
               ? studentData.course
               : [...studentData.course, course];
-            await studentRepo.updateStudentCourse(obj.studentId, updatedCourses);
+            await studentRepo.updateStudentCourse(
+              obj.studentId,
+              updatedCourses
+            );
           }
         }
       }
@@ -1683,7 +1690,28 @@ function updatePranaArambhPaymentStatusForcefully() {
     }
   });
 }
+function updateabc() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const id = constants.COURSE.BREATCH_DTOX;
+      const d = await studentRepo.abc(id);
+      for (let obj of d) {
+        if (obj.course.length == 1 && obj.course[0] == id) {
+          // await studentRepo.updateStudent({
+          //   _id: obj._id,
+          //   paymentCourseId: id,
+          // });
+          console.log("mdamk", obj.course);
+        }
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
+  updateabc,
   checkoutRazorpayForPranicPurification,
   getRazorPaymentResultPranicPurification,
   checkoutStripeForPranicPurification,
