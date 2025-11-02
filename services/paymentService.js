@@ -730,6 +730,7 @@ function savePranaArambhOn200TTC(user, reqBody) {
         password: reqBody.password,
         phoneNumber: user.phoneNumber,
         course: [
+          constants.COURSE.TWO_THOUSANDS_TTC,
           constants.COURSE.PRANA_ARAMBHA,
           constants.COURSE.FOUNDATION_SPIRITUALITY,
         ],
@@ -737,15 +738,15 @@ function savePranaArambhOn200TTC(user, reqBody) {
         paymentCourseId: constants.COURSE.TWO_THOUSANDS_TTC,
       };
       let studentRes = await studentRepo.createStudent(studentData);
-      let paymentData = {
-        courseId: mongoose.Types.ObjectId(constants.COURSE.PRANA_ARAMBHA),
-        studentId: mongoose.Types.ObjectId(studentRes._id),
-        paymentStatus: constants.PAYMENT_STATUS.PAID,
-        amount: user.price,
-        currency: user.currency,
-        paymentId: reqBody.razorpayPaymentId,
-      };
-      await paymentRepo.createPaymentDetails(paymentData);
+      // let paymentData = {
+      //   courseId: mongoose.Types.ObjectId(constants.COURSE.PRANA_ARAMBHA),
+      //   studentId: mongoose.Types.ObjectId(studentRes._id),
+      //   paymentStatus: constants.PAYMENT_STATUS.PAID,
+      //   amount: user.price,
+      //   currency: user.currency,
+      //   paymentId: reqBody.razorpayPaymentId,
+      // };
+      // await paymentRepo.createPaymentDetails(paymentData);
       return resolve(1);
     } catch (error) {
       return reject(error);
@@ -1585,16 +1586,14 @@ function updatePranaArambhPaymentStatusForcefully() {
       const now = new Date();
       const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
       const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
-      let course = "644f9dfc499ffcfb45df35cd";
+      let course = constants.COURSE.PRANA_ARAMBHA;
       const paymentData =
         await paymentRepo.updatePranaArambhPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),
           fiveMinutesAhead.toISOString()
         );
       for (const obj of paymentData) {
-        let coursetitle = await courseRepo.getCourseById(
-          "644f9dfc949ffcfb45df35cd"
-        );
+        let coursetitle = await courseRepo.getCourseById(course);
         let studentData = await studentRepo.getStudentById(obj.studentId);
         if (obj.paymentBy == "Stripe") {
           const session = await stripe.checkout.sessions.retrieve(

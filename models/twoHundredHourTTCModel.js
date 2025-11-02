@@ -63,7 +63,11 @@ const twoHundredHourTTCSchema = new mongoose.Schema({
   isPaymentCheck: {
     type: Boolean,
     default: false,
-  }
+  },
+  month: {
+    type: String,
+    default: () => "November",
+  },
 });
 
 module.exports = mongoose.model(

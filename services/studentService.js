@@ -894,7 +894,6 @@ let getPranaArmbhAllData = async function (
   let pipeline = [
     {
       $match: {
-        course: courseId,
         paymentCourseId: constants.COURSE.PRANA_ARAMBHA,
       },
     },

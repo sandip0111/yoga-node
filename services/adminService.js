@@ -39,7 +39,6 @@ function registerSwarSadhanaWebinarUser(reqBody) {
         paymentStatus = constant.PAYMENT_STATUS.PAID;
         isWebsite = false;
       }
-
       const savedUser = await studentRepo.registerSwaraSadhanaStudentByAdmin({
         name,
         email,
@@ -165,7 +164,6 @@ function createLiveCourseCustomer(reqBody, mentors) {
     }
   });
 }
-
 function createFreeWebinarCustomer(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -194,7 +192,6 @@ function createFreeWebinarCustomer(reqBody) {
     }
   });
 }
-
 function createRishikeshCustomer(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -294,6 +291,14 @@ function sendBulkMailFreeWebiner() {
     }
   });
 }
+function getAllPendingPaymentList(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
@@ -303,4 +308,5 @@ module.exports = {
   createPranaArambhCustomer,
   createFreeWebinarCustomer,
   sendBulkMailFreeWebiner,
+  getAllPendingPaymentList,
 };

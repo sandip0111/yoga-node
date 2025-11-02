@@ -1414,9 +1414,7 @@ module.exports = {
   getCourseByIdV2: async function (req, res) {
     try {
       const { id: stuId } = req.params;
-
       const course = await courseModel.findOne({ _id: stuId });
-
       if (!course) {
         return res.status(200).json({ msg: `No course with Id ${stuId}` });
       }
