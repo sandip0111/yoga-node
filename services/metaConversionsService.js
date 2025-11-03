@@ -19,12 +19,27 @@ class MetaConversionsService {
 
       // Don't send data from development environments
       const sourceUrl = this.getSourceUrl();
+      
+
+      const eventData = this.buildPurchaseEventData(purchaseData, userData, courseData);
+      
+      // Log event data for debugging (remove in production or use proper logging)
+      console.log("Meta Conversions API - Event Data:", {
+        event_id: eventData.data[0].event_id,
+        content_ids: eventData.data[0].custom_data.content_ids,
+        content_name: eventData.data[0].custom_data.content_name,
+        value: eventData.data[0].custom_data.value,
+        currency: eventData.data[0].custom_data.currency,
+        has_fbc: !!eventData.data[0].user_data.fbc,
+        has_fbp: !!eventData.data[0].user_data.fbp,
+        has_email: !!eventData.data[0].user_data.em[0],
+        has_phone: !!eventData.data[0].user_data.ph[0]
+      });
+
       if (!sourceUrl) {
         console.log("Meta Conversions API: Skipping event tracking in development environment");
         return;
       }
-
-      const eventData = this.buildPurchaseEventData(purchaseData, userData, courseData);
       
       const response = await axios.post(this.baseUrl, eventData, {
         headers: {
@@ -76,7 +91,7 @@ class MetaConversionsService {
       data: [{
         event_name: "Purchase",
         event_time: eventTime,
-        event_id: purchaseData.transactionId || purchaseData.paymentId,
+        event_id: purchaseData.eventId || purchaseData.transactionId || purchaseData.paymentId,
         event_source_url: this.getSourceUrl() || "https://yogavidyaschool.com",
         action_source: "website",
         user_data: {

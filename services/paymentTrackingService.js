@@ -9,12 +9,12 @@ class PaymentTrackingService {
    */
   async trackRazorpayPurchase(paymentData, userData) {
     try {
-      // Get course information
       const courseData = await this.getCourseData(paymentData.courseId);
       
       const purchaseData = {
         transactionId: paymentData.razorpayPaymentId || paymentData.paymentId,
         paymentId: paymentData.razorpayPaymentId || paymentData.paymentId,
+        eventId: this.getStaticEventId(courseData.courseType),
         amount: paymentData.amount,
         currency: paymentData.currency,
         clientIp: paymentData.clientIp || "",
@@ -40,12 +40,12 @@ class PaymentTrackingService {
    */
   async trackStripePurchase(paymentData, userData) {
     try {
-      // Get course information
       const courseData = await this.getCourseData(paymentData.courseId);
       
       const purchaseData = {
         transactionId: paymentData.stripePaymentIntent || paymentData.paymentId,
         paymentId: paymentData.stripePaymentIntent || paymentData.paymentId,
+        eventId: this.getStaticEventId(courseData.courseType),
         amount: paymentData.amount,
         currency: paymentData.currency,
         clientIp: paymentData.clientIp || "",
@@ -80,6 +80,7 @@ class PaymentTrackingService {
       const purchaseData = {
         transactionId: paymentData.paymentId,
         paymentId: paymentData.paymentId,
+        eventId: "pranic_purification",
         amount: userData.price,
         currency: userData.currency,
         clientIp: paymentData.clientIp,
@@ -112,10 +113,13 @@ class PaymentTrackingService {
       const purchaseData = {
         transactionId: paymentData.paymentId,
         paymentId: paymentData.paymentId,
+        eventId: "200_ttc",
         amount: userData.price,
         currency: userData.currency,
-        clientIp: paymentData.clientIp,
-        userAgent: paymentData.userAgent
+        clientIp: paymentData.clientIp || "",
+        userAgent: paymentData.userAgent || "",
+        fbc: paymentData.fbc || "",
+        fbp: paymentData.fbp || ""
       };
 
       const userInfo = {
@@ -145,13 +149,18 @@ class PaymentTrackingService {
         courseType: courseType
       };
 
+      const eventId = userData.hour === 100 ? "rishikesh_100" : 
+                     userData.hour === 200 ? "rishikesh_200" : 
+                     userData.hour === 300 ? "rishikesh_300" : "rishikesh";
+
       const purchaseData = {
         transactionId: paymentData.paymentId,
         paymentId: paymentData.paymentId,
+        eventId: eventId,
         amount: userData.price,
         currency: userData.currency,
         clientIp: paymentData.clientIp,
-        userAgent: paymentData.userAgent
+        userAgent: paymentData.userAgent        
       };
 
       const userInfo = {
@@ -180,10 +189,13 @@ class PaymentTrackingService {
       const purchaseData = {
         transactionId: paymentData.paymentId,
         paymentId: paymentData.paymentId,
+        eventId: "live_classes",
         amount: userData.price,
         currency: userData.currency,
         clientIp: paymentData.clientIp,
-        userAgent: paymentData.userAgent
+        userAgent: paymentData.userAgent,
+        fbc: paymentData.fbc || "",
+        fbp: paymentData.fbp || ""
       };
 
       const userInfo = {
@@ -212,6 +224,7 @@ class PaymentTrackingService {
       const purchaseData = {
         transactionId: paymentData.paymentId,
         paymentId: paymentData.paymentId,
+        eventId: "swara_sadhana",
         amount: userData.price,
         currency: userData.currency,
         clientIp: paymentData.clientIp,
@@ -259,9 +272,6 @@ class PaymentTrackingService {
     }
   }
 
-  /**
-   * Determine course type based on course title
-   */
   determineCourseType(courseTitle) {
     const title = courseTitle.toLowerCase();
     
@@ -278,6 +288,19 @@ class PaymentTrackingService {
     } else {
       return "yoga_course";
     }
+  }
+
+  getStaticEventId(courseType) {
+    const staticEventIds = {
+      "online_ttc": "200_ttc",
+      "pranayama_course": "pranic_purification",
+      "live_yoga_classes": "live_classes",
+      "breathing_course": "swara_sadhana",
+      "rishikesh_course": "rishikesh",
+      "teacher_training": "200_ttc",
+      "yoga_course": "yoga_course"
+    };
+    return staticEventIds[courseType] || "yoga_course";
   }
 }
 
