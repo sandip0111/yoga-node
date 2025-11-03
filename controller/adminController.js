@@ -47,14 +47,14 @@ const whatsappAccessToken =
 const stripe = require("stripe")(process.env.STRIP_KEY);
 const paymentService = require("../services/paymentService");
 const adminService = require("../services/adminService");
-const courseService = require('../services/courseService');
+const courseService = require("../services/courseService");
 const mentors = [
   {
     topic: "August 2025 : Yoga Sadhana With Prashant ji",
     time: "Aug 4, 2025 06:00 AM India",
     zoomLink: "https://bit.ly/47r6ukp",
-    meetingId: "858 7707 8350",
-    passcode: "153707",
+    meetingId: "84583124355",
+    passcode: "459027",
     whatsappLink: "https://bit.ly/4qgdsjv",
     name: "Yoga Sadhana",
     subject: "Welcome to Your Online Sadhana with Prashantji",
@@ -1824,7 +1824,8 @@ module.exports = {
 
       // Track Live Class purchase (Razorpay)
       try {
-        const clientIp = req.headers["x-forwarded-for"] || req.connection?.remoteAddress || "";
+        const clientIp =
+          req.headers["x-forwarded-for"] || req.connection?.remoteAddress || "";
         const userAgent = req.headers["user-agent"] || "";
         const paymentTrackingService = require("../services/paymentTrackingService");
         await paymentTrackingService.trackLiveClassPurchase(
@@ -1842,11 +1843,11 @@ module.exports = {
           }
         );
       } catch (e) {
-        console.error("Live Class purchase tracking (Razorpay) failed:", e?.message || e);
+        console.error(
+          "Live Class purchase tracking (Razorpay) failed:",
+          e?.message || e
+        );
       }
-
-      // Customer Email
-
       for (var i = 0; i < courseList.length; i++) {
         var item = mentors.find((obj) =>
           courseList[i].title.includes(obj.name)
@@ -2435,7 +2436,10 @@ module.exports = {
 
             // Track Live Class purchase (Stripe)
             try {
-              const clientIp = req.headers["x-forwarded-for"] || req.connection?.remoteAddress || "";
+              const clientIp =
+                req.headers["x-forwarded-for"] ||
+                req.connection?.remoteAddress ||
+                "";
               const userAgent = req.headers["user-agent"] || "";
               const paymentTrackingService = require("../services/paymentTrackingService");
               await paymentTrackingService.trackLiveClassPurchase(
@@ -2453,7 +2457,10 @@ module.exports = {
                 }
               );
             } catch (e) {
-              console.error("Live Class purchase tracking (Stripe) failed:", e?.message || e);
+              console.error(
+                "Live Class purchase tracking (Stripe) failed:",
+                e?.message || e
+              );
             }
             let mailOptions;
             const courseList = courses.reduce((acc, course) => {
@@ -2853,7 +2860,8 @@ module.exports = {
   getStripePaymentResult200TTC: async function (req, res) {
     try {
       const returnData = await paymentService.getStripePaymentResult200TTC(
-        req.body, req
+        req.body,
+        req
       );
       res.status(returnData.status).json(returnData.data);
     } catch (error) {
@@ -2919,6 +2927,19 @@ module.exports = {
       }
     }
   },
+  getAllPendingPaymentList: async function (req, res) {
+    {
+      try {
+        const returnData = await adminService.getAllPendingPaymentList(req.body);
+        res.status(200).json({
+          status: true,
+          data: returnData,
+        });
+      } catch (err) {
+        res.status(400).json({ err });
+      }
+    }
+  },
 };
 
 let updatePaymentV2 = async function (data) {
@@ -2928,7 +2949,7 @@ let updatePaymentV2 = async function (data) {
       { paymentId: data.paymentId, paymentStatus: data.paymentStatus }
     );
   } catch (error) {
-    // res.staus(500).json("Internal server error");
+    res.staus(500).json("Internal server error");
   }
 };
 
@@ -2940,30 +2961,5 @@ let updatePaymentOnlineLiveClasses = async function (data) {
     );
   } catch (error) {
     res.staus(500).json("Internal server error");
-  }
-};
-
-let updateStudentCourse = async function (data) {
-  try {
-    let student = await studentModel.findOne({ _id: data.student });
-    let coursebody = [];
-    if (data.course) {
-      if (student.course.length > 0) {
-        coursebody = [...student.course, data.course];
-      } else {
-        coursebody = [data.course];
-      }
-    }
-    let uniqueArray = coursebody.filter((value, index, self) => {
-      return self.indexOf(value) === index;
-    });
-
-    let bodyUp = {
-      course: uniqueArray,
-    };
-    let up = await studentModel.findOneAndUpdate({ _id: data.student }, bodyUp);
-    res.status(200).json({ status: "ok" });
-  } catch (error) {
-    res.status(500).json("Internal server error");
   }
 };

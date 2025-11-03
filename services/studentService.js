@@ -704,7 +704,6 @@ module.exports = {
   sendMailToPrashantJi: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
-        console.log(reqBody);
         const fileName = constants.EMAIL_TEMPLATE.ONLINE_PRASHANT;
         let mailData = {
           replacements: {

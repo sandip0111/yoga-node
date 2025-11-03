@@ -6,6 +6,7 @@ const constant = require("../helpers/constants.json");
 const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
 const paymentRepo = require("../repositories/paymentRepository");
 const paymentModel = require("../models/paymentModel");
+const studentService = require("./studentService");
 function registerSwarSadhanaWebinarUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -294,6 +295,9 @@ function sendBulkMailFreeWebiner() {
 function getAllPendingPaymentList(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
+      const swaraData = await studentService.getAllSwaraSadhanaData(reqBody);
+      const allData = [... swaraData];
+      return resolve(allData);
     } catch (error) {
       reject(error);
     }

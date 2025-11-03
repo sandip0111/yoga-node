@@ -368,20 +368,6 @@ async function getPresignedUrl(bucket, key) {
   return url;
 }
 
-// const imageStorage = multer.diskStorage({
-//   // Destination to store image
-//   // console.log('test');
-//   destination: "public/images",
-//   filename: (req, file, cb) => {
-//     cb(
-//       null,
-//       file.fieldname + "_" + Date.now() + path.extname(file.originalname)
-//     );
-//     // file.fieldname is name of the field (image)
-//     // path.extname get the uploaded file extension
-//   },
-// });
-
 function extractNumber(str) {
   const match = str.match(/\d+/); // Finds the first number in the string
   return match ? parseInt(match[0], 10) : null; // Convert to integer
@@ -430,10 +416,7 @@ router.post(
 );
 
 const videoStorage = multer.diskStorage({
-  // Destination to store image
-  // console.log('test');
   destination: function (req, file, cb) {
-    // Adjust the path to go up from 'routes' folder to the project root
     const uploadPath = path.join(__dirname, "..", "public/video");
     cb(null, uploadPath);
   },
@@ -442,8 +425,6 @@ const videoStorage = multer.diskStorage({
       null,
       file.fieldname + "_" + Date.now() + path.extname(file.originalname)
     );
-    // file.fieldname is name of the field (image)
-    // path.extname get the uploaded file extension
   },
 });
 const videoUpload = multer({
@@ -609,5 +590,6 @@ router.post(
 );
 router.post("/updatePaymentId200ttc", paymentController.updatePaymentId200ttc);
 router.get("/sendBulkMailFreeWebiner", adminController.sendBulkMailFreeWebiner);
+router.post('/getAllPendingPaymentList', adminController.getAllPendingPaymentList);
 
 module.exports = router;
