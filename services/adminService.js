@@ -6,7 +6,7 @@ const constant = require("../helpers/constants.json");
 const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
 const paymentRepo = require("../repositories/paymentRepository");
 const paymentModel = require("../models/paymentModel");
-const studentService = require("./studentService");
+const adminRepo = require("../repositories/adminRepository");
 function registerSwarSadhanaWebinarUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -295,8 +295,155 @@ function sendBulkMailFreeWebiner() {
 function getAllPendingPaymentList(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      const swaraData = await studentService.getAllSwaraSadhanaData(reqBody);
-      const allData = [... swaraData];
+      let size = reqBody.size || 10;
+      let pageNo = reqBody.pageNo || 1;
+      const skip = Number(size * (pageNo - 1));
+      const limit = Number(size) || 0;
+      let pipeLine;
+      pipeLine = [
+        { $match: { paymentStatus: { $ne: "paid" } } },
+        {
+          $project: {
+            _id: 1,
+            paymentStatus: 1,
+            created: 1,
+            courseName: "Pranic purification",
+            name: 1,
+            email: 1,
+          },
+        },
+        {
+          $unionWith: {
+            coll: "webinarregisterusers",
+            pipeline: [
+              {
+                $match: {
+                  paymentStatus: { $ne: "paid" },
+                  webiner: "Swara Sadhana",
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  paymentStatus: 1,
+                  created: 1,
+                  courseName: "Swara Sadhana",
+                  name: 1,
+                  month: 1,
+                  email: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unionWith: {
+            coll: "twohundredhourttcmodels",
+            pipeline: [
+              { $match: { paymentStatus: { $ne: "paid" } } },
+              {
+                $project: {
+                  _id: 1,
+                  paymentStatus: 1,
+                  created: 1,
+                  courseName: "200 TTC",
+                  name: 1,
+                  month: 1,
+                  email: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unionWith: {
+            coll: "rishikeshstudentmodels",
+            pipeline: [
+              { $match: { paymentStatus: { $ne: "paid" } } },
+              {
+                $project: {
+                  _id: 1,
+                  paymentStatus: 1,
+                  created: 1,
+                  courseName: {
+                    $concat: [{ $toString: "$hour" }, " hour ", "Rishikesh"],
+                  },
+                  name: 1,
+                  month: 1,
+                  email: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unionWith: {
+            coll: "livecoursescustomers",
+            pipeline: [
+              { $match: { paymentStatus: { $ne: "paid" } } },
+              {
+                $project: {
+                  _id: 1,
+                  paymentStatus: 1,
+                  created: 1,
+                  courseName: "Online sadhana",
+                  name: 1,
+                  month: 1,
+                  email: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unionWith: {
+            coll: "payments",
+            pipeline: [
+              { $match: { paymentStatus: { $ne: "paid" } } },
+              {
+                $lookup: {
+                  from: "students",
+                  localField: "studentId",
+                  foreignField: "_id",
+                  as: "studentInfo",
+                  pipeline: [
+                    {
+                      $match: {
+                        paymentCourseId: constant.COURSE.PRANA_ARAMBHA,
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                $unwind: {
+                  path: "$studentInfo",
+                  preserveNullAndEmptyArrays: false,
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  paymentStatus: 1,
+                  created: 1,
+                  courseName: "Prana Arambh",
+                  name: "$studentInfo.firstName",
+                  email: "$studentInfo.email",
+                  month: 1,
+                },
+              },
+            ],
+          },
+        },
+        { $sort: { created: -1 } },
+        {
+          $facet: {
+            metadata: [{ $count: "total" }],
+            data: [{ $skip: skip }, { $limit: limit }],
+          },
+        },
+      ];
+      let allData = await adminRepo.getAllPendingPaymentList(pipeLine);
       return resolve(allData);
     } catch (error) {
       reject(error);

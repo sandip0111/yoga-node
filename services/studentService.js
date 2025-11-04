@@ -743,13 +743,22 @@ let pranaySadhanaCourseVideo = function (getVideoData) {
 let allCourseVideo = function (getVideoData, reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      const params = {
-        Bucket: "yogacourses",
-        Prefix: `upCourses/${reqBody.courseId}/`,
-        Delimiter: "/",
-      };
-      let allObjects = [];
+      var params;
+      if (reqBody.courseId == constants.COURSE.TWO_THOUSANDS_TTC) {
+        params = {
+          Bucket: "yogacourses",
+          Prefix: `upCourses/Online 200 TTC/`,
+          Delimiter: "/",
+        };
+      } else {
+        params = {
+          Bucket: "yogacourses",
+          Prefix: `upCourses/${reqBody.courseId}/`,
+          Delimiter: "/",
+        };
+      }
       let continuationToken = null;
+      let allObjects = [];
       do {
         if (continuationToken) {
           params.ContinuationToken = continuationToken;
