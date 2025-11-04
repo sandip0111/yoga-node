@@ -1833,6 +1833,8 @@ module.exports = {
             paymentId: val.paymentId,
             clientIp,
             userAgent,
+            fbc: req.body?.fbc || "",
+            fbp: req.body?.fbq || ""
           },
           {
             email,
@@ -2447,6 +2449,8 @@ module.exports = {
                   paymentId: paymentId || session.payment_intent,
                   clientIp,
                   userAgent,
+                  fbc: req.body?.fbc || "",
+                  fbp: req.body?.fbq || ""
                 },
                 {
                   email,
