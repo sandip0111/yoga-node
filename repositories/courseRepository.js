@@ -76,12 +76,14 @@ function updateFreeWebinarCustomer(id, data) {
 function getWithoutPaymentCourseStudent() {
   return new Promise(async (resolve, reject) => {
     try {
-      const course = await studentModel.find({
-        $or: [
-          { paymentCourseId: { $exists: false } },
-          { paymentCourseId: null },
-        ],
-      }).lean();
+      const course = await studentModel
+        .find({
+          $or: [
+            { paymentCourseId: { $exists: false } },
+            { paymentCourseId: null },
+          ],
+        })
+        .lean();
       return resolve(course);
     } catch (error) {
       reject(error);
@@ -93,7 +95,6 @@ function addPaymentCourseStudent(obj) {
     try {
       const paymentObj = await paymentModel.findOne({ studentId: obj._id });
       if (paymentObj) {
-        console.log(paymentObj);
         await studentModel.updateOne(
           { _id: obj._id },
           { paymentCourseId: paymentObj.courseId }

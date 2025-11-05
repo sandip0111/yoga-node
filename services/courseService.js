@@ -30,4 +30,7 @@ function changeCourseStatusToOngoing() {
     }
   });
 }
-module.exports = { getCourseBySlug, changeCourseStatusToOngoing };
+module.exports = {
+  getCourseBySlug,
+  changeCourseStatusToOngoing,
+};

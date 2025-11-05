@@ -7,58 +7,6 @@ const helper = require("../helpers/helper");
 const sendMail = require("../helpers/nodemail");
 
 module.exports = {
-  getAllParayanamStudent: function (reqBody) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let courseId = constants.COURSE.PRANA_ARAMBHA;
-        let size = reqBody.size || 10;
-        let pageNo = reqBody.pageNo || 1;
-        let searchText = reqBody.searchText;
-        let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
-        let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
-        if (startDate) {
-          startDate.setHours(0, 0, 0, 0);
-        }
-        if (endDate) {
-          endDate.setHours(23, 59, 59, 999);
-        }
-        const skip = Number(size * (pageNo - 1));
-        const limit = Number(size) || 0;
-        let studentObj;
-        let studentList;
-        let totalStudent = 0;
-        if (!startDate && !endDate) {
-          studentObj = await getPranaArmbhAllData(
-            courseId,
-            skip,
-            limit,
-            searchText,
-            reqBody.paymentStatus
-          );
-          studentList = studentObj.studentList;
-          totalStudent = studentObj.totalData;
-        } else {
-          studentObj = await studentRepo.getStudentWithPaymentDetails(
-            startDate,
-            endDate,
-            searchText,
-            courseId,
-            skip,
-            limit,
-            reqBody.paymentStatus
-          );
-          studentList = studentObj.studentList;
-          totalStudent = studentObj.total;
-        }
-        return resolve({
-          totalStudent,
-          studentList,
-        });
-      } catch (error) {
-        return reject(error);
-      }
-    });
-  },
   getAllBreathDtoxStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -743,20 +691,11 @@ let pranaySadhanaCourseVideo = function (getVideoData) {
 let allCourseVideo = function (getVideoData, reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      var params;
-      if (reqBody.courseId == constants.COURSE.TWO_THOUSANDS_TTC) {
-        params = {
-          Bucket: "yogacourses",
-          Prefix: `upCourses/Online 200 TTC/`,
-          Delimiter: "/",
-        };
-      } else {
-        params = {
-          Bucket: "yogacourses",
-          Prefix: `upCourses/${reqBody.courseId}/`,
-          Delimiter: "/",
-        };
-      }
+      var params = {
+        Bucket: "yogacourses",
+        Prefix: `upCourses/${reqBody.courseId}/`,
+        Delimiter: "/",
+      };
       let continuationToken = null;
       let allObjects = [];
       do {
@@ -889,54 +828,6 @@ let getPranaArmbhAllData2 = async function (courseId, skip, limit, searchText) {
   const totalData =
     result[0].totalCount.length > 0 ? result[0].totalCount[0].total : 0;
 
-  return { studentList, totalData };
-};
-let getPranaArmbhAllData = async function (
-  courseId,
-  skip,
-  limit,
-  searchText,
-  paymentStatus
-) {
-  let studentList;
-  let pipeline = [
-    {
-      $match: {
-        paymentCourseId: constants.COURSE.PRANA_ARAMBHA,
-      },
-    },
-    { $sort: { created: -1 } },
-  ];
-  if (searchText) {
-    pipeline.splice(1, 0, {
-      $match: {
-        $or: [
-          { firstName: { $regex: searchText, $options: "i" } },
-          { email: { $regex: searchText, $options: "i" } },
-        ],
-      },
-    });
-  }
-  pipeline.push({
-    $lookup: {
-      from: "payments",
-      localField: "_id",
-      foreignField: "studentId",
-      as: "paymentDetails",
-      pipeline: [
-        {
-          $match: paymentStatus
-            ? {
-                paymentStatus: { $regex: paymentStatus, $options: "i" },
-              }
-            : {},
-        },
-      ],
-    },
-  });
-  pipeline.push({ $skip: skip }, { $limit: limit });
-  studentList = await studentRepo.getStudentDataFilter(pipeline);
-  const totalData = await getPranaArmbhCount(courseId, searchText);
   return { studentList, totalData };
 };
 let getPranaArmbhCount = async function (courseId, searchText) {

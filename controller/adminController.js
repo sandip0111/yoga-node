@@ -1834,7 +1834,7 @@ module.exports = {
             clientIp,
             userAgent,
             fbc: req.body?.fbc || "",
-            fbp: req.body?.fbq || ""
+            fbp: req.body?.fbq || "",
           },
           {
             email,
@@ -2450,7 +2450,7 @@ module.exports = {
                   clientIp,
                   userAgent,
                   fbc: req.body?.fbc || "",
-                  fbp: req.body?.fbq || ""
+                  fbp: req.body?.fbq || "",
                 },
                 {
                   email,
@@ -2931,10 +2931,22 @@ module.exports = {
       }
     }
   },
+  getAllParayanamStudent: async function (req, res) {
+    try {
+      const result = await adminService.getAllParayanamStudent(req.body);
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.totalStudent });
+    } catch (err) {
+      res.status(500).json({ error: err });
+    }
+  },
   getAllPendingPaymentList: async function (req, res) {
     {
       try {
-        const returnData = await adminService.getAllPendingPaymentList(req.body);
+        const returnData = await adminService.getAllPendingPaymentList(
+          req.body
+        );
         res.status(200).json({
           status: true,
           data: returnData,

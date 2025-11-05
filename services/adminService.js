@@ -292,6 +292,140 @@ function sendBulkMailFreeWebiner() {
     }
   });
 }
+function getAllParayanamStudent(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let courseId = constant.COURSE.PRANA_ARAMBHA;
+      let size = reqBody.size || 10;
+      let pageNo = reqBody.pageNo || 1;
+      let searchText = reqBody.searchText;
+      const skip = Number(size * (pageNo - 1));
+      const limit = Number(size) || 0;
+      let studentObj;
+      let studentList;
+      let totalStudent = 0;
+      studentObj = await getPranaArmbhAllData(
+        courseId,
+        skip,
+        limit,
+        searchText,
+        reqBody.paymentStatus,
+        reqBody.isGetAll
+      );
+      studentList = studentObj.studentList;
+      totalStudent = studentObj.totalData;
+      return resolve({
+        totalStudent,
+        studentList,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+let getPranaArmbhAllData = async function (
+  courseId,
+  skip,
+  limit,
+  searchText,
+  paymentStatus,
+  isGetAll
+) {
+  try {
+    let pipeLine = [];
+    if (searchText) {
+      pipeLine = [
+        {
+          $lookup: {
+            from: "students",
+            localField: "studentId",
+            foreignField: "_id",
+            as: "studentInfo",
+            pipeline: [
+              {
+                $match: {
+                  paymentCourseId: courseId,
+                  $or: [
+                    { firstName: { $regex: searchText, $options: "i" } },
+                    { email: { $regex: searchText, $options: "i" } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: "$studentInfo",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+      ];
+    } else if (paymentStatus) {
+      pipeLine = [
+        { $match: { paymentStatus: paymentStatus } },
+        {
+          $lookup: {
+            from: "students",
+            localField: "studentId",
+            foreignField: "_id",
+            as: "studentInfo",
+            pipeline: [
+              {
+                $match: {
+                  paymentCourseId: courseId,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: "$studentInfo",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+      ];
+    } else {
+      pipeLine = [
+        {
+          $lookup: {
+            from: "students",
+            localField: "studentId",
+            foreignField: "_id",
+            as: "studentInfo",
+            pipeline: [
+              {
+                $match: {
+                  paymentCourseId: courseId,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: "$studentInfo",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+      ];
+    }
+    pipeLine.push({ $sort: { created: -1 } });
+    pipeLine.push({
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: isGetAll ? [] : [{ $skip: skip }, { $limit: limit }],
+      },
+    });
+    let data = await adminRepo.getAllPranaArambhList(pipeLine);
+    const studentList = data[0].data;
+    const totalData = data[0].metadata[0].total;
+    return { studentList, totalData };
+  } catch (err) {
+    console.log(err);
+  }
+};
 function getAllPendingPaymentList(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -299,156 +433,373 @@ function getAllPendingPaymentList(reqBody) {
       let pageNo = reqBody.pageNo || 1;
       const skip = Number(size * (pageNo - 1));
       const limit = Number(size) || 0;
+      let allData;
       let pipeLine;
-      pipeLine = [
-        { $match: { paymentStatus: { $ne: "paid" } } },
-        {
-          $project: {
-            _id: 1,
-            paymentStatus: 1,
-            created: 1,
-            courseName: "Pranic purification",
-            name: 1,
-            email: 1,
-          },
-        },
-        {
-          $unionWith: {
-            coll: "webinarregisterusers",
-            pipeline: [
-              {
-                $match: {
-                  paymentStatus: { $ne: "paid" },
-                  webiner: "Swara Sadhana",
-                },
-              },
-              {
-                $project: {
-                  _id: 1,
-                  paymentStatus: 1,
-                  created: 1,
-                  courseName: "Swara Sadhana",
-                  name: 1,
-                  month: 1,
-                  email: 1,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $unionWith: {
-            coll: "twohundredhourttcmodels",
-            pipeline: [
-              { $match: { paymentStatus: { $ne: "paid" } } },
-              {
-                $project: {
-                  _id: 1,
-                  paymentStatus: 1,
-                  created: 1,
-                  courseName: "200 TTC",
-                  name: 1,
-                  month: 1,
-                  email: 1,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $unionWith: {
-            coll: "rishikeshstudentmodels",
-            pipeline: [
-              { $match: { paymentStatus: { $ne: "paid" } } },
-              {
-                $project: {
-                  _id: 1,
-                  paymentStatus: 1,
-                  created: 1,
-                  courseName: {
-                    $concat: [{ $toString: "$hour" }, " hour ", "Rishikesh"],
-                  },
-                  name: 1,
-                  month: 1,
-                  email: 1,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $unionWith: {
-            coll: "livecoursescustomers",
-            pipeline: [
-              { $match: { paymentStatus: { $ne: "paid" } } },
-              {
-                $project: {
-                  _id: 1,
-                  paymentStatus: 1,
-                  created: 1,
-                  courseName: "Online sadhana",
-                  name: 1,
-                  month: 1,
-                  email: 1,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $unionWith: {
-            coll: "payments",
-            pipeline: [
-              { $match: { paymentStatus: { $ne: "paid" } } },
-              {
-                $lookup: {
-                  from: "students",
-                  localField: "studentId",
-                  foreignField: "_id",
-                  as: "studentInfo",
-                  pipeline: [
-                    {
-                      $match: {
-                        paymentCourseId: constant.COURSE.PRANA_ARAMBHA,
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                $unwind: {
-                  path: "$studentInfo",
-                  preserveNullAndEmptyArrays: false,
-                },
-              },
-              {
-                $project: {
-                  _id: 1,
-                  paymentStatus: 1,
-                  created: 1,
-                  courseName: "Prana Arambh",
-                  name: "$studentInfo.firstName",
-                  email: "$studentInfo.email",
-                  month: 1,
-                },
-              },
-            ],
-          },
-        },
-        { $sort: { created: -1 } },
-        {
-          $facet: {
-            metadata: [{ $count: "total" }],
-            data: [{ $skip: skip }, { $limit: limit }],
-          },
-        },
-      ];
-      let allData = await adminRepo.getAllPendingPaymentList(pipeLine);
+      switch (reqBody.course) {
+        case constant.COURSE.PRANA_ARAMBHA:
+          pipeLine = getAllPranaArambhPipeLine(skip, limit);
+          allData = await adminRepo.getAllPranaArambhList(pipeLine);
+          break;
+        case constant.COURSE.SWAR_SADHNA:
+          pipeLine = getAllSwaraSadhanaPipeLine(skip, limit);
+          allData = await adminRepo.getAllSwaraSadhanaList(pipeLine);
+          break;
+        case constant.COURSE.PRANIC_PURIFICATION:
+          pipeLine = getAllPranicPurificationPipeLine(skip, limit);
+          allData = await adminRepo.getAllPendingPaymentList(pipeLine);
+          break;
+        case constant.COURSE.TWO_THOUSANDS_TTC:
+          pipeLine = getAllTwoHunTTCPipeLine(skip, limit);
+          allData = await adminRepo.getAllTwoHunTTCList(pipeLine);
+          break;
+        case constant.COURSE.ONLINE_LIVE_CLASSES:
+          pipeLine = getAllOnlineLiveClassPipeLine(skip, limit);
+          allData = await adminRepo.getAllOnlineLiveClassList(pipeLine);
+          break;
+        case constant.COURSE.RISHIKESH_100_HOURS:
+          pipeLine = getAllRishikeshPipeLine(skip, limit, 100);
+          allData = await adminRepo.getAllRishikeshList(pipeLine);
+          break;
+        case constant.COURSE.RISHIKESH_200_HOURS:
+          pipeLine = getAllRishikeshPipeLine(skip, limit, 200);
+          allData = await adminRepo.getAllRishikeshList(pipeLine);
+          break;
+        case constant.COURSE.RISHIKESH_300_HOURS:
+          pipeLine = getAllRishikeshPipeLine(skip, limit, 300);
+          allData = await adminRepo.getAllRishikeshList(pipeLine);
+          break;
+        default:
+          pipeLine = getAllPendingPaymentPipeLine(skip, limit);
+          allData = await adminRepo.getAllPendingPaymentList(pipeLine);
+          break;
+      }
       return resolve(allData);
     } catch (error) {
       reject(error);
     }
   });
+}
+function getAllPranaArambhPipeLine(skip, limit) {
+  return [
+    { $match: { paymentStatus: { $ne: "paid" } } },
+    {
+      $lookup: {
+        from: "students",
+        localField: "studentId",
+        foreignField: "_id",
+        as: "studentInfo",
+        pipeline: [
+          {
+            $match: {
+              paymentCourseId: constant.COURSE.PRANA_ARAMBHA,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unwind: {
+        path: "$studentInfo",
+        preserveNullAndEmptyArrays: false,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        paymentStatus: 1,
+        created: 1,
+        courseName: "Prana Arambh",
+        name: "$studentInfo.firstName",
+        email: "$studentInfo.email",
+        month: 1,
+        paymentType: "$paymentBy",
+      },
+    },
+    { $sort: { created: -1 } },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [{ $skip: skip }, { $limit: limit }],
+      },
+    },
+  ];
+}
+function getAllSwaraSadhanaPipeLine(skip, limit) {
+  return [
+    {
+      $match: {
+        paymentStatus: { $ne: "paid" },
+        webinar: "Swara Sadhana",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        paymentStatus: 1,
+        created: 1,
+        courseName: "Swara Sadhana",
+        name: 1,
+        month: 1,
+        email: 1,
+        paymentType: 1,
+      },
+    },
+    { $sort: { created: -1 } },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [{ $skip: skip }, { $limit: limit }],
+      },
+    },
+  ];
+}
+function getAllPranicPurificationPipeLine(skip, limit) {
+  return [
+    { $match: { paymentStatus: { $ne: "paid" } } },
+    {
+      $project: {
+        _id: 1,
+        paymentStatus: 1,
+        created: 1,
+        courseName: "Pranic purification",
+        name: 1,
+        email: 1,
+        paymentType: 1,
+      },
+    },
+    { $sort: { created: -1 } },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [{ $skip: skip }, { $limit: limit }],
+      },
+    },
+  ];
+}
+function getAllTwoHunTTCPipeLine(skip, limit) {
+  return [
+    { $match: { paymentStatus: { $ne: "paid" } } },
+    {
+      $project: {
+        _id: 1,
+        paymentStatus: 1,
+        created: 1,
+        courseName: "200 TTC",
+        name: 1,
+        month: 1,
+        email: 1,
+        paymentType: 1,
+      },
+    },
+    { $sort: { created: -1 } },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [{ $skip: skip }, { $limit: limit }],
+      },
+    },
+  ];
+}
+function getAllOnlineLiveClassPipeLine(skip, limit) {
+  return [
+    { $match: { paymentStatus: { $ne: "paid" } } },
+    {
+      $project: {
+        _id: 1,
+        paymentStatus: 1,
+        created: 1,
+        courseName: "Online sadhana",
+        name: 1,
+        month: 1,
+        email: 1,
+        paymentType: 1,
+      },
+    },
+    { $sort: { created: -1 } },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [{ $skip: skip }, { $limit: limit }],
+      },
+    },
+  ];
+}
+function getAllRishikeshPipeLine(skip, limit, hour) {
+  return [
+    { $match: { paymentStatus: { $ne: "paid" }, hour: hour } },
+    {
+      $project: {
+        _id: 1,
+        paymentStatus: 1,
+        created: 1,
+        courseName: {
+          $concat: [{ $toString: "$hour" }, " hour ", "Rishikesh"],
+        },
+        name: 1,
+        month: 1,
+        email: 1,
+        paymentType: 1,
+      },
+    },
+    { $sort: { created: -1 } },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [{ $skip: skip }, { $limit: limit }],
+      },
+    },
+  ];
+}
+function getAllPendingPaymentPipeLine(skip, limit) {
+  return [
+    { $match: { paymentStatus: { $ne: "paid" } } },
+    {
+      $project: {
+        _id: 1,
+        paymentStatus: 1,
+        created: 1,
+        courseName: "Pranic purification",
+        name: 1,
+        email: 1,
+        paymentType: 1,
+      },
+    },
+    {
+      $unionWith: {
+        coll: "webinarregisterusers",
+        pipeline: [
+          {
+            $match: {
+              paymentStatus: { $ne: "paid" },
+              webinar: "Swara Sadhana",
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              paymentStatus: 1,
+              created: 1,
+              courseName: "Swara Sadhana",
+              name: 1,
+              month: 1,
+              email: 1,
+              paymentType: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unionWith: {
+        coll: "twohundredhourttcmodels",
+        pipeline: [
+          { $match: { paymentStatus: { $ne: "paid" } } },
+          {
+            $project: {
+              _id: 1,
+              paymentStatus: 1,
+              created: 1,
+              courseName: "200 TTC",
+              name: 1,
+              month: 1,
+              email: 1,
+              paymentType: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unionWith: {
+        coll: "rishikeshstudentmodels",
+        pipeline: [
+          { $match: { paymentStatus: { $ne: "paid" } } },
+          {
+            $project: {
+              _id: 1,
+              paymentStatus: 1,
+              created: 1,
+              courseName: {
+                $concat: [{ $toString: "$hour" }, " hour ", "Rishikesh"],
+              },
+              name: 1,
+              month: 1,
+              email: 1,
+              paymentType: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unionWith: {
+        coll: "livecoursescustomers",
+        pipeline: [
+          { $match: { paymentStatus: { $ne: "paid" } } },
+          {
+            $project: {
+              _id: 1,
+              paymentStatus: 1,
+              created: 1,
+              courseName: "Online sadhana",
+              name: 1,
+              month: 1,
+              email: 1,
+              paymentType: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unionWith: {
+        coll: "payments",
+        pipeline: [
+          { $match: { paymentStatus: { $ne: "paid" } } },
+          {
+            $lookup: {
+              from: "students",
+              localField: "studentId",
+              foreignField: "_id",
+              as: "studentInfo",
+              pipeline: [
+                {
+                  $match: {
+                    paymentCourseId: constant.COURSE.PRANA_ARAMBHA,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $unwind: {
+              path: "$studentInfo",
+              preserveNullAndEmptyArrays: false,
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              paymentStatus: 1,
+              created: 1,
+              courseName: "Prana Arambh",
+              name: "$studentInfo.firstName",
+              email: "$studentInfo.email",
+              month: 1,
+              paymentType: "$paymentBy",
+            },
+          },
+        ],
+      },
+    },
+    { $sort: { created: -1 } },
+    {
+      $facet: {
+        metadata: [{ $count: "total" }],
+        data: [{ $skip: skip }, { $limit: limit }],
+      },
+    },
+  ];
 }
 module.exports = {
   registerSwarSadhanaWebinarUser,
@@ -460,4 +811,5 @@ module.exports = {
   createFreeWebinarCustomer,
   sendBulkMailFreeWebiner,
   getAllPendingPaymentList,
+  getAllParayanamStudent,
 };

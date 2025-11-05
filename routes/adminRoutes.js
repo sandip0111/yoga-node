@@ -244,7 +244,7 @@ router.get(
 
 router.post(
   "/getAllParayanamStudent",
-  studentController.getAllParayanamStudent
+  adminController.getAllParayanamStudent
 );
 router.post(
   "/getAllLiveClassStudent",
