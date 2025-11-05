@@ -10,7 +10,7 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const cron = require("node-cron");
 const paymentService = require("./services/paymentService");
-
+const courseService = require("./services/courseService");
 //middleware
 app.use(express.json());
 app.use(cors());
@@ -44,6 +44,7 @@ cron.schedule("*/1 * * * *", async function () {
   paymentService.updateSwaraSadhanaPaymentStatusForcefully();
   paymentService.updateOnlineSadhanaPaymentStatusForcefully();
   paymentService.updatePranaArambhPaymentStatusForcefully();
+  courseService.changeCourseStatusToOngoing();
 });
 cron.schedule("10 18 17 * * *", async function () {
     // paymentService.updateabc();

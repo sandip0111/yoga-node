@@ -1,5 +1,6 @@
 "use strict";
 const courseRepo = require("../repositories/courseRepository");
+const constants = require("../helpers/constants.json");
 function getCourseBySlug(slug) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -16,4 +17,17 @@ function getCourseBySlug(slug) {
     }
   });
 }
-module.exports = { getCourseBySlug };
+function changeCourseStatusToOngoing() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let studentData = await courseRepo.getWithoutPaymentCourseStudent();
+      for (let obj of studentData) {
+        await courseRepo.addPaymentCourseStudent(obj);
+      }
+      return resolve(1);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+module.exports = { getCourseBySlug, changeCourseStatusToOngoing };

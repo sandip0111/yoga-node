@@ -3,6 +3,8 @@ const courseModel = require("../models/courseModel");
 const mongoose = require("mongoose");
 const timeSlots = require("../models/TimeSlots");
 const freeWebinarModel = require("../models/freeWebinarModel");
+const studentModel = require("../models/StudentModel");
+const paymentModel = require("../models/paymentModel");
 function getCourseBySlug(slug) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -71,6 +73,38 @@ function updateFreeWebinarCustomer(id, data) {
     }
   });
 }
+function getWithoutPaymentCourseStudent() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const course = await studentModel.find({
+        $or: [
+          { paymentCourseId: { $exists: false } },
+          { paymentCourseId: null },
+        ],
+      }).lean();
+      return resolve(course);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+function addPaymentCourseStudent(obj) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const paymentObj = await paymentModel.findOne({ studentId: obj._id });
+      if (paymentObj) {
+        console.log(paymentObj);
+        await studentModel.updateOne(
+          { _id: obj._id },
+          { paymentCourseId: paymentObj.courseId }
+        );
+      }
+      return resolve(1);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   getCourseBySlug,
   getCourseById,
@@ -78,4 +112,6 @@ module.exports = {
   createFreeWebinarCustomer,
   getFreeWebinarCustomer,
   updateFreeWebinarCustomer,
+  getWithoutPaymentCourseStudent,
+  addPaymentCourseStudent,
 };
