@@ -333,59 +333,72 @@ let getPranaArmbhAllData = async function (
 ) {
   try {
     let pipeLine = [];
-    if (searchText) {
-      pipeLine = [
-        {
-          $lookup: {
-            from: "students",
-            localField: "studentId",
-            foreignField: "_id",
-            as: "studentInfo",
-            pipeline: [
-              {
-                $match: {
-                  paymentCourseId: courseId,
-                  $or: [
-                    { firstName: { $regex: searchText, $options: "i" } },
-                    { email: { $regex: searchText, $options: "i" } },
-                  ],
+    if (searchText || paymentStatus) {
+      if (searchText && !paymentStatus) {
+        pipeLine = [
+          {
+            $lookup: {
+              from: "students",
+              localField: "studentId",
+              foreignField: "_id",
+              as: "studentInfo",
+              pipeline: [
+                {
+                  $match: {
+                    paymentCourseId: courseId,
+                    $or: [
+                      { firstName: { $regex: searchText, $options: "i" } },
+                      { email: { $regex: searchText, $options: "i" } },
+                    ],
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
-        },
-        {
-          $unwind: {
-            path: "$studentInfo",
-            preserveNullAndEmptyArrays: false,
-          },
-        },
-      ];
-    } else if (paymentStatus) {
-      pipeLine = [
-        { $match: { paymentStatus: paymentStatus } },
-        {
-          $lookup: {
-            from: "students",
-            localField: "studentId",
-            foreignField: "_id",
-            as: "studentInfo",
-            pipeline: [
-              {
-                $match: {
-                  paymentCourseId: courseId,
+        ];
+      } else if (paymentStatus && !searchText) {
+        pipeLine = [
+          { $match: { paymentStatus: paymentStatus } },
+          {
+            $lookup: {
+              from: "students",
+              localField: "studentId",
+              foreignField: "_id",
+              as: "studentInfo",
+              pipeline: [
+                {
+                  $match: {
+                    paymentCourseId: courseId,
+                  },
                 },
-              },
-            ],
+              ],
+            },
           },
-        },
-        {
-          $unwind: {
-            path: "$studentInfo",
-            preserveNullAndEmptyArrays: false,
+        ];
+      } else if (paymentStatus && searchText) {
+        pipeLine = [
+          { $match: { paymentStatus: paymentStatus } },
+          {
+            $lookup: {
+              from: "students",
+              localField: "studentId",
+              foreignField: "_id",
+              as: "studentInfo",
+              pipeline: [
+                {
+                  $match: {
+                    paymentCourseId: courseId,
+                    $or: [
+                      { firstName: { $regex: searchText, $options: "i" } },
+                      { email: { $regex: searchText, $options: "i" } },
+                    ],
+                  },
+                },
+              ],
+            },
           },
-        },
-      ];
+        ];
+      }
     } else {
       pipeLine = [
         {
@@ -403,14 +416,14 @@ let getPranaArmbhAllData = async function (
             ],
           },
         },
-        {
-          $unwind: {
-            path: "$studentInfo",
-            preserveNullAndEmptyArrays: false,
-          },
-        },
       ];
     }
+    pipeLine.push({
+      $unwind: {
+        path: "$studentInfo",
+        preserveNullAndEmptyArrays: false,
+      },
+    });
     pipeLine.push({ $sort: { created: -1 } });
     pipeLine.push({
       $facet: {

@@ -380,10 +380,7 @@ module.exports = {
             ],
           }),
         };
-        const totalStudent = await studentRepo.getStudentCountFilter(
-          filterCondition
-        );
-        const studentList = await studentRepo.getAggregateStudentData([
+        const allData = await studentRepo.getAggregateStudentData([
           { $match: filterCondition },
           { $sort: { created: -1 } },
           {
@@ -394,9 +391,28 @@ module.exports = {
               as: "paymentDetails",
             },
           },
-          { $skip: skip },
-          { $limit: limit },
+          {
+            $project: {
+              _id: 1,
+              firstName: 1,
+              lastName: 1,
+              email: 1,
+              isActive: 1,
+            },
+          },
+          {
+            $facet: {
+              metadata: [{ $count: "total" }],
+              data: reqBody.isGetAll
+                ? []
+                : [{ $skip: skip }, { $limit: limit }],
+            },
+          },
         ]);
+        const studentList = allData[0]?.data || [];
+        const totalStudent = allData[0]?.metadata[0]?.total
+          ? allData[0].metadata[0].total
+          : 0;
         return resolve({ studentList, totalStudent });
       } catch (error) {
         return reject(error);
@@ -444,76 +460,113 @@ module.exports = {
         if (endDate) {
           endDate.setHours(23, 59, 59, 999);
         }
+        // let pipeLine = [
+        //   { $sort: { _id: -1 } },
+        //   { $skip: skip },
+        //   { $limit: limit },
+        // ];
+        // let pipeLineCount = [{ $count: "total" }];
+        // if (searchText) {
+        //   pipeLine.splice(1, 0, {
+        //     $match: {
+        //       $or: [
+        //         { name: { $regex: searchText, $options: "i" } },
+        //         { email: { $regex: searchText, $options: "i" } },
+        //         { phoneNumber: { $regex: searchText, $options: "i" } },
+        //         { address: { $regex: searchText, $options: "i" } },
+        //         { couponcode: { $regex: searchText, $options: "i" } },
+        //       ],
+        //     },
+        //   });
+        //   pipeLineCount.unshift({
+        //     $match: {
+        //       $or: [],
+        //     },
+        //   });
+        // }
+        // if (startDate && endDate) {
+        //   pipeLine.splice(1, 0, {
+        //     $match: {
+        //       $and: [
+        //         { created: { $gte: startDate } },
+        //         { created: { $lte: endDate } },
+        //       ],
+        //     },
+        //   });
+        //   pipeLineCount.unshift({
+        //     $match: {
+        //       $and: [
+        //         { created: { $gte: startDate } },
+        //         { created: { $lte: endDate } },
+        //       ],
+        //     },
+        //   });
+        // }
+        const filterCondition = {
+          ...(searchText && {
+            $or: [
+              { name: { $regex: searchText, $options: "i" } },
+              { email: { $regex: searchText, $options: "i" } },
+              { phoneNumber: { $regex: searchText, $options: "i" } },
+              { address: { $regex: searchText, $options: "i" } },
+              { couponcode: { $regex: searchText, $options: "i" } },
+            ],
+          }),
+          ...(startDate &&
+            endDate && {
+              $and: [
+                { created: { $gte: startDate } },
+                { created: { $lte: endDate } },
+              ],
+            }),
+        };
         let pipeLine = [
-          { $sort: { _id: -1 } },
-          { $skip: skip },
-          { $limit: limit },
+          { $match: filterCondition },
+          {
+            $lookup: {
+              from: "couponcodes",
+              localField: "_id",
+              foreignField: "studentId",
+              as: "couponData",
+            },
+          },
+          {
+            $unwind: {
+              path: "$couponData",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1,
+              phoneNumber: 1,
+              address: 1,
+              currency: 1,
+              price: 1,
+              paymentStatus: 1,
+              created: 1,
+              couponcode: "$couponData.code",
+              couponUsed: "$couponData.isUsed"
+            },
+          },
+          { $sort: { created: -1 } },
+          {
+            $facet: {
+              metadata: [{ $count: "total" }],
+              data: reqBody.isGetAll
+                ? []
+                : [{ $skip: skip }, { $limit: limit }],
+            },
+          },
         ];
-        let pipeLineCount = [{ $count: "total" }];
-        if (searchText) {
-          pipeLine.splice(1, 0, {
-            $match: {
-              $or: [
-                { name: { $regex: searchText, $options: "i" } },
-                { email: { $regex: searchText, $options: "i" } },
-                { phoneNumber: { $regex: searchText, $options: "i" } },
-                { address: { $regex: searchText, $options: "i" } },
-                { couponcode: { $regex: searchText, $options: "i" } },
-              ],
-            },
-          });
-          pipeLineCount.unshift({
-            $match: {
-              $or: [
-                { name: { $regex: searchText, $options: "i" } },
-                { email: { $regex: searchText, $options: "i" } },
-                { phoneNumber: { $regex: searchText, $options: "i" } },
-                { address: { $regex: searchText, $options: "i" } },
-                { couponcode: { $regex: searchText, $options: "i" } },
-              ],
-            },
-          });
-        }
-        if (startDate && endDate) {
-          pipeLine.splice(1, 0, {
-            $match: {
-              $and: [
-                { created: { $gte: startDate } },
-                { created: { $lte: endDate } },
-              ],
-            },
-          });
-          pipeLineCount.unshift({
-            $match: {
-              $and: [
-                { created: { $gte: startDate } },
-                { created: { $lte: endDate } },
-              ],
-            },
-          });
-        }
-        let studentList = await studentRepo.getPranicPurificationData(pipeLine);
-        for (let obj of studentList) {
-          const couponPipe = { studentId: obj._id };
-          const couponCodeData = await paymentRepo.getCoupondataById(
-            couponPipe
-          );
-          if (couponCodeData) {
-            obj.couponcode = couponCodeData.code;
-            obj.couponUsed = couponCodeData.isUsed;
-          } else {
-            obj.couponcode = null;
-            obj.couponUsed = null;
-          }
-        }
-        let studentTotal = await studentRepo.getPranicPurificationData(
-          pipeLineCount
-        );
+        let allData = await studentRepo.getPranicPurificationData(pipeLine);
         return resolve({
-          studentList: studentList,
+          studentList: allData[0].data,
           studentTotal:
-            studentTotal && studentTotal.length == 1
-              ? studentTotal[0].total
+            allData[0].metadata && allData[0].metadata.length == 1
+              ? allData[0].metadata[0].total
               : 0,
         });
       } catch (error) {
