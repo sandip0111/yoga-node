@@ -9,7 +9,7 @@ const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const onlineVideoModel = require("../models/onlineVideoModel");
 const webinarUser = require("../models/webinarRegiserUserModel");
 const freeWebinarModel = require("../models/freeWebinarModel");
-
+const constant = require("../helpers/constants.json");
 module.exports = {
   getStudentCountFilter: function (pipeline) {
     return new Promise(async (resolve, reject) => {
@@ -281,6 +281,22 @@ module.exports = {
         const newUser = new twoHundredHourTTCModel(savedData);
         const savedUser = await newUser.save();
         return resolve(savedUser);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getStudentBy200TTCOnline: function (email, name) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await studentModel
+          .findOne({
+            paymentCourseId: constant.COURSE.TWO_THOUSANDS_TTC,
+            email: email,
+            firstName: name,
+          })
+          .lean();
+        return resolve(student);
       } catch (error) {
         return reject(error);
       }

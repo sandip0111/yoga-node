@@ -7,6 +7,7 @@ const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
 const paymentRepo = require("../repositories/paymentRepository");
 const paymentModel = require("../models/paymentModel");
 const adminRepo = require("../repositories/adminRepository");
+const course = require("../models/courseModel");
 function registerSwarSadhanaWebinarUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -814,6 +815,111 @@ function getAllPendingPaymentPipeLine(skip, limit) {
     },
   ];
 }
+// function sendBulkMail200TTC() {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const customerData = {
+//         isAdminMailSend: false,
+//         paymentStatus: "paid",
+//         month: "November",
+//         // email: "kaushik.das.mca18@gmail.com",
+//       };
+//       let data = await adminRepo.get200TTCList(customerData);
+//       for (let obj of data) {
+//         let studentData = await studentRepo.getStudentBy200TTCOnline(
+//           obj.email,
+//           obj.name
+//         );
+//         if (studentData) {
+//           await helper.sendBulkMail200TTC(studentData);
+//           await paymentRepo.update200ttcPayment(
+//             { isAdminMailSend: true },
+//             obj._id
+//           );
+//         } else {
+//           let data = await studentRepo.createStudent({
+//             firstName: obj.name,
+//             email: obj.email,
+//             password: "hgfy@846",
+//             isActive: true,
+//             paymentCourseId: constant.COURSE.TWO_THOUSANDS_TTC,
+//             is200TTC: true,
+//             source: "200TTC",
+//             course: [
+//               constant.COURSE.TWO_THOUSANDS_TTC,
+//               constant.COURSE.PRANA_ARAMBHA,
+//               constant.COURSE.FOUNDATION_SPIRITUALITY,
+//             ],
+//           });
+//           await helper.sendBulkMail200TTC(data);
+//           await paymentRepo.update200ttcPayment(
+//             { isAdminMailSend: true },
+//             obj._id
+//           );
+//         }
+//         await new Promise((resolve) => setTimeout(resolve, 7000));
+//       }
+//       let msg;
+//       if (data.length > 0) {
+//         msg = "Email send succesfully";
+//       } else {
+//         msg = "No new user exist";
+//       }
+//       return resolve({
+//         data: {
+//           status: "ok",
+//           message: msg,
+//         },
+//         status: 200,
+//       });
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// }
+function sendBulkMail200TTC() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const customerData = {
+        isAdminMailSend: false,
+        paymentStatus: "pending",
+        month: "November",
+        // email: "kaushik.das.mca18@gmail.com",
+      };
+      let data = await adminRepo.get200TTCList(customerData);
+      for (let obj of data) {
+        let studentData = await studentRepo.getStudentBy200TTCOnline(
+          obj.email,
+          obj.name
+        );
+        if (studentData) {
+          console.log(studentData._id);
+          // await helper.sendBulkMail200TTC(studentData);
+          // await paymentRepo.update200ttcPayment(
+          //   { isAdminMailSend: true },
+          //   obj._id
+          // );
+        }
+        // await new Promise((resolve) => setTimeout(resolve, 7000));
+      }
+      let msg;
+      if (data.length > 0) {
+        msg = "Email send succesfully";
+      } else {
+        msg = "No new user exist";
+      }
+      return resolve({
+        data: {
+          status: "ok",
+          message: msg,
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
@@ -825,4 +931,5 @@ module.exports = {
   sendBulkMailFreeWebiner,
   getAllPendingPaymentList,
   getAllParayanamStudent,
+  sendBulkMail200TTC,
 };

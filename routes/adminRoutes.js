@@ -591,5 +591,6 @@ router.post(
 router.post("/updatePaymentId200ttc", paymentController.updatePaymentId200ttc);
 router.get("/sendBulkMailFreeWebiner", adminController.sendBulkMailFreeWebiner);
 router.post('/getAllPendingPaymentList', adminController.getAllPendingPaymentList);
+router.get('/sendBulkMail200TTC', adminController.sendBulkMail200TTC);
 
 module.exports = router;

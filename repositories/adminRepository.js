@@ -65,11 +65,22 @@ function getAllRishikeshList(pipeLine) {
     }
   });
 }
+function get200TTCList(obj) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await twoHundredHourTTCModel.find(obj);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   getAllPendingPaymentList,
   getAllPranaArambhList,
   getAllSwaraSadhanaList,
   getAllTwoHunTTCList,
   getAllOnlineLiveClassList,
-  getAllRishikeshList
+  getAllRishikeshList,
+  get200TTCList
 };

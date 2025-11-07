@@ -548,7 +548,7 @@ module.exports = {
               paymentStatus: 1,
               created: 1,
               couponcode: "$couponData.code",
-              couponUsed: "$couponData.isUsed"
+              couponUsed: "$couponData.isUsed",
             },
           },
           { $sort: { created: -1 } },
@@ -615,18 +615,21 @@ module.exports = {
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
         const searchText = reqBody.searchText;
-        let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
-        let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
-        if (startDate) {
-          startDate.setHours(0, 0, 0, 0);
-        }
-        if (endDate) {
-          endDate.setHours(23, 59, 59, 999);
-        }
         let pipeLine = [
-          { $sort: { _id: -1 } },
-          { $skip: skip },
-          { $limit: limit },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1,
+              phoneNumber: 1,
+              price: 1,
+              currency: 1,
+              paymentStatus: 1,
+              paymentType: 1,
+              created: 1,
+              month: 1,
+            },
+          },
         ];
         let pipeLineCount = [{ $count: "total" }];
         if (searchText) {
@@ -670,31 +673,25 @@ module.exports = {
           pipeLine.splice(1, 0, { $match: payStatusMatch });
           pipeLineCount.splice(1, 0, { $match: payStatusMatch });
         }
-        if (startDate && endDate) {
-          pipeLine.splice(1, 0, {
-            $match: {
-              $and: [
-                { created: { $gte: startDate } },
-                { created: { $lte: endDate } },
-              ],
-            },
-          });
-          pipeLineCount.unshift({
-            $match: {
-              $and: [
-                { created: { $gte: startDate } },
-                { created: { $lte: endDate } },
-              ],
-            },
-          });
+        if (reqBody.month) {
+          const monthMatch = { month: reqBody.month };
+          pipeLine.splice(1, 0, { $match: monthMatch });
+          pipeLineCount.splice(1, 0, { $match: monthMatch });
         }
-        let studentList = await studentRepo.get200ttcData(pipeLine);
-        let studentTotal = await studentRepo.get200ttcData(pipeLineCount);
+        pipeLine.push({ $sort: { created: -1 } });
+        pipeLine.push({
+          $facet: {
+            metadata: [{ $count: "total" }],
+            // data: isGetAll ? [] : [{ $skip: skip }, { $limit: limit }],
+            data: [{ $skip: skip }, { $limit: limit }],
+          },
+        });
+        let allData = await studentRepo.get200ttcData(pipeLine);
         return resolve({
-          studentList: studentList,
+          studentList: allData[0].data,
           studentTotal:
-            studentTotal && studentTotal.length == 1
-              ? studentTotal[0].total
+            allData[0].metadata[0] && allData[0].metadata.length > 0
+              ? allData[0].metadata[0].total
               : 0,
         });
       } catch (error) {
@@ -801,101 +798,6 @@ let allCourseVideo = function (getVideoData, reqBody) {
       return reject(err);
     }
   });
-};
-let getPranaArmbhAllData2 = async function (courseId, skip, limit, searchText) {
-  let studentList;
-  let pipeline = [
-    { $match: { course: courseId } }, // Match students by course
-    { $sort: { created: -1 } }, // Sort by creation date (descending)
-  ];
-
-  // If searchText is provided, add a match condition to filter by firstName or email
-  if (searchText) {
-    pipeline.splice(1, 0, {
-      $match: {
-        $or: [
-          { firstName: { $regex: searchText, $options: "i" } },
-          { email: { $regex: searchText, $options: "i" } },
-        ],
-      },
-    });
-  }
-  pipeline.push({
-    $lookup: {
-      from: "payments",
-      localField: "_id",
-      foreignField: "studentId",
-      as: "paymentDetails",
-    },
-  });
-  pipeline.push({ $unwind: "$paymentDetails" });
-  pipeline.push({ $skip: skip }, { $limit: limit });
-  let facetPipeline = [
-    { $match: { course: courseId } }, // Match students by course
-  ];
-
-  if (searchText) {
-    facetPipeline.push({
-      $match: {
-        $or: [
-          { firstName: { $regex: searchText, $options: "i" } },
-          { email: { $regex: searchText, $options: "i" } },
-        ],
-      },
-    });
-  }
-
-  // Use $facet to run both count and data fetching in parallel
-  facetPipeline.push({
-    $facet: {
-      data: [
-        {
-          $lookup: {
-            from: "payments",
-            localField: "_id",
-            foreignField: "studentId",
-            as: "paymentDetails",
-          },
-        },
-        { $unwind: "$paymentDetails" },
-        { $skip: skip },
-        { $limit: limit },
-      ],
-      totalCount: [
-        // We must apply unwind here for counting purposes
-        {
-          $lookup: {
-            from: "payments",
-            localField: "_id",
-            foreignField: "studentId",
-            as: "paymentDetails",
-          },
-        },
-        { $unwind: "$paymentDetails" },
-        { $count: "total" }, // Count after unwind
-      ],
-    },
-  });
-  const result = await studentRepo.getStudentDataFilter(facetPipeline);
-  studentList = result[0].data;
-  const totalData =
-    result[0].totalCount.length > 0 ? result[0].totalCount[0].total : 0;
-
-  return { studentList, totalData };
-};
-let getPranaArmbhCount = async function (courseId, searchText) {
-  let totalStudent = 0;
-  let filterCondition = {
-    course: courseId,
-    ...(searchText && {
-      $or: [
-        { firstName: { $regex: searchText, $options: "i" } },
-        { email: { $regex: searchText, $options: "i" } },
-      ],
-    }),
-  };
-  totalStudent = await studentRepo.getStudentCountFilter(filterCondition);
-  return totalStudent;
 };
 let getBrathDtoxAllData = async function (
   courseId,

@@ -68,6 +68,10 @@ const twoHundredHourTTCSchema = new mongoose.Schema({
     type: String,
     default: () => "November",
   },
+  isAdminMailSend: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model(
