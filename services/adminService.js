@@ -920,6 +920,40 @@ function sendBulkMail200TTC() {
 //     }
 //   });
 // }
+function giveAccessToUser(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let data = await studentRepo.createStudent({
+        firstName: reqBody.name,
+        email: reqBody.email,
+        password: helper.genratePass(6),
+        isActive: true,
+        paymentCourseId: constant.COURSE.TWO_THOUSANDS_TTC,
+        is200TTC: true,
+        source: "200TTC",
+        course: [
+          constant.COURSE.TWO_THOUSANDS_TTC,
+          constant.COURSE.PRANA_ARAMBHA,
+          constant.COURSE.FOUNDATION_SPIRITUALITY,
+        ],
+      });
+      await helper.sendBulkMail200TTC(data);
+      await paymentRepo.update200ttcPayment(
+        { isAdminMailSend: true },
+        reqBody._id
+      );
+      return resolve({
+        data: {
+          status: "ok",
+          message: `Acess is given and mail has been send to ${reqBody.name}`,
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
@@ -932,4 +966,5 @@ module.exports = {
   getAllPendingPaymentList,
   getAllParayanamStudent,
   sendBulkMail200TTC,
+  giveAccessToUser,
 };

@@ -555,28 +555,6 @@ function getRazorPaymentResult200TTC(reqBody, req = null) {
           subject: "🕉 Welcome to the Yoga Vidya Family!",
         };
         sendMail.createContent(mailData);
-        // const whatsappData = {
-        //   templateName: "pranic_purification",
-        //   to: user.phoneNumber,
-        //   headerParam: [
-        //     {
-        //       type: "text",
-        //       text: user.name,
-        //     },
-        //   ],
-        //   params: [
-        //     {
-        //       type: "text",
-        //       text: "Pranic Purification - Best online pranayama sadhana prashanJ",
-        //     },
-        //     { type: "text", text: constants.LINK.WHATSAPP },
-        //     { type: "text", text: user.courseStartDate.toDateString() },
-        //     { type: "text", text: user.courseTimeDuration },
-        //     { type: "text", text: couponCode },
-        //   ],
-        // };
-        // sendMail.createWhatsAppContent(whatsappData);
-
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.track200TTCPurchase(
           {

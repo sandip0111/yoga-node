@@ -215,7 +215,7 @@ let sendFreeWebinarConfirmationEmail = async function (data) {
       },
       mailTo: data.email,
       contentPath: constants.EMAIL_TEMPLATE.FREE_WEBINAR_CONFIRMATION,
-      subject: 'Replay: “From Sadhana to Seva”',
+      subject: "Replay: “From Sadhana to Seva”",
     };
     await sendMail.createContent(mailData);
   } catch (error) {
@@ -269,6 +269,16 @@ let sendBulkMail200TTC = async function (obj) {
   };
   await sendMail.createContent(mailData);
 };
+let genratePass = function (len) {
+  var charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
+  var password = "";
+  for (var i = 0; i < len; i++) {
+    var randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset.charAt(randomIndex);
+  }
+  return password;
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -286,5 +296,6 @@ module.exports = {
   sendFreeWebinarConfirmationEmail,
   completePranaArambhEmail,
   sendBulkFreeWebinerMail,
-  sendBulkMail200TTC
+  sendBulkMail200TTC,
+  genratePass,
 };
