@@ -5,6 +5,7 @@ const timeSlots = require("../models/TimeSlots");
 const freeWebinarModel = require("../models/freeWebinarModel");
 const studentModel = require("../models/StudentModel");
 const paymentModel = require("../models/paymentModel");
+const onlinevideosModel = require("../models/onlineVideoModel");
 function getCourseBySlug(slug) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -106,6 +107,30 @@ function addPaymentCourseStudent(obj) {
     }
   });
 }
+function uploadCourseVideo(obj) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const paymentObj = await onlinevideosModel.create(obj);
+      return resolve(paymentObj);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+function getLastCourseVideo(courseId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const courseVideo = await onlinevideosModel
+        .findOne({
+          courseId: courseId,
+        })
+        .sort({ created: -1 });
+      return resolve(courseVideo);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   getCourseBySlug,
   getCourseById,
@@ -115,4 +140,6 @@ module.exports = {
   updateFreeWebinarCustomer,
   getWithoutPaymentCourseStudent,
   addPaymentCourseStudent,
+  uploadCourseVideo,
+  getLastCourseVideo
 };

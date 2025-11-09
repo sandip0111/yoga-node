@@ -242,10 +242,7 @@ router.get(
 );
 //Dashboard
 
-router.post(
-  "/getAllParayanamStudent",
-  adminController.getAllParayanamStudent
-);
+router.post("/getAllParayanamStudent", adminController.getAllParayanamStudent);
 router.post(
   "/getAllLiveClassStudent",
   studentController.getAllLiveClassStudent
@@ -590,8 +587,14 @@ router.post(
 );
 router.post("/updatePaymentId200ttc", paymentController.updatePaymentId200ttc);
 router.get("/sendBulkMailFreeWebiner", adminController.sendBulkMailFreeWebiner);
-router.post('/getAllPendingPaymentList', adminController.getAllPendingPaymentList);
-router.get('/sendBulkMail200TTC', adminController.sendBulkMail200TTC);
-router.post('/giveAccessToUser', adminController.giveAccessToUser);
-
+router.post(
+  "/getAllPendingPaymentList",
+  adminController.getAllPendingPaymentList
+);
+router.get("/sendBulkMail200TTC", adminController.sendBulkMail200TTC);
+router.post("/giveAccessToUser", adminController.giveAccessToUser);
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
+router.post("/upload-video", upload.single('video'), adminController.uploadCourseVideo);
 module.exports = router;
