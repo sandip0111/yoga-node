@@ -43,12 +43,12 @@ function uploadCourseVideo(reqFile, reqody) {
       const lastUploadedVideo = await courseRepo.getLastCourseVideo(
         constants.COURSE.TWO_THOUSANDS_TTC
       );
-      await courseRepo.uploadCourseVideo({
-        courseId: constants.COURSE.TWO_THOUSANDS_TTC,
-        title: reqody.courseName,
-        sortBy: +lastUploadedVideo.sortBy + 1,
-        videoName: result.fileName.split(".")[0],
-      });
+      // await courseRepo.uploadCourseVideo({
+      //   courseId: constants.COURSE.TWO_THOUSANDS_TTC,
+      //   title: reqody.courseName,
+      //   sortBy: +lastUploadedVideo.sortBy + 1,
+      //   videoName: result.fileName.split(".")[0],
+      // });
       return resolve({
         success: true,
         message: "Video uploaded successfully",
