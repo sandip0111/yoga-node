@@ -718,6 +718,63 @@ module.exports = {
       }
     });
   },
+  getRishikeshData: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { pageNo = 1, size = 10, searchText = "", month = "", paymentStatus = "" } = reqBody;
+
+        // Validate pagination parameters
+        const validPageNo = Math.max(1, parseInt(pageNo) || 1);
+        const validSize = Math.max(1, parseInt(size) || 10);
+        const skip = validSize * (validPageNo - 1);
+
+        // Build filter query
+        const filter = {};
+
+        // Search filter - search in name, email, and phone number
+        if (searchText && searchText.trim()) {
+          filter.$or = [
+            { name: { $regex: searchText, $options: "i" } },
+            { email: { $regex: searchText, $options: "i" } },
+            { phoneNumber: { $regex: searchText, $options: "i" } },
+          ];
+        }
+
+        // Payment status filter
+        if (paymentStatus && paymentStatus.trim()) {
+          filter.paymentStatus = paymentStatus.toLowerCase();
+        }
+
+        // Month filter - filter by creation month
+        if (month && month.trim()) {
+          const monthIndex = new Date(`${month} 1`).getMonth();
+          if (!isNaN(monthIndex)) {
+            filter.$expr = {
+              $eq: [{ $month: "$created" }, monthIndex + 1],
+            };
+          }
+        }
+
+        // Fetch data from repository
+        const result = await studentRepo.getRishikeshDataWithFilters(filter, skip, validSize);
+        const totalPages = Math.ceil(result.totalRecords / validSize);
+
+        return resolve({
+          data: result.data,
+          pagination: {
+            pageNo: validPageNo,
+            size: validSize,
+            totalRecords: result.totalRecords,
+            totalPages: totalPages,
+            hasNextPage: validPageNo < totalPages,
+            hasPrevPage: validPageNo > 1,
+          },
+        });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let pranaySadhanaCourseVideo = function (getVideoData) {
   return new Promise(async (resolve, reject) => {

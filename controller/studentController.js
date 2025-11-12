@@ -512,6 +512,23 @@ module.exports = {
       res.status(404).json({ status: "error", msg: err.message });
     }
   },
+  getRishikeshData: async function (req, res) {
+    try {
+      const result = await studentService.getRishikeshData(req.body);
+      res.status(200).json({
+        success: true,
+        data: result.data,
+        pagination: result.pagination,
+      });
+    } catch (err) {
+      console.error("Error fetching Rishikesh data:", err);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: err.message,
+      });
+    }
+  },
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });
