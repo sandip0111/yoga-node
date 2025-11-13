@@ -721,7 +721,7 @@ module.exports = {
   getRishikeshData: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
-        const { pageNo = 1, size = 10, searchText = "", month = "", paymentStatus = "" } = reqBody;
+        const { pageNo = 1, size = 10, searchText = "", paymentStatus = "", courseType } = reqBody;
 
         // Validate pagination parameters
         const validPageNo = Math.max(1, parseInt(pageNo) || 1);
@@ -745,30 +745,25 @@ module.exports = {
           filter.paymentStatus = paymentStatus.toLowerCase();
         }
 
-        // Month filter - filter by creation month
-        if (month && month.trim()) {
-          const monthIndex = new Date(`${month} 1`).getMonth();
-          if (!isNaN(monthIndex)) {
-            filter.$expr = {
-              $eq: [{ $month: "$created" }, monthIndex + 1],
-            };
+        // Course type filter mapped to DB key `hour`
+        // Accepts numeric or numeric-string values (e.g. 200 or "200").
+        if (courseType !== undefined && courseType !== null && String(courseType).trim() !== "") {
+          const hourValue = Number(courseType);
+          if (!isNaN(hourValue)) {
+            filter.hour = hourValue;
+          } else {
+            // If non-numeric, attempt exact match (fallback)
+            filter.hour = courseType;
           }
         }
 
         // Fetch data from repository
         const result = await studentRepo.getRishikeshDataWithFilters(filter, skip, validSize);
-        const totalPages = Math.ceil(result.totalRecords / validSize);
 
+        // Return in the same shape as get200ttcData: { studentList, studentTotal }
         return resolve({
-          data: result.data,
-          pagination: {
-            pageNo: validPageNo,
-            size: validSize,
-            totalRecords: result.totalRecords,
-            totalPages: totalPages,
-            hasNextPage: validPageNo < totalPages,
-            hasPrevPage: validPageNo > 1,
-          },
+          studentList: result.data,
+          studentTotal: result.totalRecords || 0,
         });
       } catch (error) {
         return reject(error);
