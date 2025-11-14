@@ -1264,7 +1264,7 @@ function checkoutRazorpayForLiveClasses(reqBody) {
         phone: reqBody.phone,
         currency: reqBody.currency,
         price: reqBody.price,
-        paymentStatus: "unpaid",
+        paymentStatus: "pending",
         courses: reqBody.courses,
         paymentType: "razorpay",
       };
@@ -1294,7 +1294,7 @@ function checkoutStripeForLiveClasses(reqBody) {
       let paymentData = {
         name: reqBody.name,
         email: reqBody.email,
-        paymentStatus: "unpaid",
+        paymentStatus: "pending",
         price: reqBody.price,
         currency: reqBody.currency,
         phone: reqBody.phone,
