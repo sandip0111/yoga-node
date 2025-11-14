@@ -9,6 +9,7 @@ const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const onlineVideoModel = require("../models/onlineVideoModel");
 const webinarUser = require("../models/webinarRegiserUserModel");
 const freeWebinarModel = require("../models/freeWebinarModel");
+const rishikeshStudentModel = require("../models/rishikeshStudent");
 const constant = require("../helpers/constants.json");
 module.exports = {
   getStudentCountFilter: function (pipeline) {
@@ -309,6 +310,22 @@ module.exports = {
         paymentCourseId: { $ne: id },
       });
       return resolve(abc);
+    });
+  },
+  getRishikeshDataWithFilters: function (filter, skip, limit) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const totalRecords = await rishikeshStudentModel.countDocuments(filter);
+        const data = await rishikeshStudentModel
+          .find(filter)
+          .sort({ created: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean();
+        return resolve({ data, totalRecords });
+      } catch (error) {
+        return reject(error);
+      }
     });
   },
 };

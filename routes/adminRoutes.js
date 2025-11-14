@@ -593,6 +593,7 @@ router.post(
 );
 router.get("/sendBulkMail200TTC", adminController.sendBulkMail200TTC);
 router.post("/giveAccessToUser", adminController.giveAccessToUser);
+router.post("/getRishikeshData", studentController.getRishikeshData);
 const upload = multer({
   storage: multer.memoryStorage(),
 });
