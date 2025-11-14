@@ -452,56 +452,6 @@ module.exports = {
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
         const searchText = reqBody.searchText;
-        let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
-        let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
-        if (startDate) {
-          startDate.setHours(0, 0, 0, 0);
-        }
-        if (endDate) {
-          endDate.setHours(23, 59, 59, 999);
-        }
-        // let pipeLine = [
-        //   { $sort: { _id: -1 } },
-        //   { $skip: skip },
-        //   { $limit: limit },
-        // ];
-        // let pipeLineCount = [{ $count: "total" }];
-        // if (searchText) {
-        //   pipeLine.splice(1, 0, {
-        //     $match: {
-        //       $or: [
-        //         { name: { $regex: searchText, $options: "i" } },
-        //         { email: { $regex: searchText, $options: "i" } },
-        //         { phoneNumber: { $regex: searchText, $options: "i" } },
-        //         { address: { $regex: searchText, $options: "i" } },
-        //         { couponcode: { $regex: searchText, $options: "i" } },
-        //       ],
-        //     },
-        //   });
-        //   pipeLineCount.unshift({
-        //     $match: {
-        //       $or: [],
-        //     },
-        //   });
-        // }
-        // if (startDate && endDate) {
-        //   pipeLine.splice(1, 0, {
-        //     $match: {
-        //       $and: [
-        //         { created: { $gte: startDate } },
-        //         { created: { $lte: endDate } },
-        //       ],
-        //     },
-        //   });
-        //   pipeLineCount.unshift({
-        //     $match: {
-        //       $and: [
-        //         { created: { $gte: startDate } },
-        //         { created: { $lte: endDate } },
-        //       ],
-        //     },
-        //   });
-        // }
         const filterCondition = {
           ...(searchText && {
             $or: [
@@ -512,11 +462,9 @@ module.exports = {
               { couponcode: { $regex: searchText, $options: "i" } },
             ],
           }),
-          ...(startDate &&
-            endDate && {
+          ...(reqBody.paymentStatus && {
               $and: [
-                { created: { $gte: startDate } },
-                { created: { $lte: endDate } },
+                { paymentStatus: reqBody.paymentStatus }
               ],
             }),
         };
