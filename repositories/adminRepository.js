@@ -5,6 +5,7 @@ const webinerModel = require("../models/webinarRegiserUserModel");
 const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const livecoursescustomersModel = require("../models/liveCoursesCustomerModel");
 const rishikeshstudentmodels = require("../models/rishikeshStudent");
+const onlinepaymentModel = require("../models/onlinePaymentModel");
 function getAllPendingPaymentList(pipeLine) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -75,6 +76,16 @@ function get200TTCList(obj) {
     }
   });
 }
+function fosCreateStudent(obj) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await onlinepaymentModel.create(obj);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   getAllPendingPaymentList,
   getAllPranaArambhList,
@@ -82,5 +93,6 @@ module.exports = {
   getAllTwoHunTTCList,
   getAllOnlineLiveClassList,
   getAllRishikeshList,
-  get200TTCList
+  get200TTCList,
+  fosCreateStudent
 };

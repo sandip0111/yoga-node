@@ -11,6 +11,8 @@ const webinarUser = require("../models/webinarRegiserUserModel");
 const freeWebinarModel = require("../models/freeWebinarModel");
 const rishikeshStudentModel = require("../models/rishikeshStudent");
 const constant = require("../helpers/constants.json");
+const onlinepaymentModel = require("../models/onlinePaymentModel");
+
 module.exports = {
   getStudentCountFilter: function (pipeline) {
     return new Promise(async (resolve, reject) => {
@@ -317,6 +319,22 @@ module.exports = {
       try {
         const totalRecords = await rishikeshStudentModel.countDocuments(filter);
         const data = await rishikeshStudentModel
+          .find(filter)
+          .sort({ created: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean();
+        return resolve({ data, totalRecords });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getFosStudentList: function (filter, skip, limit) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const totalRecords = await onlinepaymentModel.countDocuments(filter);
+        const data = await onlinepaymentModel
           .find(filter)
           .sort({ created: -1 })
           .skip(skip)

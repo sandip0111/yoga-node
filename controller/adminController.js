@@ -1972,9 +1972,10 @@ module.exports = {
     let paymentData = {
       name: req.body.name,
       email: req.body.email,
-      paymentStatus: "unpaid",
+      paymentStatus: "pending",
       price: req.body.price,
       currency: req.body.currency,
+      paymentType: "stripe",
     };
     const pay = await onlinepaymentModel.create(paymentData);
     const session = await stripe.checkout.sessions.create({
@@ -2990,6 +2991,18 @@ module.exports = {
           req.body
         );
         res.status(200).json(returnData);
+      } catch (err) {
+        res.status(400).json({ err });
+      }
+    }
+  },
+  foundationOfSpiritualitySave: async function (req, res) {
+    {
+      try {
+        const returnData = await adminService.foundationOfSpiritualitySave(
+          req.body
+        );
+        res.status(returnData.status).json(returnData.data);
       } catch (err) {
         res.status(400).json({ err });
       }

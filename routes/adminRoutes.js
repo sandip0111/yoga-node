@@ -597,5 +597,13 @@ router.post("/getRishikeshData", studentController.getRishikeshData);
 const upload = multer({
   storage: multer.memoryStorage(),
 });
-router.post("/upload-video", upload.single('video'), adminController.uploadCourseVideo);
+router.post(
+  "/upload-video",
+  upload.single("video"),
+  adminController.uploadCourseVideo
+);
+router.post(
+  "/foundationOfSpiritualitySave",
+  adminController.foundationOfSpiritualitySave
+);
 module.exports = router;

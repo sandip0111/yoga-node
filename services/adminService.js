@@ -954,6 +954,28 @@ function giveAccessToUser(reqBody) {
     }
   });
 }
+function foundationOfSpiritualitySave(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let paymentData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        paymentStatus: "paid",
+        paymentType: "paypal",
+      };
+      await adminRepo.fosCreateStudent(paymentData);
+      return resolve({
+        data: {
+          status: true,
+          message: 'Foundation of spirituality registration successful',
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
@@ -967,4 +989,5 @@ module.exports = {
   getAllParayanamStudent,
   sendBulkMail200TTC,
   giveAccessToUser,
+  foundationOfSpiritualitySave
 };

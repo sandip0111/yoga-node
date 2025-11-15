@@ -364,14 +364,12 @@ module.exports = {
   getAllFoundationOfSpiritualityStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
-        let courseId = constants.COURSE.FOUNDATION_SPIRITUALITY;
         let size = reqBody.size || 10;
         let pageNo = reqBody.pageNo || 1;
         let searchText = reqBody.searchText;
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
         const filterCondition = {
-          course: courseId,
           ...(searchText && {
             $or: [
               { firstName: { $regex: searchText, $options: "i" } },
@@ -380,40 +378,15 @@ module.exports = {
             ],
           }),
         };
-        const allData = await studentRepo.getAggregateStudentData([
-          { $match: filterCondition },
-          { $sort: { created: -1 } },
-          {
-            $lookup: {
-              from: "payments",
-              localField: "_id",
-              foreignField: "studentId",
-              as: "paymentDetails",
-            },
-          },
-          {
-            $project: {
-              _id: 1,
-              firstName: 1,
-              lastName: 1,
-              email: 1,
-              isActive: 1,
-            },
-          },
-          {
-            $facet: {
-              metadata: [{ $count: "total" }],
-              data: reqBody.isGetAll
-                ? []
-                : [{ $skip: skip }, { $limit: limit }],
-            },
-          },
-        ]);
-        const studentList = allData[0]?.data || [];
-        const totalStudent = allData[0]?.metadata[0]?.total
-          ? allData[0].metadata[0].total
-          : 0;
-        return resolve({ studentList, totalStudent });
+        const fosData = await studentRepo.getFosStudentList(
+          filterCondition,
+          skip,
+          limit
+        );
+        return resolve({
+          studentList: fosData.data,
+          totalStudent: fosData.totalRecords,
+        });
       } catch (error) {
         return reject(error);
       }
@@ -463,10 +436,8 @@ module.exports = {
             ],
           }),
           ...(reqBody.paymentStatus && {
-              $and: [
-                { paymentStatus: reqBody.paymentStatus }
-              ],
-            }),
+            $and: [{ paymentStatus: reqBody.paymentStatus }],
+          }),
         };
         let pipeLine = [
           { $match: filterCondition },
@@ -669,7 +640,13 @@ module.exports = {
   getRishikeshData: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
-        const { pageNo = 1, size = 10, searchText = "", paymentStatus = "", courseType } = reqBody;
+        const {
+          pageNo = 1,
+          size = 10,
+          searchText = "",
+          paymentStatus = "",
+          courseType,
+        } = reqBody;
 
         // Validate pagination parameters
         const validPageNo = Math.max(1, parseInt(pageNo) || 1);
@@ -695,7 +672,11 @@ module.exports = {
 
         // Course type filter mapped to DB key `hour`
         // Accepts numeric or numeric-string values (e.g. 200 or "200").
-        if (courseType !== undefined && courseType !== null && String(courseType).trim() !== "") {
+        if (
+          courseType !== undefined &&
+          courseType !== null &&
+          String(courseType).trim() !== ""
+        ) {
           const hourValue = Number(courseType);
           if (!isNaN(hourValue)) {
             filter.hour = hourValue;
@@ -706,7 +687,11 @@ module.exports = {
         }
 
         // Fetch data from repository
-        const result = await studentRepo.getRishikeshDataWithFilters(filter, skip, validSize);
+        const result = await studentRepo.getRishikeshDataWithFilters(
+          filter,
+          skip,
+          validSize
+        );
 
         // Return in the same shape as get200ttcData: { studentList, studentTotal }
         return resolve({
