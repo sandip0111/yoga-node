@@ -543,12 +543,6 @@ function getRazorPaymentResult200TTC(reqBody, req = null) {
         const mailData = {
           replacements: {
             name: user.name,
-            whatsappGroupLink: constants.LINK.WHATSAPP,
-            startDate: user.courseStartDate.toDateString(),
-            startTime: user.courseTimeDuration,
-            userId: user.email,
-            pass: reqBody.password,
-            courseTitle: reqBody.courseTitle,
           },
           mailTo: user.email,
           contentPath: fileName,
@@ -710,7 +704,7 @@ function savePranaArambhOn200TTC(user, reqBody) {
         course: [
           constants.COURSE.TWO_THOUSANDS_TTC,
           constants.COURSE.PRANA_ARAMBHA,
-          constants.COURSE.FOUNDATION_SPIRITUALITY,
+          constants.COURSE.BREATCH_DTOX,
         ],
         source: "200TTC",
         paymentCourseId: constants.COURSE.TWO_THOUSANDS_TTC,
