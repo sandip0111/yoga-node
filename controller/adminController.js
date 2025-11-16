@@ -48,6 +48,8 @@ const stripe = require("stripe")(process.env.STRIP_KEY);
 const paymentService = require("../services/paymentService");
 const adminService = require("../services/adminService");
 const courseService = require("../services/courseService");
+const courseRepo = require("../repositories/courseRepository");
+
 const mentors = [
   {
     topic: "August 2025 : Yoga Sadhana With Prashant ji",
@@ -1851,8 +1853,9 @@ module.exports = {
         );
       }
       for (var i = 0; i < courseList.length; i++) {
-        var item = mentors.find((obj) =>
-          courseList[i].title.includes(obj.name)
+        const mentors = await courseRepo.getCourseBySlug('online-yoga-classes');
+        var item = mentors.teachersData.find((obj) =>
+          courseList[i].id = obj.id
         );
         const custTemplateName = item.emailTemplate;
         const custTemplatePath = path.join(
@@ -1865,7 +1868,11 @@ module.exports = {
         const template = handlebars.compile(custSource);
 
         const replacements = {
-          name: name,
+          NAME: name,
+          ZOOM: item.zoomLink,
+          MID: item.meetingId,
+          PASSCODE: item.passcode,
+          WHATSAPP: item.whatsappLink
         };
         const htmlToSend = template(replacements);
         transporter.sendMail(

@@ -24,12 +24,13 @@ const liveCoursesCustomerSchema = new mongoose.Schema({
   },
   courses: [
     {
-      title: { type: String, required: true },
-      shortDescription: { type: String, required: false },
-      priceINR: { type: String, required: false },
-      priceUSD: { type: String, required: false },
-      quantity: { type: String, required: true },
-      priceInfo: { type: String, required: false },
+      id: { type: Number, required: true },
+      // title: { type: String, required: true },
+      // shortDescription: { type: String, required: false },
+      // priceINR: { type: String, required: false },
+      // priceUSD: { type: String, required: false },
+      // quantity: { type: String, required: true },
+      // priceInfo: { type: String, required: false },
     },
   ],
   paymentStatus: {

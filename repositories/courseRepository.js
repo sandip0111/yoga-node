@@ -9,7 +9,7 @@ const onlinevideosModel = require("../models/onlineVideoModel");
 function getCourseBySlug(slug) {
   return new Promise(async (resolve, reject) => {
     try {
-      const course = await courseModel.findOne({ slug: slug });
+      const course = await courseModel.findOne({ slug: slug }).lean();
       return resolve(course);
     } catch (error) {
       reject(error);
