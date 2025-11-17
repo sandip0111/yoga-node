@@ -261,7 +261,7 @@ let sendBulkMail200TTC = async function (obj) {
   const mailData = {
     replacements: {
       USER: obj.email,
-      PASSWORD: obj.password,
+      PASSWORD: obj.password
     },
     mailTo: obj.email,
     contentPath: constants.EMAIL_TEMPLATE.BULK_200_TTC,

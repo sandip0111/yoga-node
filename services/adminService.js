@@ -848,7 +848,7 @@ function sendBulkMail200TTC() {
             course: [
               constant.COURSE.TWO_THOUSANDS_TTC,
               constant.COURSE.PRANA_ARAMBHA,
-              constant.COURSE.FOUNDATION_SPIRITUALITY,
+              constant.COURSE.BREATCH_DTOX,
             ],
           });
           await helper.sendBulkMail200TTC(data);
@@ -934,7 +934,7 @@ function giveAccessToUser(reqBody) {
         course: [
           constant.COURSE.TWO_THOUSANDS_TTC,
           constant.COURSE.PRANA_ARAMBHA,
-          constant.COURSE.FOUNDATION_SPIRITUALITY,
+          constant.COURSE.BREATCH_DTOX,
         ],
       });
       await helper.sendBulkMail200TTC(data);
