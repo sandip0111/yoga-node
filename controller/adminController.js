@@ -1819,9 +1819,7 @@ module.exports = {
       } = customer;
 
       const courseList = courses.map((course) => ({
-        title: course.title,
-        price: course.priceINR,
-        shortDescription: course.shortDescription,
+        id: course.id,
       }));
 
       // Track Live Class purchase (Razorpay)
@@ -1853,9 +1851,9 @@ module.exports = {
         );
       }
       for (var i = 0; i < courseList.length; i++) {
-        const mentors = await courseRepo.getCourseBySlug('online-yoga-classes');
-        var item = mentors.teachersData.find((obj) =>
-          courseList[i].id = obj.id
+        const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
+        var item = mentors.teachersData.find(
+          (obj) => courseList[i].id == obj.id
         );
         const custTemplateName = item.emailTemplate;
         const custTemplatePath = path.join(
@@ -1872,7 +1870,7 @@ module.exports = {
           ZOOM: item.zoomLink,
           MID: item.meetingId,
           PASSCODE: item.passcode,
-          WHATSAPP: item.whatsappLink
+          WHATSAPP: item.whatsappLink,
         };
         const htmlToSend = template(replacements);
         transporter.sendMail(
@@ -2384,19 +2382,18 @@ module.exports = {
           try {
             var { name, email, courses } =
               await liveCoursesCustomermodel.findOne({ _id: val.payDbId });
-
-            let mailOptions;
             const courseList = courses.reduce((acc, course) => {
               acc.push({
-                title: course.title,
-                price: course.priceInfo,
-                shortDescription: course.shortDescription,
+                id: course.id,
               });
               return acc;
             }, []);
             for (var i = 0; i < courseList.length; i++) {
-              var item = mentors.find((obj) =>
-                courseList[i].title.includes(obj.name)
+              const mentors = await courseRepo.getCourseBySlug(
+                "online-yoga-classes"
+              );
+              var item = mentors.teachersData.find(
+                (obj) => courseList[i].id == obj.id
               );
               const custTemplateName = item.emailTemplate;
               const custTemplatePath = path.join(
@@ -2409,7 +2406,11 @@ module.exports = {
               const template = handlebars.compile(custSource);
 
               const replacements = {
-                name: name,
+                NAME: name,
+                ZOOM: item.zoomLink,
+                MID: item.meetingId,
+                PASSCODE: item.passcode,
+                WHATSAPP: item.whatsappLink,
               };
               const htmlToSend = template(replacements);
               transporter.sendMail(

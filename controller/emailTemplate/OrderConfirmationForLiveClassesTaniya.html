@@ -25,49 +25,73 @@
     </style>
   </head>
   <body
-    style="background-color:#f6f6f6; font-family:sans-serif; font-size:14px; line-height:1.6; margin:0; padding:0;"
+    style="
+      background-color: #f6f6f6;
+      font-family: sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    "
   >
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f6f6f6">
+    <table
+      role="presentation"
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      width="100%"
+      bgcolor="#f6f6f6"
+    >
       <tr>
         <td>&nbsp;</td>
-        <td class="container" width="580" style="max-width:580px; margin:0 auto; padding:20px;">
-          <div class="content" style="background:#ffffff; border-radius:5px; padding:20px;">
-            
-            <p>Namaste {{name}} 🙏</p>
+        <td
+          class="container"
+          width="580"
+          style="max-width: 580px; margin: 0 auto; padding: 20px"
+        >
+          <div
+            class="content"
+            style="background: #ffffff; border-radius: 5px; padding: 20px"
+          >
+            <p>Namaste {{NAME}} 🙏</p>
 
             <p>
-              Thank you for your recent purchase and for choosing to embark on this transformative journey with Tanya.
+              Thank you for your recent purchase and for choosing to embark on
+              this transformative journey with Tanya.
             </p>
 
             <p>
-              We’re thrilled to welcome you to the Yoga Vidya School family. This email serves as a confirmation of your purchase.
+              We’re thrilled to welcome you to the Yoga Vidya School family.
+              This email serves as a confirmation of your purchase.
             </p>
 
             <p><strong>Next steps:</strong></p>
 
             <p>
               💻 <strong>Your Zoom Link to Join the Classes:</strong><br />
-              <a href="https://bit.ly/WomanYoga_Zoom" target="_blank">https://bit.ly/WomanYoga_Zoom</a><br />
-              <strong>Meeting ID:</strong> 843 9505 6610<br />
-              <strong>Passcode:</strong> 199873
+              <a href="{{ZOOM}}" target="_blank">{{ZOOM}}</a><br />
+              <strong>Meeting ID:</strong> {{MID}}<br />
+              <strong>Passcode:</strong> {{PASSCODE}}
             </p>
 
             <p>
               🟢 <strong>Join our WhatsApp Group:</strong><br />
-              This group will be our main space for updates, reminders, and sharing.<br />
-              <a href="https://bit.ly/YogaWoman_group" target="_blank">https://bit.ly/YogaWoman_group</a><br />
-              We encourage you to join so you don’t miss any important information.
+              This group will be our main space for updates, reminders, and
+              sharing.<br />
+              <a href="{{WHATSAPP}}" target="_blank">{{WHATSAPP}}</a><br />
+              We encourage you to join so you don’t miss any important
+              information.
             </p>
 
             <p>
-              Thank you for walking this path with us — your presence and dedication mean so much to us.
+              Thank you for walking this path with us — your presence and
+              dedication mean so much to us.
             </p>
 
             <p>
               <strong>Yoga Vidya Team</strong><br />
               🕉 Rooted in tradition, guided by wisdom
             </p>
-
           </div>
         </td>
         <td>&nbsp;</td>
