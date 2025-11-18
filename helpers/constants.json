@@ -32,7 +32,8 @@
     "FREE_WEBINAR_CONFIRMATION": "/emailTemplate/freeWebinnerAutomaticMail.html",
     "COMPLETE_PRANA_ARAMBH": "/emailTemplate/completePranaArambhPayment.html",
     "BULK_FREE_WEB": "/emailTemplate/freeWebinerBulkMail.html",
-    "BULK_200_TTC": "/emailTemplate/twoHundredTTCBulkMail.html"
+    "BULK_200_TTC": "/emailTemplate/twoHundredTTCBulkMail.html",
+    "PRANIC_PURIFICATION_24_HOURS": "/emailTemplate/pranicPurification24Hours.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
