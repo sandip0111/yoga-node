@@ -1919,51 +1919,51 @@ module.exports = {
       // WhatsApp
       //const wspTemplate = isPrashantClass ? "live_class_prashant" : "live_class_others";
 
-      var wspTemplate = "";
-      for (let i = 0; i < courseList.length; i++) {
-        if (
-          courseList[i].title
-            .toLowerCase()
-            .includes("acharya prashant jakhmola")
-        ) {
-          wspTemplate = "yoga_online_class";
-        } else if (courseList[i].title.toLowerCase().includes("taniya")) {
-          wspTemplate = "online_class_taniya";
-        } else if (courseList[i].title.toLowerCase().includes("anuj")) {
-          wspTemplate = "online_class_anuj";
-        }
-        if (wspTemplate != "") {
-          const wspMessage = {
-            messaging_product: "whatsapp",
-            to: phone,
-            type: "template",
-            template: {
-              name: wspTemplate,
-              language: { code: "en" },
-              components: [
-                {
-                  type: "header",
-                  parameters: [{ type: "text", text: name }],
-                },
-              ],
-            },
-          };
+      // var wspTemplate = "";
+      // for (let i = 0; i < courseList.length; i++) {
+      //   if (
+      //     courseList[i].title
+      //       .toLowerCase()
+      //       .includes("acharya prashant jakhmola")
+      //   ) {
+      //     wspTemplate = "yoga_online_class";
+      //   } else if (courseList[i].title.toLowerCase().includes("taniya")) {
+      //     wspTemplate = "online_class_taniya";
+      //   } else if (courseList[i].title.toLowerCase().includes("anuj")) {
+      //     wspTemplate = "online_class_anuj";
+      //   }
+      //   if (wspTemplate != "") {
+      //     const wspMessage = {
+      //       messaging_product: "whatsapp",
+      //       to: phone,
+      //       type: "template",
+      //       template: {
+      //         name: wspTemplate,
+      //         language: { code: "en" },
+      //         components: [
+      //           {
+      //             type: "header",
+      //             parameters: [{ type: "text", text: name }],
+      //           },
+      //         ],
+      //       },
+      //     };
 
-          axios
-            .post(whatsappCloudApiUrl, wspMessage, {
-              headers: {
-                Authorization: `Bearer ${whatsappAccessToken}`,
-                "Content-Type": "application/json",
-              },
-            })
-            .then((response) => {})
-            .catch((error) => {
-              // res.status(400).json('Opps error occured');
-            });
+      //     axios
+      //       .post(whatsappCloudApiUrl, wspMessage, {
+      //         headers: {
+      //           Authorization: `Bearer ${whatsappAccessToken}`,
+      //           "Content-Type": "application/json",
+      //         },
+      //       })
+      //       .then((response) => {})
+      //       .catch((error) => {
+      //         // res.status(400).json('Opps error occured');
+      //       });
 
-          wspTemplate = "";
-        }
-      }
+      //     wspTemplate = "";
+      //   }
+      // }
       res
         .status(200)
         .json({ status: "success", paymentId, amount: price, currency });
