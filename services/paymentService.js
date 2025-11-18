@@ -58,6 +58,7 @@ function checkoutRazorpayForPranicPurification(reqBody) {
         currency: reqBody.currency,
         courseStartDate: reqBody.courseStartDate,
         courseTimeDuration: reqBody.courseTimeDuration,
+        paymentType: "razorpay",
       };
       const pay = await paymentRepo.createPranicUserData(userData);
       const amountInSubunits = reqBody.price * 100;
@@ -88,6 +89,7 @@ function getRazorPaymentResultPranicPurification({
   razorpay_payment_id,
   razorpay_signature,
   payDbId,
+  password,
 }) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -100,50 +102,16 @@ function getRazorPaymentResultPranicPurification({
           razorpay_payment_id,
           true
         );
-        const couponCode = generateCouponCode(user.name);
-        const couponcodeData = {
-          code: couponCode,
-          slug: constants.SLUG.PRANA_ARAMBH,
-          email: user.email,
-          studentId: user._id,
-        };
-        await paymentRepo.createCouponCodeData(couponcodeData);
-        const mailData = {
-          replacements: {
-            name: user.name,
-            courseTitle:
-              "Pranic Purification - Best online pranayama sadhana prashanJ",
-            whatsappGroupLink: constants.LINK.WHATSAPP,
-            startDate: user.courseStartDate.toDateString(),
-            startTime: user.courseTimeDuration,
-            code: couponCode,
-          },
-          mailTo: user.email,
-          contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION,
-          subject: "Pranic Purification Registration Confirmation",
-        };
-        sendMail.createContent(mailData);
-        const whatsappData = {
-          templateName: "pranic_purification",
-          to: user.phoneNumber,
-          headerParam: [
-            {
-              type: "text",
-              text: user.name,
-            },
-          ],
-          params: [
-            {
-              type: "text",
-              text: "Pranic Purification - Best online pranayama sadhana prashanJ",
-            },
-            { type: "text", text: constants.LINK.WHATSAPP },
-            { type: "text", text: user.courseStartDate.toDateString() },
-            { type: "text", text: user.courseTimeDuration },
-            { type: "text", text: couponCode },
-          ],
-        };
-        sendMail.createWhatsAppContent(whatsappData);
+        // const couponCode = generateCouponCode(user.name);
+        // const couponcodeData = {
+        //   code: couponCode,
+        //   slug: constants.SLUG.PRANA_ARAMBH,
+        //   email: user.email,
+        //   studentId: user._id,
+        // };
+        // await paymentRepo.createCouponCodeData(couponcodeData);
+        createPranicPurificationStudent(user, password);
+        helper.completePranicPurificationAutomationEmail(user, password);
         return resolve({
           status: "success",
           paymentId: razorpay_payment_id,
@@ -184,6 +152,7 @@ function checkoutStripeForPranicPurification(reqBody) {
         currency: reqBody.currency,
         courseStartDate: reqBody.courseStartDate,
         courseTimeDuration: reqBody.courseTimeDuration,
+        paymentType: "stripe",
       };
       const pay = await paymentRepo.createPranicUserData(userData);
       const session = await stripe.checkout.sessions.create({
@@ -397,50 +366,19 @@ function getPaymentResultPranicPurification(reqBody) {
           session.payment_intent,
           true
         );
-        const couponCode = generateCouponCode(user.name);
-        const couponcodeData = {
-          code: couponCode,
-          slug: constants.SLUG.PRANA_ARAMBH,
-          email: user.email,
-          studentId: user._id,
-        };
-        await paymentRepo.createCouponCodeData(couponcodeData);
-        const mailData = {
-          replacements: {
-            name: user.name,
-            courseTitle:
-              "Pranic Purification - Best online pranayama sadhana prashanJ",
-            whatsappGroupLink: constants.LINK.WHATSAPP,
-            startDate: user.courseStartDate.toDateString(),
-            startTime: user.courseTimeDuration,
-            code: couponCode,
-          },
-          mailTo: user.email,
-          contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION,
-          subject: "Pranic Purification Registration Confirmation",
-        };
-        sendMail.createContent(mailData);
-        const whatsappData = {
-          templateName: "pranic_purification",
-          to: user.phoneNumber,
-          headerParam: [
-            {
-              type: "text",
-              text: user.name,
-            },
-          ],
-          params: [
-            {
-              type: "text",
-              text: "Pranic Purification - Best online pranayama sadhana prashanJ",
-            },
-            { type: "text", text: constants.LINK.WHATSAPP },
-            { type: "text", text: user.courseStartDate.toDateString() },
-            { type: "text", text: user.courseTimeDuration },
-            { type: "text", text: couponCode },
-          ],
-        };
-        sendMail.createWhatsAppContent(whatsappData);
+        // const couponCode = generateCouponCode(user.name);
+        // const couponcodeData = {
+        //   code: couponCode,
+        //   slug: constants.SLUG.PRANA_ARAMBH,
+        //   email: user.email,
+        //   studentId: user._id,
+        // };
+        // await paymentRepo.createCouponCodeData(couponcodeData);
+        createPranicPurificationStudent(user, reqBody.password);
+        helper.completePranicPurificationAutomationEmail(
+          user,
+          reqBody.password
+        );
         return resolve({
           status: 200,
           data: {
@@ -1679,6 +1617,26 @@ function updateabc() {
     }
   });
 }
+function createPranicPurificationStudent(user, password) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let studentData = {
+        email: user.email,
+        firstName: user.name,
+        isActive: true,
+        password: password,
+        phoneNumber: user.phoneNumber,
+        course: [constants.COURSE.PRANIC_PURIFICATION],
+        source: "Pranic Purification",
+        paymentCourseId: constants.COURSE.PRANIC_PURIFICATION,
+      };
+      let responseStudent = await studentRepo.createStudent(studentData);
+      return resolve(responseStudent);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   updateabc,
   checkoutRazorpayForPranicPurification,
@@ -1709,4 +1667,5 @@ module.exports = {
   checkoutRazorpayNewPranaarabha,
   checkoutStripe,
   updatePranaArambhPaymentStatusForcefully,
+  createPranicPurificationStudent
 };

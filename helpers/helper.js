@@ -206,7 +206,19 @@ let completeSwaraSadhanaEmail = async function (student) {
   };
   sendMail.createContent(mailData);
 };
-
+let completePranicPurificationAutomationEmail = async function (user, password) {
+  const mailData = {
+    replacements: {
+      NAME: user.name,
+      USER: user.email,
+      PASS: password,
+    },
+    mailTo: user.email,
+    contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION,
+    subject: "Welcome to “PRANIC PURIFICATION”  with Prashantji",
+  };
+  sendMail.createContent(mailData);
+};
 let sendFreeWebinarConfirmationEmail = async function (data) {
   try {
     const mailData = {
@@ -261,7 +273,7 @@ let sendBulkMail200TTC = async function (obj) {
   const mailData = {
     replacements: {
       USER: obj.email,
-      PASSWORD: obj.password
+      PASSWORD: obj.password,
     },
     mailTo: obj.email,
     contentPath: constants.EMAIL_TEMPLATE.BULK_200_TTC,
@@ -298,4 +310,5 @@ module.exports = {
   sendBulkFreeWebinerMail,
   sendBulkMail200TTC,
   genratePass,
+  completePranicPurificationAutomationEmail
 };

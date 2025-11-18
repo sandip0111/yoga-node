@@ -2048,6 +2048,7 @@ module.exports = {
         razorpay_payment_id,
         razorpay_signature,
         payDbId,
+        password
       } = req.body;
       let result = await paymentService.getRazorPaymentResultPranicPurification(
         {
@@ -2055,6 +2056,7 @@ module.exports = {
           razorpay_payment_id,
           razorpay_signature,
           payDbId,
+          password
         }
       );
       res.status(200).json(result);

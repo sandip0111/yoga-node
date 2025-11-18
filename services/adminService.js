@@ -8,6 +8,7 @@ const paymentRepo = require("../repositories/paymentRepository");
 const paymentModel = require("../models/paymentModel");
 const adminRepo = require("../repositories/adminRepository");
 const course = require("../models/courseModel");
+const paymentService = require("./paymentService");
 function registerSwarSadhanaWebinarUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -85,12 +86,17 @@ function registerPranicPurificationUser(reqBody) {
         await studentRepo.registerPranicPurificationStudentByAdmin({
           name: reqBody.name,
           email: reqBody.email,
-          phoneNumber: reqBody.phone,
-          address: reqBody.address,
           paymentStatus: constant.PAYMENT_STATUS.PAID,
-          created: new Date(),
+          paymentType: "paypal",
         });
-      await helper.sendPranicEmail(savedUser);
+      await paymentService.createPranicPurificationStudent(
+        reqBody,
+        helper.genratePass(6)
+      );
+      await helper.completePranicPurificationAutomationEmail(
+        reqBody,
+        helper.genratePass(6)
+      );
       return resolve({
         data: {
           status: "ok",

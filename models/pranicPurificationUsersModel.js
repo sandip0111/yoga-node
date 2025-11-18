@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    required: true,
   },
   address: {
     type: String,
@@ -19,7 +18,7 @@ const userSchema = new mongoose.Schema({
   created: {
     type: Date,
     default: function () {
-      return new Date(Date.now() + 5.5 * 60 * 60 * 1000);
+      return new Date(Date.now());
     },
   },
   currency: {
@@ -38,13 +37,27 @@ const userSchema = new mongoose.Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ["pending", "paid", "failed"],
+    enum: ["pending", "paid"],
     required: false,
     default: "pending",
   },
   paymentId: {
     type: String,
     required: false,
+  },
+  month: {
+    type: String,
+    default: () => "January, 2026",
+  },
+  paymentType: {
+    type: String,
+    enum: ["razorpay", "stripe", "paypal"],
+    required: false,
+    default: null,
+  },
+  isPaymentCheck: {
+    type: Boolean,
+    default: false,
   },
 });
 
