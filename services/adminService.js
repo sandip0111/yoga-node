@@ -142,11 +142,17 @@ function createLiveCourseCustomer(reqBody, mentors) {
       };
       await liveCoursesCustomermodel.create(paymentData);
       for (let coursObj of reqBody.courseList) {
-        var item = mentors.find((obj) => coursObj.includes(obj.name));
+        const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
+        var item = mentors.teachersData.find((obj) => coursObj == obj.id);
+        // var item = mentors.find((obj) => coursObj.includes(obj.name));
         if (item) {
           await helper.sendLiveCourseEmail(
             {
-              name: reqBody.name,
+              NAME: reqBody.name,
+              ZOOM: item.zoomLink,
+              MID: item.meetingId,
+              PASSCODE: item.passcode,
+              WHATSAPP: item.whatsappLink,
             },
             reqBody.email,
             `/emailTemplate/${item.emailTemplate}`,
@@ -967,7 +973,7 @@ function foundationOfSpiritualitySave(reqBody) {
       return resolve({
         data: {
           status: true,
-          message: 'Foundation of spirituality registration successful',
+          message: "Foundation of spirituality registration successful",
         },
         status: 200,
       });
@@ -989,5 +995,5 @@ module.exports = {
   getAllParayanamStudent,
   sendBulkMail200TTC,
   giveAccessToUser,
-  foundationOfSpiritualitySave
+  foundationOfSpiritualitySave,
 };

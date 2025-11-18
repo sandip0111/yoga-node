@@ -55,22 +55,26 @@ module.exports = {
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
         const searchText = reqBody.searchText;
-        let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
-        let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
         const month = reqBody.month ? reqBody.month : null;
-        if (startDate) {
-          startDate.setHours(0, 0, 0, 0);
-        }
-        if (endDate) {
-          endDate.setHours(23, 59, 59, 999);
-        }
+        const filterCondition = {
+          ...(searchText && {
+            $or: [
+              { name: { $regex: searchText, $options: "i" } },
+              { email: { $regex: searchText, $options: "i" } },
+            ],
+          }),
+          ...(reqBody.paymentType && {
+            $and: [{ paymentType: reqBody.paymentType }],
+          }),
+          ...(reqBody.paymentStatus && {
+            $and: [{ paymentStatus: reqBody.paymentStatus }],
+          }),
+          ...(month && { $and: [{ month: month }] }),
+          // $or: [{ title: "Yoga Sadhana" }, { id: 1 }],
+        };
         let pipeLine = [
           { $sort: { created: -1 } },
-          {
-            $match: {
-              "courses.title": { $regex: course, $options: "i" },
-            },
-          },
+          { $match: filterCondition },
           { $skip: skip },
           { $limit: limit },
           {
@@ -108,80 +112,9 @@ module.exports = {
         ];
         let pipeLineCount = [
           { $sort: { created: -1 } },
-          {
-            $match: {
-              "courses.title": { $regex: course, $options: "i" },
-            },
-          },
-          {
-            $count: "total",
-          },
+          { $match: filterCondition },
+          { $count: "total" },
         ];
-        if (searchText) {
-          pipeLine.splice(1, 0, {
-            $match: {
-              $or: [
-                { name: { $regex: searchText, $options: "i" } },
-                { email: { $regex: searchText, $options: "i" } },
-                { phone: { $regex: searchText, $options: "i" } },
-              ],
-            },
-          });
-          pipeLineCount.splice(1, 0, {
-            $match: {
-              $or: [
-                { name: { $regex: searchText, $options: "i" } },
-                { email: { $regex: searchText, $options: "i" } },
-                { phone: { $regex: searchText, $options: "i" } },
-              ],
-            },
-          });
-        }
-        if (reqBody.paymentType) {
-          pipeLine.splice(1, 0, {
-            $match: {
-              $or: [
-                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
-              ],
-            },
-          });
-          pipeLineCount.splice(1, 0, {
-            $match: {
-              $or: [
-                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
-              ],
-            },
-          });
-        }
-        if (startDate && endDate) {
-          pipeLine.splice(1, 0, {
-            $match: {
-              $and: [
-                { created: { $gte: startDate } },
-                { created: { $lte: endDate } },
-              ],
-            },
-          });
-          pipeLineCount.splice(1, 0, {
-            $match: {
-              $and: [
-                { created: { $gte: startDate } },
-                { created: { $lte: endDate } },
-              ],
-            },
-          });
-        }
-        // 🗓️ Month filter (direct column in DB)
-        if (month) {
-          const monthMatch = { month: month };
-          pipeLine.splice(1, 0, { $match: monthMatch });
-          pipeLineCount.splice(1, 0, { $match: monthMatch });
-        }
-        if (reqBody.paymentStatus) {
-          const payStatusMatch = { paymentStatus: reqBody.paymentStatus };
-          pipeLine.splice(1, 0, { $match: payStatusMatch });
-          pipeLineCount.splice(1, 0, { $match: payStatusMatch });
-        }
         const studentObj = await studentRepo.getAllLiveClassStudent(
           pipeLine,
           pipeLineCount

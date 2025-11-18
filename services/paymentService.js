@@ -1331,18 +1331,7 @@ function checkoutStripeForLiveClasses(reqBody) {
 function updateOnlineSadhanaPaymentStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
-      const mentors = [
-        {
-          name: "Acharya Prashant Jakhmola - Yoga Sadhana",
-          subject: "Welcome to Your Online Sadhana with Prashantji",
-          emailTemplate: "OrderConfirmationForLiveClassesPrashant.html",
-        },
-        {
-          name: "Taniya Verma - Woman Wellness Yoga",
-          subject: "Welcome to Your Online Woman Wellness Yoga with Tanya",
-          emailTemplate: "OrderConfirmationForLiveClassesTaniya.html",
-        },
-      ];
+      const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
       const now = new Date();
       const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
       const tenMinutesAhead = new Date(now.getTime() - 30 * 60 * 1000);
@@ -1384,13 +1373,18 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
               );
             }
             for (let coursObj of obj.courses) {
-              var item = mentors.find((obj) =>
-                coursObj.title.includes(obj.name)
+              var item = mentors.teachersData.find(
+                (obj) => coursObj.id == obj.id
               );
+
               if (item) {
                 await helper.sendLiveCourseEmail(
                   {
-                    name: obj.name,
+                    NAME: obj.name,
+                    ZOOM: item.zoomLink,
+                    MID: item.meetingId,
+                    PASSCODE: item.passcode,
+                    WHATSAPP: item.whatsappLink,
                   },
                   obj.email,
                   `/emailTemplate/${item.emailTemplate}`,
@@ -1444,13 +1438,17 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                   );
                 }
                 for (let coursObj of obj.courses) {
-                  var item = mentors.find((obj) =>
-                    coursObj.title.includes(obj.name)
+                  var item = mentors.teachersData.find(
+                    (obj) => coursObj.id == obj.id
                   );
                   if (item) {
                     await helper.sendLiveCourseEmail(
                       {
-                        name: obj.name,
+                        NAME: obj.name,
+                        ZOOM: item.zoomLink,
+                        MID: item.meetingId,
+                        PASSCODE: item.passcode,
+                        WHATSAPP: item.whatsappLink,
                       },
                       obj.email,
                       `/emailTemplate/${item.emailTemplate}`,
