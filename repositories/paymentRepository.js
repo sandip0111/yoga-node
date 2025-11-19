@@ -6,6 +6,7 @@ const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const rishikeshStudentModel = require("../models/rishikeshStudent");
 const webinerUserModel = require("../models/webinarRegiserUserModel");
 const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
+const constant = require('../helpers/constants.json');
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
@@ -33,7 +34,7 @@ function updatePranicUserData(id, paymentId, isPaid) {
       } else {
         await pranicPurificationUsers.findOneAndUpdate(
           { _id: id },
-          { paymentStatus: "failed" }
+          { paymentStatus: constant.PAYMENT_STATUS.PENDING }
         );
       }
       return resolve(user);
@@ -345,6 +346,35 @@ function updatePranaArambhPaymentStatusForcefully(startDate, endDate) {
     }
   });
 }
+function updatePranicPurificationStatusForcefully(startDate, endDate) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await pranicPurificationUsers
+        .find({
+          created: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          paymentStatus: { $ne: "paid" },
+          isPaymentCheck: false,
+        })
+        .lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function pranicPurificationUpdateById(id, data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pay = await pranicPurificationUsers.findOneAndUpdate({ _id: id }, data);
+      return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -368,4 +398,6 @@ module.exports = {
   liveCourseUpdateById,
   updateOnlineSadhanaPaymentStatusForcefully,
   updatePranaArambhPaymentStatusForcefully,
+  updatePranicPurificationStatusForcefully,
+  pranicPurificationUpdateById
 };

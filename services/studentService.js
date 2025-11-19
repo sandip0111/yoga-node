@@ -46,6 +46,7 @@ module.exports = {
       }
     });
   },
+
   getAllLiveClassStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -130,6 +131,7 @@ module.exports = {
       }
     });
   },
+
   getAllSwaraSadhanaData: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -294,6 +296,7 @@ module.exports = {
       }
     });
   },
+
   getAllFoundationOfSpiritualityStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -325,6 +328,7 @@ module.exports = {
       }
     });
   },
+
   createUpdateStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -350,6 +354,7 @@ module.exports = {
       }
     });
   },
+
   getAllPranicPurificationStudent: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -426,6 +431,7 @@ module.exports = {
       }
     });
   },
+
   getCourseVideosById: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -580,16 +586,10 @@ module.exports = {
           paymentStatus = "",
           courseType,
         } = reqBody;
-
-        // Validate pagination parameters
         const validPageNo = Math.max(1, parseInt(pageNo) || 1);
         const validSize = Math.max(1, parseInt(size) || 10);
         const skip = validSize * (validPageNo - 1);
-
-        // Build filter query
         const filter = {};
-
-        // Search filter - search in name, email, and phone number
         if (searchText && searchText.trim()) {
           filter.$or = [
             { name: { $regex: searchText, $options: "i" } },
@@ -597,14 +597,9 @@ module.exports = {
             { phoneNumber: { $regex: searchText, $options: "i" } },
           ];
         }
-
-        // Payment status filter
         if (paymentStatus && paymentStatus.trim()) {
           filter.paymentStatus = paymentStatus.toLowerCase();
         }
-
-        // Course type filter mapped to DB key `hour`
-        // Accepts numeric or numeric-string values (e.g. 200 or "200").
         if (
           courseType !== undefined &&
           courseType !== null &&
@@ -614,19 +609,14 @@ module.exports = {
           if (!isNaN(hourValue)) {
             filter.hour = hourValue;
           } else {
-            // If non-numeric, attempt exact match (fallback)
             filter.hour = courseType;
           }
         }
-
-        // Fetch data from repository
         const result = await studentRepo.getRishikeshDataWithFilters(
           filter,
           skip,
           validSize
         );
-
-        // Return in the same shape as get200ttcData: { studentList, studentTotal }
         return resolve({
           studentList: result.data,
           studentTotal: result.totalRecords || 0,
@@ -636,6 +626,23 @@ module.exports = {
       }
     });
   },
+
+  get24HoursPranicPurificationMailAfterPayment: function () {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const now = new Date();
+        const startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const endTime = new Date(now.getTime() - 24.5 * 60 * 60 * 1000);
+        const pranicData = await studentRepo.get24HoursPranicPurificationData(startTime, endTime);
+        for(let obj of pranicData){
+          console.log(obj);
+        }
+        return resolve(1);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  }
 };
 let pranaySadhanaCourseVideo = function (getVideoData) {
   return new Promise(async (resolve, reject) => {

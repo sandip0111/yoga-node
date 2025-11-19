@@ -57,5 +57,8 @@
     "PAID": "paid",
     "PENDING": "pending",
     "FAILED": "failed"
+  },
+  "STUDENT_SOURCCE": {
+    "PRANIC": "PranicPurification_"
   }
 }

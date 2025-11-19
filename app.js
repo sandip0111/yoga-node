@@ -11,6 +11,8 @@ const path = require("path");
 const cron = require("node-cron");
 const paymentService = require("./services/paymentService");
 const courseService = require("./services/courseService");
+const studentService = require('./services/studentService');
+
 //middleware
 app.use(express.json());
 app.use(cors());
@@ -45,9 +47,11 @@ cron.schedule("*/1 * * * *", async function () {
   paymentService.updateOnlineSadhanaPaymentStatusForcefully();
   paymentService.updatePranaArambhPaymentStatusForcefully();
   courseService.changeCourseStatusToOngoing();
+  studentService.get24HoursPranicPurificationMailAfterPayment();
+  paymentService.updatePranicPurificationStatusForcefully();
 });
 cron.schedule("10 18 17 * * *", async function () {
-    // paymentService.updateabc();
+  // paymentService.updateabc();
 });
 //#region routes
 app.use("/api/v1", adminRoutes);

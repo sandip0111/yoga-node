@@ -69,6 +69,9 @@ function checkoutRazorpayForPranicPurification(reqBody) {
         payment_capture: 1,
       };
       const order = await razorpay.orders.create(options);
+      await paymentRepo.pranicPurificationUpdateById(pay._id, {
+        paymentId: order.id,
+      });
       return resolve({
         orderId: order.id,
         razorpayKey: process.env.RAZORPAY_KEY_ID,
@@ -937,7 +940,7 @@ function updatePaymentStatusForcefully() {
     try {
       const now = new Date();
       const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
-      const tenMinutesAhead = new Date(now.getTime() - 30 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
       const paymentData = await paymentRepo.updatePaymentStatusForcefully(
         tenMinutesAhead.toISOString(),
         fiveMinutesAhead.toISOString()
@@ -1078,7 +1081,7 @@ function updateSwaraSadhanaPaymentStatusForcefully() {
     try {
       const now = new Date();
       const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
-      const tenMinutesAhead = new Date(now.getTime() - 30 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
       const paymentData =
         await paymentRepo.updateSwaraSadhanaPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),
@@ -1271,8 +1274,8 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
     try {
       const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
       const now = new Date();
-      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
-      const tenMinutesAhead = new Date(now.getTime() - 30 * 60 * 1000);
+      const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
       const paymentData =
         await paymentRepo.updateOnlineSadhanaPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),
@@ -1492,8 +1495,8 @@ function updatePranaArambhPaymentStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
       const now = new Date();
-      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
-      const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
+      const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
       let course = constants.COURSE.PRANA_ARAMBHA;
       const paymentData =
         await paymentRepo.updatePranaArambhPaymentStatusForcefully(
@@ -1627,11 +1630,105 @@ function createPranicPurificationStudent(user, password) {
         password: password,
         phoneNumber: user.phoneNumber,
         course: [constants.COURSE.PRANIC_PURIFICATION],
-        source: "Pranic Purification",
+        source: constants.STUDENT_SOURCCE.PRANIC + user._id,
         paymentCourseId: constants.COURSE.PRANIC_PURIFICATION,
       };
       let responseStudent = await studentRepo.createStudent(studentData);
       return resolve(responseStudent);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updatePranicPurificationStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const now = new Date();
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
+      let course = constants.COURSE.PRANA_ARAMBHA;
+      const paymentData =
+        await paymentRepo.updatePranicPurificationStatusForcefully(
+          tenMinutesAhead.toISOString(),
+          fiveMinutesAhead.toISOString()
+        );
+      for (const obj of paymentData) {
+        const password = helper.genratePass(6);
+        if (obj.paymentBy == "Stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId
+          );
+          if (session.payment_status == "paid") {
+            await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+              paymentStatus: "paid",
+              isPaymentCheck: true,
+            });
+            let date = new Date();
+            let replacement = {
+              name: studentData.firstName,
+              course: coursetitle,
+              email: studentData.email,
+              date: date.toString(),
+              password: studentData.password,
+            };
+            await helper.sendPranaArambhEmail(replacement);
+            let updatedCourses = studentData.course.includes(course)
+              ? studentData.course
+              : [...studentData.course, course];
+            await studentRepo.updateStudentCourse(
+              obj.studentId,
+              updatedCourses
+            );
+          } else {
+            await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completePranaArambhEmail(studentData);
+            let updatedCourses = studentData.course.includes(course)
+              ? studentData.course
+              : [...studentData.course, course];
+            await studentRepo.updateStudentCourse(
+              obj.studentId,
+              updatedCourses
+            );
+          }
+        } else {
+          const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+          if (payments.items && payments.items.length > 0) {
+            const payment = payments.items[0];
+            if (payment.status === "captured") {
+              const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(obj.paymentId + "|" + payment.id)
+                .digest("hex");
+              if (
+                generatedSignature === payment.signature ||
+                !payment.signature
+              ) {
+                await paymentRepo.pranicPurificationUpdateById(obj._id, {
+                  paymentStatus: "paid",
+                  isPaymentCheck: true,
+                });
+                createPranicPurificationStudent(obj, password);
+                helper.completePranicPurificationAutomationEmail(obj, password);
+              }
+            }
+          } else {
+            await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completePranaArambhEmail(studentData);
+            let updatedCourses = studentData.course.includes(course)
+              ? studentData.course
+              : [...studentData.course, course];
+            await studentRepo.updateStudentCourse(
+              obj.studentId,
+              updatedCourses
+            );
+          }
+        }
+      }
+      resolve(1);
     } catch (error) {
       return reject(error);
     }
@@ -1667,5 +1764,6 @@ module.exports = {
   checkoutRazorpayNewPranaarabha,
   checkoutStripe,
   updatePranaArambhPaymentStatusForcefully,
-  createPranicPurificationStudent
+  createPranicPurificationStudent,
+  updatePranicPurificationStatusForcefully,
 };

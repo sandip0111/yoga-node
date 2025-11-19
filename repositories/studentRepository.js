@@ -346,6 +346,35 @@ module.exports = {
       }
     });
   },
+  get24HoursPranicPurificationData: function (startTime, endTime) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const data = await pranicPurificationModel.find({
+          isOneHourMailSend: false,
+          created: {
+            $gte: startTime,
+            $lte: endTime,
+          },
+          paymentStatus: constant.PAYMENT_STATUS.PAID,
+        });
+        return resolve(data);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getStudentBySource: function (source) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const studentData = await studentModel.find({
+          source: source,
+        });
+        return resolve(studentData);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let getStudentData = async function (pipeline) {
   const studentList = await studentModel.aggregate(pipeline);
