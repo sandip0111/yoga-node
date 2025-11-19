@@ -206,7 +206,10 @@ let completeSwaraSadhanaEmail = async function (student) {
   };
   sendMail.createContent(mailData);
 };
-let completePranicPurificationAutomationEmail = async function (user, password) {
+let completePranicPurificationAutomationEmail = async function (
+  user,
+  password
+) {
   const mailData = {
     replacements: {
       NAME: user.name,
@@ -291,6 +294,17 @@ let genratePass = function (len) {
   }
   return password;
 };
+let completePranicPurificationEmail = async function (student) {
+  const mailData = {
+    replacements: {
+      NAME: student.name,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_PRANIC_PURIFICATION,
+    subject: "Complete your journey with Yoga Vidya School",
+  };
+  sendMail.createContent(mailData);
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -310,5 +324,6 @@ module.exports = {
   sendBulkFreeWebinerMail,
   sendBulkMail200TTC,
   genratePass,
-  completePranicPurificationAutomationEmail
+  completePranicPurificationAutomationEmail,
+  completePranicPurificationEmail,
 };

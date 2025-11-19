@@ -105,14 +105,14 @@ function getRazorPaymentResultPranicPurification({
           razorpay_payment_id,
           true
         );
-        // const couponCode = generateCouponCode(user.name);
-        // const couponcodeData = {
-        //   code: couponCode,
-        //   slug: constants.SLUG.PRANA_ARAMBH,
-        //   email: user.email,
-        //   studentId: user._id,
-        // };
-        // await paymentRepo.createCouponCodeData(couponcodeData);
+        const couponCode = generateCouponCode(user.name);
+        const couponcodeData = {
+          code: couponCode,
+          slug: constants.SLUG.PRANA_ARAMBH,
+          email: user.email,
+          studentId: user._id,
+        };
+        await paymentRepo.createCouponCodeData(couponcodeData);
         createPranicPurificationStudent(user, password);
         helper.completePranicPurificationAutomationEmail(user, password);
         return resolve({
@@ -176,6 +176,9 @@ function checkoutStripeForPranicPurification(reqBody) {
         success_url: process.env.STRIP_URL,
         cancel_url: process.env.STRIP_URL,
         customer_email: reqBody.email,
+      });
+      await paymentRepo.pranicPurificationUpdateById(pay._id, {
+        paymentId: session.id,
       });
       return resolve({
         sessionId: session.id,
@@ -369,14 +372,14 @@ function getPaymentResultPranicPurification(reqBody) {
           session.payment_intent,
           true
         );
-        // const couponCode = generateCouponCode(user.name);
-        // const couponcodeData = {
-        //   code: couponCode,
-        //   slug: constants.SLUG.PRANA_ARAMBH,
-        //   email: user.email,
-        //   studentId: user._id,
-        // };
-        // await paymentRepo.createCouponCodeData(couponcodeData);
+        const couponCode = generateCouponCode(user.name);
+        const couponcodeData = {
+          code: couponCode,
+          slug: constants.SLUG.PRANA_ARAMBH,
+          email: user.email,
+          studentId: user._id,
+        };
+        await paymentRepo.createCouponCodeData(couponcodeData);
         createPranicPurificationStudent(user, reqBody.password);
         helper.completePranicPurificationAutomationEmail(
           user,
@@ -1654,43 +1657,22 @@ function updatePranicPurificationStatusForcefully() {
         );
       for (const obj of paymentData) {
         const password = helper.genratePass(6);
-        if (obj.paymentBy == "Stripe") {
+        if (obj.paymentType == "stripe") {
           const session = await stripe.checkout.sessions.retrieve(
             obj.paymentId
           );
           if (session.payment_status == "paid") {
-            await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+            await paymentRepo.pranicPurificationUpdateById(obj._id, {
               paymentStatus: "paid",
               isPaymentCheck: true,
             });
-            let date = new Date();
-            let replacement = {
-              name: studentData.firstName,
-              course: coursetitle,
-              email: studentData.email,
-              date: date.toString(),
-              password: studentData.password,
-            };
-            await helper.sendPranaArambhEmail(replacement);
-            let updatedCourses = studentData.course.includes(course)
-              ? studentData.course
-              : [...studentData.course, course];
-            await studentRepo.updateStudentCourse(
-              obj.studentId,
-              updatedCourses
-            );
+            createPranicPurificationStudent(obj, password);
+            helper.completePranicPurificationAutomationEmail(obj, password);
           } else {
-            await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+            await paymentRepo.pranicPurificationUpdateById(obj._id, {
               isPaymentCheck: true,
             });
-            await helper.completePranaArambhEmail(studentData);
-            let updatedCourses = studentData.course.includes(course)
-              ? studentData.course
-              : [...studentData.course, course];
-            await studentRepo.updateStudentCourse(
-              obj.studentId,
-              updatedCourses
-            );
+            await helper.completePranicPurificationEmail(obj);
           }
         } else {
           const payments = await razorpay.orders.fetchPayments(obj.paymentId);
@@ -1714,17 +1696,10 @@ function updatePranicPurificationStatusForcefully() {
               }
             }
           } else {
-            await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
+            await paymentRepo.pranicPurificationUpdateById(obj._id, {
               isPaymentCheck: true,
             });
-            await helper.completePranaArambhEmail(studentData);
-            let updatedCourses = studentData.course.includes(course)
-              ? studentData.course
-              : [...studentData.course, course];
-            await studentRepo.updateStudentCourse(
-              obj.studentId,
-              updatedCourses
-            );
+            await helper.completePranicPurificationEmail(obj);
           }
         }
       }
