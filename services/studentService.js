@@ -626,23 +626,35 @@ module.exports = {
       }
     });
   },
+  get24HoursPranicPurificationMailAfterPayment: async function () {
+    try {
+      const now = new Date();
 
-  get24HoursPranicPurificationMailAfterPayment: function () {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const now = new Date();
-        const startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-        const endTime = new Date(now.getTime() - 24.5 * 60 * 60 * 1000);
-        const pranicData = await studentRepo.get24HoursPranicPurificationData(startTime, endTime);
-        for(let obj of pranicData){
-          console.log(obj);
+      const targetTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      const startTime = new Date(targetTime.getTime() - 5 * 60 * 1000);
+      const endTime = new Date(targetTime.getTime() + 5 * 60 * 1000);
+
+      const pranicData = await studentRepo.get24HoursPranicPurificationData(
+        startTime,
+        endTime
+      );
+
+      for (let student of pranicData) {
+        try {
+          await helper.get24HoursPranicPurificationMailAfterPaymentEmail(
+            student
+          );
+          await studentRepo.updatePranicPurificationMailStatus(student._id);
+        } catch (loopErr) {
+          console.error("Error Processing Student:", student.email, loopErr);
         }
-        return resolve(1);
-      } catch (error) {
-        return reject(error);
       }
-    });
-  }
+      return 1;
+    } catch (err) {
+      console.error("CRON MAIN ERROR:", err);
+      throw err;
+    }
+  },
 };
 let pranaySadhanaCourseVideo = function (getVideoData) {
   return new Promise(async (resolve, reject) => {
