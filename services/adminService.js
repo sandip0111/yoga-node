@@ -90,8 +90,8 @@ function registerPranicPurificationUser(reqBody) {
           paymentType: "paypal",
         });
       const password = helper.genratePass(6);
-      await paymentService.createPranicPurificationStudent(reqBody, password);
-      await helper.completePranicPurificationAutomationEmail(reqBody, password);
+      await paymentService.createPranicPurificationStudent(savedUser, password);
+      await helper.completePranicPurificationAutomationEmail(savedUser, password);
       return resolve({
         data: {
           status: "ok",

@@ -376,6 +376,9 @@ module.exports = {
           ...(reqBody.paymentStatus && {
             $and: [{ paymentStatus: reqBody.paymentStatus }],
           }),
+          ...(reqBody.month && {
+            $and: [{ month: reqBody.month }],
+          }),
         };
         let pipeLine = [
           { $match: filterCondition },
@@ -406,6 +409,8 @@ module.exports = {
               created: 1,
               couponcode: "$couponData.code",
               couponUsed: "$couponData.isUsed",
+              paymentType: 1,
+              month: 1,
             },
           },
           { $sort: { created: -1 } },
