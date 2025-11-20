@@ -31,21 +31,21 @@ function changeCourseStatusToOngoing() {
     }
   });
 }
-function uploadCourseVideo(reqFile, reqody) {
+function uploadCourseVideo(reqFile, reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await s3Service.uploadVideoToS3(
         reqFile.buffer,
         reqFile.originalname,
-        constants.COURSE.TWO_THOUSANDS_TTC,
+        reqBody.selectedCourse,//constants.COURSE.TWO_THOUSANDS_TTC,
         reqFile.mimetype
       );
       const lastUploadedVideo = await courseRepo.getLastCourseVideo(
-        constants.COURSE.TWO_THOUSANDS_TTC
+        reqBody.selectedCourse //constants.COURSE.TWO_THOUSANDS_TTC
       );
       await courseRepo.uploadCourseVideo({
-        courseId: constants.COURSE.TWO_THOUSANDS_TTC,
-        title: reqody.courseName,
+        courseId: reqBody.selectedCourse, //constants.COURSE.TWO_THOUSANDS_TTC,
+        title: reqBody.courseName,
         sortBy: +lastUploadedVideo.sortBy + 1,
         videoName: result.fileName.split(".")[0],
       });
