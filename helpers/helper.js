@@ -294,6 +294,17 @@ let genratePass = function (len) {
   }
   return password;
 };
+let get24HoursPranicPurificationMailAfterPaymentEmail = async function (student) {
+  const mailData = {
+    replacements: {
+      NAME: student.name,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION_24_HOURS,
+    subject: "A message from Prashant",
+  };
+  sendMail.createContent(mailData);
+};
 let completePranicPurificationEmail = async function (student) {
   const mailData = {
     replacements: {
@@ -325,5 +336,6 @@ module.exports = {
   sendBulkMail200TTC,
   genratePass,
   completePranicPurificationAutomationEmail,
+  get24HoursPranicPurificationMailAfterPaymentEmail,
   completePranicPurificationEmail,
 };

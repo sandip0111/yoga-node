@@ -352,8 +352,8 @@ module.exports = {
         const data = await pranicPurificationModel.find({
           isOneHourMailSend: false,
           created: {
-            $gte: startTime,
-            $lte: endTime,
+            $gte: new Date(startTime),
+            $lte: new Date(endTime),
           },
           paymentStatus: constant.PAYMENT_STATUS.PAID,
         });
@@ -362,6 +362,16 @@ module.exports = {
         return reject(error);
       }
     });
+  },
+  updatePranicPurificationMailStatus: async function (id) {
+    try {
+      return await pranicPurificationModel.updateOne(
+        { _id: id },
+        { $set: { isOneHourMailSend: true } }
+      );
+    } catch (error) {
+      throw error;
+    }
   },
   getStudentBySource: function (source) {
     return new Promise(async (resolve, reject) => {
