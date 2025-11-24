@@ -91,7 +91,10 @@ function registerPranicPurificationUser(reqBody) {
         });
       const password = helper.genratePass(6);
       await paymentService.createPranicPurificationStudent(savedUser, password);
-      await helper.completePranicPurificationAutomationEmail(savedUser, password);
+      await helper.completePranicPurificationAutomationEmail(
+        savedUser,
+        password
+      );
       return resolve({
         data: {
           status: "ok",
@@ -983,6 +986,22 @@ function foundationOfSpiritualitySave(reqBody) {
     }
   });
 }
+function getAllLiveClassTeacher(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const allTeacher = await courseRepo.getAllLiveClassTeacher();
+      return resolve({
+        data: {
+          status: true,
+          data: allTeacher,
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
@@ -997,4 +1016,5 @@ module.exports = {
   sendBulkMail200TTC,
   giveAccessToUser,
   foundationOfSpiritualitySave,
+  getAllLiveClassTeacher
 };

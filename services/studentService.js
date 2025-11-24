@@ -58,6 +58,7 @@ module.exports = {
         const searchText = reqBody.searchText;
         const month = reqBody.month ? reqBody.month : null;
         const filterCondition = {
+          "courses.id": +reqBody.teacherId,
           ...(searchText && {
             $or: [
               { name: { $regex: searchText, $options: "i" } },
@@ -65,13 +66,12 @@ module.exports = {
             ],
           }),
           ...(reqBody.paymentType && {
-            $and: [{ paymentType: reqBody.paymentType }],
+            paymentType: reqBody.paymentType,
           }),
           ...(reqBody.paymentStatus && {
-            $and: [{ paymentStatus: reqBody.paymentStatus }],
+            paymentStatus: reqBody.paymentStatus,
           }),
-          ...(month && { $and: [{ month: month }] }),
-          // $or: [{ title: "Yoga Sadhana" }, { id: 1 }],
+          ...(month && { month: month }),
         };
         let pipeLine = [
           { $sort: { created: -1 } },

@@ -6,6 +6,7 @@ const freeWebinarModel = require("../models/freeWebinarModel");
 const studentModel = require("../models/StudentModel");
 const paymentModel = require("../models/paymentModel");
 const onlinevideosModel = require("../models/onlineVideoModel");
+const constant = require("../helpers/constants.json");
 function getCourseBySlug(slug) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -54,6 +55,7 @@ function createFreeWebinarCustomer(reqBody) {
     }
   });
 }
+
 function getFreeWebinarCustomer(data) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -64,6 +66,7 @@ function getFreeWebinarCustomer(data) {
     }
   });
 }
+
 function updateFreeWebinarCustomer(id, data) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -74,6 +77,7 @@ function updateFreeWebinarCustomer(id, data) {
     }
   });
 }
+
 function getWithoutPaymentCourseStudent() {
   return new Promise(async (resolve, reject) => {
     try {
@@ -91,6 +95,7 @@ function getWithoutPaymentCourseStudent() {
     }
   });
 }
+
 function addPaymentCourseStudent(obj) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -107,6 +112,7 @@ function addPaymentCourseStudent(obj) {
     }
   });
 }
+
 function uploadCourseVideo(obj) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -117,6 +123,7 @@ function uploadCourseVideo(obj) {
     }
   });
 }
+
 function getLastCourseVideo(courseId) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -131,6 +138,25 @@ function getLastCourseVideo(courseId) {
     }
   });
 }
+
+function getAllLiveClassTeacher() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const courseVideo = await courseModel
+        .findOne(
+          {
+            _id: constant.COURSE.ONLINE_LIVE_CLASSES,
+          },
+          { "teachersData.teacher": 1, "teachersData.id": 1 }
+        )
+        .sort({ created: -1 });
+      return resolve(courseVideo);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 module.exports = {
   getCourseBySlug,
   getCourseById,
@@ -141,5 +167,6 @@ module.exports = {
   getWithoutPaymentCourseStudent,
   addPaymentCourseStudent,
   uploadCourseVideo,
-  getLastCourseVideo
+  getLastCourseVideo,
+  getAllLiveClassTeacher,
 };

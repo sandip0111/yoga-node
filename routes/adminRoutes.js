@@ -606,4 +606,6 @@ router.post(
   "/foundationOfSpiritualitySave",
   adminController.foundationOfSpiritualitySave
 );
+router.get("/getAllLiveClassTeacher", adminController.getAllLiveClassTeacher);
+
 module.exports = router;

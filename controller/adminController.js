@@ -2048,7 +2048,7 @@ module.exports = {
         razorpay_payment_id,
         razorpay_signature,
         payDbId,
-        password
+        password,
       } = req.body;
       let result = await paymentService.getRazorPaymentResultPranicPurification(
         {
@@ -2056,7 +2056,7 @@ module.exports = {
           razorpay_payment_id,
           razorpay_signature,
           payDbId,
-          password
+          password,
         }
       );
       res.status(200).json(result);
@@ -3012,6 +3012,16 @@ module.exports = {
         const returnData = await adminService.foundationOfSpiritualitySave(
           req.body
         );
+        res.status(returnData.status).json(returnData.data);
+      } catch (err) {
+        res.status(400).json({ err });
+      }
+    }
+  },
+  getAllLiveClassTeacher: async function (req, res) {
+    {
+      try {
+        const returnData = await adminService.getAllLiveClassTeacher();
         res.status(returnData.status).json(returnData.data);
       } catch (err) {
         res.status(400).json({ err });
