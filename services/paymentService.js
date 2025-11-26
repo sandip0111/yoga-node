@@ -756,6 +756,7 @@ function getRazorPaymentResultRishikesh(reqBody) {
             replacements: {
               NAME: user.name,
               WLINK: constants.LINK["100_HOURS_RISHIKESH"],
+              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
             },
             mailTo: user.email,
             contentPath: fileName,
