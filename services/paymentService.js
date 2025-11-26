@@ -769,6 +769,7 @@ function getRazorPaymentResultRishikesh(reqBody) {
               NAME: user.name,
               COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
               WLINK: constants.LINK["100_HOURS_RISHIKESH"],
+              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
             },
             mailTo: user.email,
             contentPath: fileName,
