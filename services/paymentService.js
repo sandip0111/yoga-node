@@ -781,10 +781,11 @@ function getRazorPaymentResultRishikesh(reqBody) {
             replacements: {
               NAME: user.name,
               WLINK: constants.LINK["300_HOURS_RISHIKESH"],
+              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
             },
             mailTo: user.email,
             contentPath: fileName,
-            subject: "🕉 Welcome to the Yoga Vidya Family!",
+            subject: "🕉 Welcome to the Next Step – 300 Hrs TTC",
           };
         }
         sendMail.createContent(mailData);
