@@ -217,7 +217,7 @@ function updateRishikeshStudentData(id, paymentId, isPaid) {
     try {
       let user;
       if (isPaid) {
-        user = await twoHundredHourTTCModel.findOneAndUpdate(
+        user = await rishikeshStudentModel.findOneAndUpdate(
           { _id: id },
           {
             paymentId: paymentId,
@@ -226,9 +226,9 @@ function updateRishikeshStudentData(id, paymentId, isPaid) {
           { new: true }
         );
       } else {
-        await twoHundredHourTTCModel.findOneAndUpdate(
+        await rishikeshStudentModel.findOneAndUpdate(
           { _id: id },
-          { paymentStatus: "failed" }
+          { paymentStatus: "pending" }
         );
       }
       return resolve(user);

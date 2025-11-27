@@ -756,6 +756,7 @@ function getRazorPaymentResultRishikesh(reqBody) {
             replacements: {
               NAME: user.name,
               WLINK: constants.LINK["100_HOURS_RISHIKESH"],
+              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
             },
             mailTo: user.email,
             contentPath: fileName,
@@ -768,6 +769,7 @@ function getRazorPaymentResultRishikesh(reqBody) {
               NAME: user.name,
               COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
               WLINK: constants.LINK["100_HOURS_RISHIKESH"],
+              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
             },
             mailTo: user.email,
             contentPath: fileName,
@@ -779,6 +781,7 @@ function getRazorPaymentResultRishikesh(reqBody) {
             replacements: {
               NAME: user.name,
               WLINK: constants.LINK["300_HOURS_RISHIKESH"],
+              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
             },
             mailTo: user.email,
             contentPath: fileName,
@@ -878,7 +881,9 @@ function getStripePaymentResultRishikesh(reqBody) {
           mailData = {
             replacements: {
               NAME: user.name,
+              COURSE: "300-Hour Yoga Teacher Training in Rishikesh",
               WLINK: constants.LINK["300_HOURS_RISHIKESH"],
+              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
             },
             mailTo: user.email,
             contentPath: fileName,
