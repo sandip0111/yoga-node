@@ -49,6 +49,7 @@ cron.schedule("*/1 * * * *", async function () {
   courseService.changeCourseStatusToOngoing();
   studentService.get24HoursPranicPurificationMailAfterPayment();
   paymentService.updatePranicPurificationStatusForcefully();
+  paymentService.updateRishikeshStatusForcefully();
 });
 cron.schedule("10 18 17 * * *", async function () {
   // paymentService.updateabc();

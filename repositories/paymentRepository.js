@@ -6,7 +6,7 @@ const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const rishikeshStudentModel = require("../models/rishikeshStudent");
 const webinerUserModel = require("../models/webinarRegiserUserModel");
 const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
-const constant = require('../helpers/constants.json');
+const constant = require("../helpers/constants.json");
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
@@ -368,8 +368,43 @@ function updatePranicPurificationStatusForcefully(startDate, endDate) {
 function pranicPurificationUpdateById(id, data) {
   return new Promise(async (resolve, reject) => {
     try {
-      const pay = await pranicPurificationUsers.findOneAndUpdate({ _id: id }, data);
+      const pay = await pranicPurificationUsers.findOneAndUpdate(
+        { _id: id },
+        data
+      );
       return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function rishikeshUpdateById(id, data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pay = await rishikeshStudentModel.findOneAndUpdate(
+        { _id: id },
+        data
+      );
+      return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateRishikeshStatusForcefully(startDate, endDate) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await rishikeshStudentModel
+        .find({
+          created: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          paymentStatus: { $ne: "paid" },
+          isPaymentCheck: false,
+        })
+        .lean();
+      return resolve(data);
     } catch (error) {
       return reject(error);
     }
@@ -399,5 +434,7 @@ module.exports = {
   updateOnlineSadhanaPaymentStatusForcefully,
   updatePranaArambhPaymentStatusForcefully,
   updatePranicPurificationStatusForcefully,
-  pranicPurificationUpdateById
+  pranicPurificationUpdateById,
+  rishikeshUpdateById,
+  updateRishikeshStatusForcefully
 };

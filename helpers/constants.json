@@ -34,7 +34,8 @@
     "BULK_FREE_WEB": "/emailTemplate/freeWebinerBulkMail.html",
     "BULK_200_TTC": "/emailTemplate/twoHundredTTCBulkMail.html",
     "PRANIC_PURIFICATION_24_HOURS": "/emailTemplate/pranicPurification24Hours.html",
-    "COMPLETE_PRANIC_PURIFICATION": "/emailTemplate/completePranicPurification.html"
+    "COMPLETE_PRANIC_PURIFICATION": "/emailTemplate/completePranicPurification.html",
+    "COMPLETE_RISHIKESH":"/emailTemplate/completeRishikeshPayment.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",

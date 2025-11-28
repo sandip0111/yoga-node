@@ -726,6 +726,9 @@ function checkoutRazorpayRishikesh(reqBody) {
         payment_capture: 1,
       };
       const order = await razorpay.orders.create(options);
+      await paymentRepo.rishikeshUpdateById(pay._id, {
+        paymentId: order.id,
+      });
       return resolve({
         orderId: order.id,
         razorpayKey: process.env.RAZORPAY_KEY_ID,
@@ -829,6 +832,9 @@ function checkoutStripeForRishikesh(reqBody) {
         success_url: process.env.STRIP_URL,
         cancel_url: process.env.STRIP_URL,
         customer_email: reqBody.email,
+      });
+      await paymentRepo.rishikeshUpdateById(pay._id, {
+        paymentId: session.id,
       });
       return resolve({
         sessionId: session.id,
@@ -1654,7 +1660,6 @@ function updatePranicPurificationStatusForcefully() {
       const now = new Date();
       const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
       const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
-      let course = constants.COURSE.PRANA_ARAMBHA;
       const paymentData =
         await paymentRepo.updatePranicPurificationStatusForcefully(
           tenMinutesAhead.toISOString(),
@@ -1714,6 +1719,68 @@ function updatePranicPurificationStatusForcefully() {
     }
   });
 }
+function updateRishikeshStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const now = new Date();
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 50 * 60 * 1000);
+      const paymentData =
+        await paymentRepo.updateRishikeshStatusForcefully(
+          tenMinutesAhead.toISOString(),
+          fiveMinutesAhead.toISOString()
+        );
+      for (const obj of paymentData) {
+        if (obj.paymentType == "stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId
+          );
+          if (session.payment_status == "paid") {
+            await paymentRepo.rishikeshUpdateById(obj._id, {
+              paymentStatus: "paid",
+              isPaymentCheck: true,
+            });
+            helper.sendRishikeshCourseEmail(obj);
+          } else {
+            await paymentRepo.rishikeshUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeRishikeshEmail(obj);
+          }
+        } else {
+          const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+          if (payments.items && payments.items.length > 0) {
+            const payment = payments.items[0];
+            if (payment.status === "captured") {
+              const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(obj.paymentId + "|" + payment.id)
+                .digest("hex");
+              if (
+                generatedSignature === payment.signature ||
+                !payment.signature
+              ) {
+                await paymentRepo.rishikeshUpdateById(obj._id, {
+                  paymentStatus: "paid",
+                  isPaymentCheck: true,
+                });
+                helper.sendRishikeshCourseEmail(obj);
+              }
+            }
+          } else {
+            await paymentRepo.rishikeshUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeRishikeshEmail(obj);
+          }
+        }
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   updateabc,
   checkoutRazorpayForPranicPurification,
@@ -1746,4 +1813,5 @@ module.exports = {
   updatePranaArambhPaymentStatusForcefully,
   createPranicPurificationStudent,
   updatePranicPurificationStatusForcefully,
+  updateRishikeshStatusForcefully
 };

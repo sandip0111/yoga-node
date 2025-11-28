@@ -50,6 +50,10 @@ const rishikeshStudentSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  isPaymentCheck: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model(

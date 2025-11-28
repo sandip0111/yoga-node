@@ -294,7 +294,9 @@ let genratePass = function (len) {
   }
   return password;
 };
-let get24HoursPranicPurificationMailAfterPaymentEmail = async function (student) {
+let get24HoursPranicPurificationMailAfterPaymentEmail = async function (
+  student
+) {
   const mailData = {
     replacements: {
       NAME: student.name,
@@ -312,6 +314,33 @@ let completePranicPurificationEmail = async function (student) {
     },
     mailTo: student.email,
     contentPath: constants.EMAIL_TEMPLATE.COMPLETE_PRANIC_PURIFICATION,
+    subject: "Complete your journey with Yoga Vidya School",
+  };
+  sendMail.createContent(mailData);
+};
+let completeRishikeshEmail = async function (student) {
+  let link = "";
+  switch (student.hour) {
+    case 100:
+      link =
+        "https://www.yogavidyaschool.com/checkout/100-hours-yoga-teacher-training-in-rishikesh";
+      break;
+    case 200:
+      link =
+        "https://www.yogavidyaschool.com/checkout/200-hours-yoga-teacher-training-in-rishikesh";
+      break;
+    case 300:
+      link =
+        "https://www.yogavidyaschool.com/checkout/300-hours-yoga-teacher-training-in-rishikesh";
+      break;
+  }
+  const mailData = {
+    replacements: {
+      NAME: student.name,
+      LINK: link,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_RISHIKESH,
     subject: "Complete your journey with Yoga Vidya School",
   };
   sendMail.createContent(mailData);
@@ -338,4 +367,5 @@ module.exports = {
   completePranicPurificationAutomationEmail,
   get24HoursPranicPurificationMailAfterPaymentEmail,
   completePranicPurificationEmail,
+  completeRishikeshEmail,
 };
