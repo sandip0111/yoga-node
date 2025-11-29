@@ -230,7 +230,7 @@ let sendFreeWebinarConfirmationEmail = async function (data) {
       },
       mailTo: data.email,
       contentPath: constants.EMAIL_TEMPLATE.FREE_WEBINAR_CONFIRMATION,
-      subject: "Replay: “From Sadhana to Seva”",
+      subject: "Thank you for joining Breath of Yogis",
     };
     await sendMail.createContent(mailData);
   } catch (error) {
