@@ -20,6 +20,10 @@ const freeWebinarSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  month: {
+    type: String,
+    default: () => "January, 2026",
+  },
 });
 
 const freeWebinarModel = mongoose.model("freeWebinar", freeWebinarSchema);

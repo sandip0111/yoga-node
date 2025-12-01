@@ -54,6 +54,10 @@ const rishikeshStudentSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  month: {
+    type: String,
+    default: () => "March, 2026",
+  },
 });
 
 module.exports = mongoose.model(
