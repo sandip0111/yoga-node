@@ -262,6 +262,7 @@ module.exports = {
               email: "$email",
               created: "$created",
               webinarDate: "$webinarDate",
+              month: "$month",
             },
           },
         ];
@@ -281,6 +282,18 @@ module.exports = {
                 { name: { $regex: searchText, $options: "i" } },
                 { email: { $regex: searchText, $options: "i" } },
               ],
+            },
+          });
+        }
+        if (reqBody.month) {
+          pipeLine.splice(0, 0, {
+            $match: {
+              month: reqBody.month,
+            },
+          });
+          pipeLineCount.splice(0, 0, {
+            $match: {
+              month: reqBody.month,
             },
           });
         }
@@ -590,6 +603,7 @@ module.exports = {
           searchText = "",
           paymentStatus = "",
           courseType,
+          month
         } = reqBody;
         const validPageNo = Math.max(1, parseInt(pageNo) || 1);
         const validSize = Math.max(1, parseInt(size) || 10);
@@ -604,6 +618,9 @@ module.exports = {
         }
         if (paymentStatus && paymentStatus.trim()) {
           filter.paymentStatus = paymentStatus.toLowerCase();
+        }
+        if (month) {
+          filter.month = month;
         }
         if (
           courseType !== undefined &&

@@ -1625,7 +1625,7 @@ function updateabc() {
           //   _id: obj._id,
           //   paymentCourseId: id,
           // });
-          console.log("mdamk", obj.course);
+          console.log("mdntasssk", obj.course);
         }
       }
       resolve(1);

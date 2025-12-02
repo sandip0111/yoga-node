@@ -52,13 +52,13 @@ let sendRegistrationEmailV2 = async function (id) {
   const student = await studentRepo.getStudentById(id);
   const mailData = {
     replacements: {
-      name: student.firstName,
-      password: student.password,
-      email: student.email,
+      NAME: `${student.firstName} ${student.lastName}`,
+      PASS: student.password,
+      ID: student.email,
     },
     mailTo: student.email,
     contentPath: constants.EMAIL_TEMPLATE.SIGNUP_BREATH_DTOX,
-    subject: "Registration Mail",
+    subject: "Thank you for join our BREATH DETOX YOGA course",
   };
   sendMail.createContent(mailData);
 };
