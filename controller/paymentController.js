@@ -54,11 +54,29 @@ async function updatePaymentId200ttc(req, res) {
     res.status(500).json(error);
   }
 }
+async function checkoutStripeForBali(req, res) {
+  try {
+    let result = await paymentService.checkoutStripeForBali(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getStripePaymentResultBali(req, res) {
+  try {
+    let result = await paymentService.getStripePaymentResultBali(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
 module.exports = {
   getPaymentDetailsById,
   checkoutStripeForRishikesh,
   getStripePaymentResultRishikesh,
   checkoutRazorpayRishikesh,
   getRazorPaymentResultRishikesh,
-  updatePaymentId200ttc
+  updatePaymentId200ttc,
+  checkoutStripeForBali,
+  getStripePaymentResultBali,
 };

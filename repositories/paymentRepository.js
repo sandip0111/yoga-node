@@ -6,6 +6,7 @@ const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const rishikeshStudentModel = require("../models/rishikeshStudent");
 const webinerUserModel = require("../models/webinarRegiserUserModel");
 const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
+const baliStudentModel = require("../models/baliStudent");
 const constant = require("../helpers/constants.json");
 
 function createPranicUserData(userData) {
@@ -410,6 +411,51 @@ function updateRishikeshStatusForcefully(startDate, endDate) {
     }
   });
 }
+function createBaliData(userData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await baliStudentModel.create(userData);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function baliUpdateById(id, data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pay = await baliStudentModel.findOneAndUpdate({ _id: id }, data);
+      return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateBaliStudentData(id, paymentId, isPaid) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user;
+      if (isPaid) {
+        user = await baliStudentModel.findOneAndUpdate(
+          { _id: id },
+          {
+            paymentId: paymentId,
+            paymentStatus: "paid",
+          },
+          { new: true }
+        );
+      } else {
+        await baliStudentModel.findOneAndUpdate(
+          { _id: id },
+          { paymentStatus: "pending" }
+        );
+      }
+      return resolve(user);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -436,5 +482,8 @@ module.exports = {
   updatePranicPurificationStatusForcefully,
   pranicPurificationUpdateById,
   rishikeshUpdateById,
-  updateRishikeshStatusForcefully
+  updateRishikeshStatusForcefully,
+  createBaliData,
+  baliUpdateById,
+  updateBaliStudentData,
 };

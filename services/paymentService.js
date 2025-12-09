@@ -1725,11 +1725,10 @@ function updateRishikeshStatusForcefully() {
       const now = new Date();
       const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
       const tenMinutesAhead = new Date(now.getTime() - 50 * 60 * 1000);
-      const paymentData =
-        await paymentRepo.updateRishikeshStatusForcefully(
-          tenMinutesAhead.toISOString(),
-          fiveMinutesAhead.toISOString()
-        );
+      const paymentData = await paymentRepo.updateRishikeshStatusForcefully(
+        tenMinutesAhead.toISOString(),
+        fiveMinutesAhead.toISOString()
+      );
       for (const obj of paymentData) {
         if (obj.paymentType == "stripe") {
           const session = await stripe.checkout.sessions.retrieve(
@@ -1781,6 +1780,91 @@ function updateRishikeshStatusForcefully() {
     }
   });
 }
+function checkoutStripeForBali(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      reqBody.paymentType = "stripe";
+      let pay = await paymentRepo.createBaliData(reqBody);
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: reqBody.currency,
+              unit_amount: parseInt(parseFloat(reqBody.price) * 100),
+              product_data: {
+                name: "Custom Payment",
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: process.env.STRIP_URL,
+        cancel_url: process.env.STRIP_URL,
+        customer_email: reqBody.email,
+      });
+      await paymentRepo.baliUpdateById(pay._id, {
+        paymentId: session.id,
+      });
+      return resolve({
+        sessionId: session.id,
+        payDbId: pay._id,
+        url: session.url,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getStripePaymentResultBali(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(
+        reqBody.sessionId
+      );
+      if (session.payment_status == "paid") {
+        const user = await paymentRepo.updateBaliStudentData(
+          reqBody.payDbId,
+          session.payment_intent,
+          true
+        );
+        const fileName = constants.EMAIL_TEMPLATE.BALI300;
+        const mailData = {
+          replacements: {
+            NAME: user.name,
+            WLINK: constants.LINK.BALI_300_HRS,
+            BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
+          },
+          mailTo: user.email,
+          contentPath: fileName,
+          subject: "🕉 Welcome to the Next Step – 300 Hrs TTC Bali",
+        };
+        sendMail.createContent(mailData);
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: session.payment_intent,
+            amount: session.amount_total / 100,
+            currency: session.currency,
+          },
+        });
+      } else {
+        await paymentRepo.updateBaliStudentData(reqBody.payDbId, null, false);
+        return resolve({
+          status: 200,
+          data: {
+            status: "failed",
+            sessionId: reqBody.sessionId,
+          },
+        });
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   updateabc,
   checkoutRazorpayForPranicPurification,
@@ -1813,5 +1897,7 @@ module.exports = {
   updatePranaArambhPaymentStatusForcefully,
   createPranicPurificationStudent,
   updatePranicPurificationStatusForcefully,
-  updateRishikeshStatusForcefully
+  updateRishikeshStatusForcefully,
+  checkoutStripeForBali,
+  getStripePaymentResultBali,
 };

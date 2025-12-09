@@ -572,6 +572,11 @@ router.post(
   "/getStripePaymentResultRishikesh",
   paymentController.getStripePaymentResultRishikesh
 );
+router.post("/checkoutStripeForBali", paymentController.checkoutStripeForBali);
+router.post(
+  "/getStripePaymentResultBali",
+  paymentController.getStripePaymentResultBali
+);
 router.post("/sendMailToPrashantJi", studentController.sendMailToPrashantJi);
 router.post(
   "/createLiveCourseCustomer",
