@@ -1829,18 +1829,7 @@ function getStripePaymentResultBali(reqBody) {
           session.payment_intent,
           true
         );
-        const fileName = constants.EMAIL_TEMPLATE.BALI300;
-        const mailData = {
-          replacements: {
-            NAME: user.name,
-            WLINK: constants.LINK.BALI_300_HRS,
-            BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
-          },
-          mailTo: user.email,
-          contentPath: fileName,
-          subject: "🕉 Welcome to the Next Step – 300 Hrs TTC Bali",
-        };
-        sendMail.createContent(mailData);
+        await helper.sendBaliCourseEmail(user);
         return resolve({
           status: 200,
           data: {
@@ -1860,6 +1849,68 @@ function getStripePaymentResultBali(reqBody) {
           },
         });
       }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateBaliStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const now = new Date();
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 50 * 60 * 1000);
+      const paymentData = await paymentRepo.updateBaliStatusForcefully(
+        tenMinutesAhead.toISOString(),
+        fiveMinutesAhead.toISOString()
+      );
+      for (const obj of paymentData) {
+        if (obj.paymentType == "stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId
+          );
+          if (session.payment_status == "paid") {
+            await paymentRepo.baliUpdateById(obj._id, {
+              paymentStatus: "paid",
+              isPaymentCheck: true,
+            });
+            helper.sendBaliCourseEmail(obj);
+          } else {
+            await paymentRepo.baliUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeBaliEmail(obj);
+          }
+        }
+        // else {
+        //   const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+        //   if (payments.items && payments.items.length > 0) {
+        //     const payment = payments.items[0];
+        //     if (payment.status === "captured") {
+        //       const generatedSignature = crypto
+        //         .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        //         .update(obj.paymentId + "|" + payment.id)
+        //         .digest("hex");
+        //       if (
+        //         generatedSignature === payment.signature ||
+        //         !payment.signature
+        //       ) {
+        //         await paymentRepo.rishikeshUpdateById(obj._id, {
+        //           paymentStatus: "paid",
+        //           isPaymentCheck: true,
+        //         });
+        //         helper.sendRishikeshCourseEmail(obj);
+        //       }
+        //     }
+        //   } else {
+        //     await paymentRepo.rishikeshUpdateById(obj._id, {
+        //       isPaymentCheck: true,
+        //     });
+        //     await helper.completeRishikeshEmail(obj);
+        //   }
+        // }
+      }
+      resolve(1);
     } catch (error) {
       return reject(error);
     }
@@ -1900,4 +1951,5 @@ module.exports = {
   updateRishikeshStatusForcefully,
   checkoutStripeForBali,
   getStripePaymentResultBali,
+  updateBaliStatusForcefully,
 };

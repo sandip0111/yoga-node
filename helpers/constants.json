@@ -25,6 +25,7 @@
     "RISHI300": "/emailTemplate/rishikesh300.html",
     "RISHI100": "/emailTemplate/rishikesh100.html",
     "BALI300": "/emailTemplate/bali300.html",
+    "BALI200": "/emailTemplate/bali200.html",
     "ONLINE_PRASHANT": "/emailTemplate/OrderConfirmationForLiveClassesPrashant.html",
     "SWARA": "/emailTemplate/swarayoga.html",
     "COMPLETE_200_TTC_PAYMENT": "/emailTemplate/complete200ttcPayment.html",
@@ -36,7 +37,8 @@
     "BULK_200_TTC": "/emailTemplate/twoHundredTTCBulkMail.html",
     "PRANIC_PURIFICATION_24_HOURS": "/emailTemplate/pranicPurification24Hours.html",
     "COMPLETE_PRANIC_PURIFICATION": "/emailTemplate/completePranicPurification.html",
-    "COMPLETE_RISHIKESH":"/emailTemplate/completeRishikeshPayment.html"
+    "COMPLETE_RISHIKESH":"/emailTemplate/completeRishikeshPayment.html",
+    "COMPLETE_BALI":"/emailTemplate/completeBaliPayment.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
