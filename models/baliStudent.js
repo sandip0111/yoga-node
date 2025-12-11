@@ -56,7 +56,7 @@ const baliStudentSchema = new mongoose.Schema({
   },
   month: {
     type: String,
-    default: () => "March, 2026",
+    // default: () => "March, 2026",
   },
 });
 
