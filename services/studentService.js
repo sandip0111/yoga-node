@@ -376,6 +376,14 @@ module.exports = {
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
         const searchText = reqBody.searchText;
+        const andConditions = [];
+
+        if (reqBody.paymentStatus) {
+          andConditions.push({ paymentStatus: reqBody.paymentStatus });
+        }
+        if (reqBody.month) {
+          andConditions.push({ month: reqBody.month });
+        }
         const filterCondition = {
           ...(searchText && {
             $or: [
@@ -386,13 +394,9 @@ module.exports = {
               { couponcode: { $regex: searchText, $options: "i" } },
             ],
           }),
-          ...(reqBody.paymentStatus && {
-            $and: [{ paymentStatus: reqBody.paymentStatus }],
-          }),
-          ...(reqBody.month && {
-            $and: [{ month: reqBody.month }],
-          }),
+          ...(andConditions.length > 0 && { $and: andConditions }),
         };
+
         let pipeLine = [
           { $match: filterCondition },
           {
@@ -603,7 +607,7 @@ module.exports = {
           searchText = "",
           paymentStatus = "",
           courseType,
-          month
+          month,
         } = reqBody;
         const validPageNo = Math.max(1, parseInt(pageNo) || 1);
         const validSize = Math.max(1, parseInt(size) || 10);
