@@ -652,6 +652,60 @@ module.exports = {
       }
     });
   },
+  getBaliData: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const {
+          pageNo = 1,
+          size = 10,
+          searchText = "",
+          paymentStatus = "",
+          courseType,
+          month,
+        } = reqBody;
+        const validPageNo = Math.max(1, parseInt(pageNo) || 1);
+        const validSize = Math.max(1, parseInt(size) || 10);
+        const skip = validSize * (validPageNo - 1);
+        const filter = {};
+        if (searchText && searchText.trim()) {
+          filter.$or = [
+            { name: { $regex: searchText, $options: "i" } },
+            { email: { $regex: searchText, $options: "i" } },
+            { phoneNumber: { $regex: searchText, $options: "i" } },
+          ];
+        }
+        if (paymentStatus && paymentStatus.trim()) {
+          filter.paymentStatus = paymentStatus.toLowerCase();
+        }
+        if (month) {
+          filter.month = month;
+        }
+        if (
+          courseType !== undefined &&
+          courseType !== null &&
+          String(courseType).trim() !== ""
+        ) {
+          const hourValue = Number(courseType);
+          if (!isNaN(hourValue)) {
+            filter.hour = hourValue;
+          } else {
+            filter.hour = courseType;
+          }
+        }
+        const result = await studentRepo.getBaliDataWithFilters(
+          filter,
+          skip,
+          validSize
+        );
+        return resolve({
+          studentList: result.data,
+          studentTotal: result.totalRecords || 0,
+        });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
   get24HoursPranicPurificationMailAfterPayment: async function () {
     try {
       const now = new Date();

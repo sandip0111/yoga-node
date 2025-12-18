@@ -10,6 +10,7 @@ const onlineVideoModel = require("../models/onlineVideoModel");
 const webinarUser = require("../models/webinarRegiserUserModel");
 const freeWebinarModel = require("../models/freeWebinarModel");
 const rishikeshStudentModel = require("../models/rishikeshStudent");
+const baliStudentModel = require("../models/baliStudent");
 const constant = require("../helpers/constants.json");
 const onlinepaymentModel = require("../models/onlinePaymentModel");
 
@@ -319,6 +320,22 @@ module.exports = {
       try {
         const totalRecords = await rishikeshStudentModel.countDocuments(filter);
         const data = await rishikeshStudentModel
+          .find(filter)
+          .sort({ created: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean();
+        return resolve({ data, totalRecords });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getBaliDataWithFilters: function (filter, skip, limit) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const totalRecords = await baliStudentModel.countDocuments(filter);
+        const data = await baliStudentModel
           .find(filter)
           .sort({ created: -1 })
           .skip(skip)
