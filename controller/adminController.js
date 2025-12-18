@@ -1704,9 +1704,20 @@ module.exports = {
     query.skip = Number(size * (pageNo - 1));
     query.limit = Number(size) || 0;
     const sort = { _id: -1 };
-    const totalPayment = await onlinepaymentModel.countDocuments({});
+
+    let filter = {};
+    if (req.body.searchText) {
+      filter = {
+        $or: [
+          { name: { $regex: req.body.searchText, $options: "i" } },
+          { email: { $regex: req.body.searchText, $options: "i" } },
+        ],
+      };
+    }
+
+    const totalPayment = await onlinepaymentModel.countDocuments(filter);
     const payment = await onlinepaymentModel
-      .find({})
+      .find(filter)
       .sort(sort)
       .skip(query.skip)
       .limit(query.limit);
