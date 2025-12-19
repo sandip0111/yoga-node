@@ -260,97 +260,82 @@ function getRazorpayPaymentResultForPranarambha(
           password,
         });
       } else {
-        let filePath = path.join(
+        await helper.sendPranaArambhEmail({
+          name: firstName,
+          course: coursetitle,
+          email: email,
+          price: `${amount} ${currency}`,
+          date: date.toString(),
+          password: password,
+        });
+        const wspMessage = {
+          messaging_product: "whatsapp",
+          to: phoneNumber,
+          type: "template",
+          template: {
+            name: "prana_arambha",
+            language: { code: "en" },
+            components: [
+              {
+                type: "header",
+                parameters: [
+                  {
+                    type: "text",
+                    text: firstName,
+                  },
+                ],
+              },
+              {
+                type: "body",
+                parameters: [
+                  { type: "text", text: coursetitle },
+                  { type: "text", text: coursetitle },
+                  { type: "text", text: `${amount} ${currency}` },
+                  { type: "text", text: date.toString() },
+                  { type: "text", text: email },
+                  { type: "text", text: password },
+                ],
+              },
+            ],
+          },
+        };
+        axios
+          .post(process.env.WHATSAPP_API_URL, wspMessage, {
+            headers: {
+              Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+          })
+          .then((response) => {
+            console.log("WhatsApp message sent successfully:", response.data);
+          })
+          .catch((error) => {
+            console.log("WhatsApp message error:", error.message);
+          });
+        const { paymentId } = paymentRepo.getPaymentDetailsById(payDbId);
+        filePath = path.join(
           __dirname,
           "..",
           "controller",
-          constants.EMAIL_TEMPLATE.ORDER_CONFIRMATION
+          constants.EMAIL_TEMPLATE.ADMIN_ORDER
         );
-        let date = new Date();
-        let source = fs.readFileSync(filePath, "utf-8").toString();
-        let template = handlebars.compile(source);
-        let htmlToSend = template({
-          NAME: firstName,
-          EMAIL: email,
-          PASS: password,
+        htmlToSend = template({
+          name: firstName,
+          course: coursetitle,
+          email: email,
+          price: amount,
+          payId: paymentId,
+          currency: currency,
         });
-        let mailOptions = {
+        mailOptions = {
           from: "Yoga Vidya School <info@yogavidyaschool.com>",
-          to: email,
-          subject: "",
+          to: "info@yogavidyaschool.com",
+          subject: `Admin Purchase Confirmation - ${coursetitle}`,
           replyTo: "info@yogavidyaschool.com",
           html: htmlToSend,
         };
         transporter.sendMail(mailOptions, () => {});
       }
-
-      const wspMessage = {
-        messaging_product: "whatsapp",
-        to: phoneNumber,
-        type: "template",
-        template: {
-          name: "prana_arambha",
-          language: { code: "en" },
-          components: [
-            {
-              type: "header",
-              parameters: [
-                {
-                  type: "text",
-                  text: firstName,
-                },
-              ],
-            },
-            {
-              type: "body",
-              parameters: [
-                { type: "text", text: coursetitle },
-                { type: "text", text: coursetitle },
-                { type: "text", text: `${amount} ${currency}` },
-                { type: "text", text: date.toString() },
-                { type: "text", text: email },
-                { type: "text", text: password },
-              ],
-            },
-          ],
-        },
-      };
-      axios
-        .post(process.env.WHATSAPP_API_URL, wspMessage, {
-          headers: {
-            Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          console.log("WhatsApp message sent successfully:", response.data);
-        })
-        .catch((error) => {
-          console.log("WhatsApp message error:", error.message);
-        });
-      const { paymentId } = paymentRepo.getPaymentDetailsById(payDbId);
-      filePath = path.join(
-        __dirname,
-        "..",
-        "controller",
-        constants.EMAIL_TEMPLATE.ADMIN_ORDER
-      );
-      htmlToSend = template({
-        name: firstName,
-        course: coursetitle,
-        email: email,
-        price: amount,
-        payId: paymentId,
-        currency: currency,
-      });
-      mailOptions = {
-        from: "Yoga Vidya School <info@yogavidyaschool.com>",
-        to: "info@yogavidyaschool.com",
-        subject: `Admin Purchase Confirmation - ${coursetitle}`,
-        replyTo: "info@yogavidyaschool.com",
-        html: htmlToSend,
-      };
-      transporter.sendMail(mailOptions, () => {});
       return resolve({
         status: 200,
         result: {

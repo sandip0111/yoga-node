@@ -408,11 +408,11 @@ let completeBaliEmail = async function (student) {
   };
   sendMail.createContent(mailData);
 };
-let completeFoundationOfSpiritualityMail = async function (
+let completeFoundationOfSpiritualityMail = async function ({
   firstName,
   email,
-  password
-) {
+  password,
+}) {
   const mailData = {
     replacements: {
       NAME: firstName,
