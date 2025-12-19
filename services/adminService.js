@@ -444,7 +444,8 @@ let getPranaArmbhAllData = async function (
     });
     let data = await adminRepo.getAllPranaArambhList(pipeLine);
     const studentList = data[0].data;
-    const totalData = data[0].metadata[0].total;
+    const totalData =
+      data[0].metadata.length > 0 ? data[0].metadata[0].total : 0;
     return { studentList, totalData };
   } catch (err) {
     console.log(err);
@@ -1016,5 +1017,5 @@ module.exports = {
   sendBulkMail200TTC,
   giveAccessToUser,
   foundationOfSpiritualitySave,
-  getAllLiveClassTeacher
+  getAllLiveClassTeacher,
 };

@@ -253,31 +253,37 @@ function getRazorpayPaymentResultForPranarambha(
       let coursetitle = await courseRepo.getCourseById(course);
       const { firstName, email, password, phoneNumber } =
         await studentRepo.getStudentById(student);
-      let filePath = path.join(
-        __dirname,
-        "..",
-        "controller",
-        constants.EMAIL_TEMPLATE.ORDER_CONFIRMATION
-      );
-      let date = new Date();
-      let source = fs.readFileSync(filePath, "utf-8").toString();
-      let template = handlebars.compile(source);
-      let htmlToSend = template({
-        name: firstName,
-        course: coursetitle,
-        email: email,
-        price: `${amount} ${currency}`,
-        date: date.toString(),
-        password: password,
-      });
-      let mailOptions = {
-        from: "Yoga Vidya School <info@yogavidyaschool.com>",
-        to: email,
-        subject: `Purchase Confirmation - ${coursetitle}`,
-        replyTo: "info@yogavidyaschool.com",
-        html: htmlToSend,
-      };
-      transporter.sendMail(mailOptions, () => {});
+      if (course == constants.COURSE.FOUNDATION_SPIRITUALITY) {
+        await helper.completeFoundationOfSpiritualityMail({
+          firstName,
+          email,
+          password,
+        });
+      } else {
+        let filePath = path.join(
+          __dirname,
+          "..",
+          "controller",
+          constants.EMAIL_TEMPLATE.ORDER_CONFIRMATION
+        );
+        let date = new Date();
+        let source = fs.readFileSync(filePath, "utf-8").toString();
+        let template = handlebars.compile(source);
+        let htmlToSend = template({
+          NAME: firstName,
+          EMAIL: email,
+          PASS: password,
+        });
+        let mailOptions = {
+          from: "Yoga Vidya School <info@yogavidyaschool.com>",
+          to: email,
+          subject: "",
+          replyTo: "info@yogavidyaschool.com",
+          html: htmlToSend,
+        };
+        transporter.sendMail(mailOptions, () => {});
+      }
+
       const wspMessage = {
         messaging_product: "whatsapp",
         to: phoneNumber,

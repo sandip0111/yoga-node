@@ -408,6 +408,23 @@ let completeBaliEmail = async function (student) {
   };
   sendMail.createContent(mailData);
 };
+let completeFoundationOfSpiritualityMail = async function (
+  firstName,
+  email,
+  password
+) {
+  const mailData = {
+    replacements: {
+      NAME: firstName,
+      EMAIL: email,
+      PASS: password,
+    },
+    mailTo: email,
+    contentPath: constants.EMAIL_TEMPLATE.FOUNDATION_OF_SPIRITUALITY,
+    subject: "Thank you for join our FOUNDATION OF SPIRITUALITY course",
+  };
+  sendMail.createContent(mailData);
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -433,4 +450,5 @@ module.exports = {
   completeRishikeshEmail,
   sendBaliCourseEmail,
   completeBaliEmail,
+  completeFoundationOfSpiritualityMail,
 };
