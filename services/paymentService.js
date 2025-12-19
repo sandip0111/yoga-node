@@ -1500,15 +1500,15 @@ function updatePranaArambhPaymentStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
       const now = new Date();
-      const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
-      const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 40 * 60 * 1000);
       let course = constants.COURSE.PRANA_ARAMBHA;
       const paymentData =
         await paymentRepo.updatePranaArambhPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),
           fiveMinutesAhead.toISOString()
         );
-      for (const obj of paymentData) {
+      for (const  obj of paymentData) {
         let coursetitle = await courseRepo.getCourseById(course);
         let studentData = await studentRepo.getStudentById(obj.studentId);
         if (obj.paymentBy == "Stripe") {
@@ -1520,15 +1520,27 @@ function updatePranaArambhPaymentStatusForcefully() {
               paymentStatus: "paid",
               isPaymentCheck: true,
             });
-            let date = new Date();
-            let replacement = {
-              name: studentData.firstName,
-              course: coursetitle,
-              email: studentData.email,
-              date: date.toString(),
-              password: studentData.password,
-            };
-            await helper.sendPranaArambhEmail(replacement);
+            if (
+              studentData.paymentCourseId ==
+              constants.COURSE.FOUNDATION_SPIRITUALITY
+            ) {
+              await helper.completeFoundationOfSpiritualityMail({
+                firstName: studentData.firstName,
+                email: studentData.email,
+                password: studentData.password,
+              });
+              course = studentData.paymentCourseId;
+            } else {
+              let date = new Date();
+              let replacement = {
+                name: studentData.firstName,
+                course: coursetitle,
+                email: studentData.email,
+                date: date.toString(),
+                password: studentData.password,
+              };
+              await helper.sendPranaArambhEmail(replacement);
+            }
             let updatedCourses = studentData.course.includes(course)
               ? studentData.course
               : [...studentData.course, course];
@@ -1566,15 +1578,27 @@ function updatePranaArambhPaymentStatusForcefully() {
                   paymentStatus: "paid",
                   isPaymentCheck: true,
                 });
-                let date = new Date();
-                let replacement = {
-                  name: studentData.firstName,
-                  course: coursetitle,
-                  email: studentData.email,
-                  date: date.toString(),
-                  password: studentData.password,
-                };
-                await helper.sendPranaArambhEmail(replacement);
+                if (
+                  studentData.paymentCourseId ==
+                  constants.COURSE.FOUNDATION_SPIRITUALITY
+                ) {
+                  await helper.completeFoundationOfSpiritualityMail({
+                    firstName: studentData.firstName,
+                    email: studentData.email,
+                    password: studentData.password,
+                  });
+                  course = studentData.paymentCourseId;
+                } else {
+                  let date = new Date();
+                  let replacement = {
+                    name: studentData.firstName,
+                    course: coursetitle,
+                    email: studentData.email,
+                    date: date.toString(),
+                    password: studentData.password,
+                  };
+                  await helper.sendPranaArambhEmail(replacement);
+                }
                 let updatedCourses = studentData.course.includes(course)
                   ? studentData.course
                   : [...studentData.course, course];
