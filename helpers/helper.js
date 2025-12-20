@@ -263,6 +263,17 @@ let completePranaArambhEmail = async function (student) {
   };
   sendMail.createContent(mailData);
 };
+let completefOSEmail = async function (student) {
+  const mailData = {
+    replacements: {
+      NAME: student.firstName,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_FOS,
+    subject: "Complete your journey with Yoga Vidya School",
+  };
+  sendMail.createContent(mailData);
+};
 let sendBulkFreeWebinerMail = async function (email) {
   const mailData = {
     replacements: {},
@@ -451,4 +462,5 @@ module.exports = {
   sendBaliCourseEmail,
   completeBaliEmail,
   completeFoundationOfSpiritualityMail,
+  completefOSEmail
 };

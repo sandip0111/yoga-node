@@ -37,9 +37,10 @@
     "BULK_200_TTC": "/emailTemplate/twoHundredTTCBulkMail.html",
     "PRANIC_PURIFICATION_24_HOURS": "/emailTemplate/pranicPurification24Hours.html",
     "COMPLETE_PRANIC_PURIFICATION": "/emailTemplate/completePranicPurification.html",
-    "COMPLETE_RISHIKESH":"/emailTemplate/completeRishikeshPayment.html",
-    "COMPLETE_BALI":"/emailTemplate/completeBaliPayment.html",
-    "FOUNDATION_OF_SPIRITUALITY": "/emailTemplate/foundationOfSpiritualityConfirmation.html"
+    "COMPLETE_RISHIKESH": "/emailTemplate/completeRishikeshPayment.html",
+    "COMPLETE_BALI": "/emailTemplate/completeBaliPayment.html",
+    "FOUNDATION_OF_SPIRITUALITY": "/emailTemplate/foundationOfSpiritualityConfirmation.html",
+    "COMPLETE_FOS": "/emailTemplate/completeFoundationSpiritualPayment.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",

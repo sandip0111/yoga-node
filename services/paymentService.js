@@ -1508,7 +1508,7 @@ function updatePranaArambhPaymentStatusForcefully() {
           tenMinutesAhead.toISOString(),
           fiveMinutesAhead.toISOString()
         );
-      for (const  obj of paymentData) {
+      for (const obj of paymentData) {
         let coursetitle = await courseRepo.getCourseById(course);
         let studentData = await studentRepo.getStudentById(obj.studentId);
         if (obj.paymentBy == "Stripe") {
@@ -1552,14 +1552,21 @@ function updatePranaArambhPaymentStatusForcefully() {
             await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
               isPaymentCheck: true,
             });
-            await helper.completePranaArambhEmail(studentData);
-            let updatedCourses = studentData.course.includes(course)
-              ? studentData.course
-              : [...studentData.course, course];
-            await studentRepo.updateStudentCourse(
-              obj.studentId,
-              updatedCourses
-            );
+            if (
+              studentData.paymentCourseId ==
+              constants.COURSE.FOUNDATION_SPIRITUALITY
+            ) {
+              await helper.completefOSEmail(studentData);
+            } else {
+              await helper.completePranaArambhEmail(studentData);
+            }
+            // let updatedCourses = studentData.course.includes(course)
+            //   ? studentData.course
+            //   : [...studentData.course, course];
+            // await studentRepo.updateStudentCourse(
+            //   obj.studentId,
+            //   updatedCourses
+            // );
           }
         } else {
           const payments = await razorpay.orders.fetchPayments(obj.paymentId);
@@ -1612,14 +1619,21 @@ function updatePranaArambhPaymentStatusForcefully() {
             await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
               isPaymentCheck: true,
             });
-            await helper.completePranaArambhEmail(studentData);
-            let updatedCourses = studentData.course.includes(course)
-              ? studentData.course
-              : [...studentData.course, course];
-            await studentRepo.updateStudentCourse(
-              obj.studentId,
-              updatedCourses
-            );
+            if (
+              studentData.paymentCourseId ==
+              constants.COURSE.FOUNDATION_SPIRITUALITY
+            ) {
+              await helper.completefOSEmail(studentData);
+            } else {
+              await helper.completePranaArambhEmail(studentData);
+            }
+            // let updatedCourses = studentData.course.includes(course)
+            //   ? studentData.course
+            //   : [...studentData.course, course];
+            // await studentRepo.updateStudentCourse(
+            //   obj.studentId,
+            //   updatedCourses
+            // );
           }
         }
       }
