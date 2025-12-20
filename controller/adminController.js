@@ -34,6 +34,8 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+const helper = require("../helpers/helper");
+const constants = require("../helpers/constants.json");
 const paymentRepo = require("../repositories/paymentRepository");
 const crypto = require("crypto");
 const timeSlots = require("../models/TimeSlots");
@@ -2191,141 +2193,25 @@ module.exports = {
             });
             let mailOptions;
             let wpLink = "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA";
-            // let student = await studentModel.findOne({_id:req.body.studentId});
-            const filePath = path.join(
-              __dirname,
-              "/emailTemplate/OrderConfirmation.html"
-            );
-            const source = fs.readFileSync(filePath, "utf-8").toString();
-            const template = handlebars.compile(source);
-            const replacements = {
-              name: firstName,
-              course: coursetitle,
-              email: email,
-              price: val.price,
-              date: val.date,
-              password: password,
-            };
-            const htmlToSend = template(replacements);
-
-            mailOptions = {
-              from: "Yoga Vidya School info@yogavidyaschool.com",
-              to: email,
-              subject: `Purchase Confirmation - ${coursetitle}`,
-              // text: body,
-              replyTo: "info@yogavidyaschool.com",
-              html: htmlToSend,
-            };
-
-            transporter.sendMail(mailOptions, async (err, result) => {
-              if (err) {
-                //  res.status(400).json('Opps error occured')
-                // console.log('oo');
-              } else {
-                // const blog = await feedbackModel.create(req.body);
-                //   res.status(200).json({'status':"ok","msg":"Mail has been sent!"});
-              }
-            });
+            if (val.course == constants.COURSE.FOUNDATION_SPIRITUALITY) {
+              await helper.completeFoundationOfSpiritualityMail({
+                firstName,
+                email,
+                password,
+              });
+            } else {
+              const replacements = {
+                name: firstName,
+                course: coursetitle,
+                email: email,
+                price: val.price,
+                date: val.date,
+                password: password,
+              };
+              await helper.sendPranaArambhEmail(replacements);
+            }
           } catch (e) {
             console.log("email send error!");
-          }
-
-          try {
-            const { coursetitle } = await courseModel.findOne({
-              _id: val.course,
-            });
-            const { firstName, email, phoneNumber, password } =
-              await studentModel.findOne({ _id: val.student });
-            const { paymentId, amount, currency } = await paymentModel.findOne({
-              studentId: val.student,
-            });
-            let mailOptions;
-            var date = new Date();
-            // let student = await studentModel.findOne({_id:req.body.studentId});
-            const filePath = path.join(
-              __dirname,
-              "/emailTemplate/adminOrders.html"
-            );
-            const source = fs.readFileSync(filePath, "utf-8").toString();
-            const template = handlebars.compile(source);
-            const replacements = {
-              name: firstName,
-              course: coursetitle,
-              email: email,
-              price: amount,
-              payId: paymentId,
-              currency: currency,
-            };
-            const htmlToSend = template(replacements);
-
-            mailOptions = {
-              from: "Yoga Vidya School info@yogavidyaschool.com",
-              to: "info@yogavidyaschool.com",
-              subject: `Admin Purchase Confirmation - ${coursetitle}`,
-              // text: body,
-              replyTo: "info@yogavidyaschool.com",
-              html: htmlToSend,
-            };
-
-            transporter.sendMail(mailOptions, async (err, result) => {
-              if (err) {
-                //  res.status(400).json('Opps error occured')
-                // console.log('oo');
-              } else {
-                // const blog = await feedbackModel.create(req.body);
-                //   res.status(200).json({'status':"ok","msg":"Mail has been sent!"});
-              }
-            });
-            const wspMessage = {
-              messaging_product: "whatsapp",
-              to: phoneNumber,
-              type: "template",
-              template: {
-                name: "prana_arambha",
-                language: { code: "en" },
-                components: [
-                  {
-                    type: "header",
-                    parameters: [
-                      {
-                        type: "text",
-                        text: firstName,
-                      },
-                    ],
-                  },
-                  {
-                    type: "body",
-                    parameters: [
-                      { type: "text", text: coursetitle }, // {{1}}
-                      { type: "text", text: coursetitle }, // {{2}}
-                      { type: "text", text: `${amount} ${currency}` }, // {{3}}
-                      { type: "text", text: date.toString() }, // {{4}}
-                      { type: "text", text: email }, // {{5}}
-                      { type: "text", text: password }, // {{6}}
-                    ],
-                  },
-                ],
-              },
-            };
-
-            axios
-              .post(whatsappCloudApiUrl, wspMessage, {
-                headers: {
-                  Authorization: `Bearer ${whatsappAccessToken}`,
-                  "Content-Type": "application/json",
-                },
-              })
-              .then((response) => {
-                console.log(
-                  "WhatsApp message sent successfully:",
-                  response.data
-                );
-              })
-              .catch((error) => {
-                console.log("WhatsApp message error:", error.message);
-              });
-          } catch (e) {
-            console.log("admin email send error!");
           }
         } catch (err) {
           console.log("internal error");
