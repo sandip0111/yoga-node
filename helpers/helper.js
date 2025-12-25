@@ -436,6 +436,33 @@ let completeFoundationOfSpiritualityMail = async function ({
   };
   sendMail.createContent(mailData);
 };
+let onlineSadhanaClassSendMail = async function (name, email, item, pass) {
+  const replacements = {
+    NAME: name,
+    ZOOM: item.zoomLink,
+    MID: item.meetingId,
+    PASSCODE: item.passcode,
+    WHATSAPP: item.whatsappLink,
+    USER: email,
+    PASS: pass
+  };
+  const mailData = {
+    replacements: replacements,
+    mailTo: email,
+    contentPath: `/emailTemplate/${item.emailTemplate}`,
+    subject: item.subject,
+  };
+  sendMail.createContent(mailData);
+};
+let adminOnlineSadhanaClassSendMail = async function (replacements) {
+  const mailData = {
+    replacements: replacements,
+    mailTo: constants.EMAIL_DATA.REPLY_TO,
+    contentPath: constants.EMAIL_TEMPLATE.ADMIN_ORDERS_FOR_LIVE_CLASSES,
+    subject: "Admin Purchase Confirmation for online classes",
+  };
+  sendMail.createContent(mailData);
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -462,5 +489,7 @@ module.exports = {
   sendBaliCourseEmail,
   completeBaliEmail,
   completeFoundationOfSpiritualityMail,
-  completefOSEmail
+  completefOSEmail,
+  onlineSadhanaClassSendMail,
+  adminOnlineSadhanaClassSendMail,
 };

@@ -1945,6 +1945,98 @@ function updateBaliStatusForcefully() {
     }
   });
 }
+function verifyRazorpayPaymentOnlineSadhana({
+  razorpay_order_id,
+  razorpay_payment_id,
+  razorpay_signature,
+  payDbId,
+  clientIpReq,
+  userAgentReq,
+  reqBody,
+}) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
+      hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+      const generatedSignature = hmac.digest("hex");
+      if (generatedSignature !== razorpay_signature) {
+        return resolve({ status: "failed", reason: "Signature mismatch" });
+      }
+      const val = {
+        paymentStatus: "paid",
+        payDbId: payDbId,
+        paymentId: razorpay_payment_id,
+      };
+      const onlineData = await paymentRepo.liveCourseUpdateById(val.payDbId, {
+        paymentId: val.paymentId,
+        paymentStatus: val.paymentStatus,
+      });
+      await studentRepo.createStudent({
+        firstName: onlineData.name,
+        email: onlineData.email,
+        phoneNumber: onlineData.phone,
+        isActive: true,
+        password: reqBody.password,
+        paymentCourseId: constants.COURSE.ONLINE_LIVE_CLASSES,
+        course: onlineData.courses,
+        source: `online_sadhana_${onlineData.month}`,
+      });
+      const customer = await paymentRepo.getOneFromLiveCourse(val.payDbId);
+      const {
+        name,
+        email,
+        phone,
+        currency,
+        price,
+        courses,
+        paymentStatus,
+        paymentId,
+      } = customer;
+      const courseList = courses.map((course) => ({
+        id: course.id,
+      }));
+      const clientIp = clientIpReq;
+      const userAgent = userAgentReq;
+      for (var i = 0; i < courseList.length; i++) {
+        const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
+        var item = mentors.teachersData.find(
+          (obj) => courseList[i].id == obj.id
+        );
+        await helper.onlineSadhanaClassSendMail(name, email, item, reqBody.password);
+      }
+      const replacements = {
+        name: name,
+        phoneNo: phone,
+        email: email,
+        price: price,
+        payId: paymentId,
+        currency: currency,
+        status: paymentStatus,
+        items: courseList,
+      };
+      await helper.adminOnlineSadhanaClassSendMail(replacements);
+      await paymentTrackingService.trackLiveClassPurchase(
+        {
+          paymentId: val.paymentId,
+          clientIp,
+          userAgent,
+          fbc: reqBody?.fbc || "",
+          fbp: reqBody?.fbq || "",
+        },
+        {
+          email,
+          phone,
+          name,
+          price,
+          currency,
+        }
+      );
+      return resolve({ status: "success", paymentId, amount: price, currency });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   updateabc,
   checkoutRazorpayForPranicPurification,
@@ -1981,4 +2073,5 @@ module.exports = {
   checkoutStripeForBali,
   getStripePaymentResultBali,
   updateBaliStatusForcefully,
+  verifyRazorpayPaymentOnlineSadhana,
 };

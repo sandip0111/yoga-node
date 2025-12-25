@@ -475,6 +475,18 @@ function updateBaliStatusForcefully(startDate, endDate) {
     }
   });
 }
+function getOneFromLiveCourse(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const obj = await liveCoursesCustomerModel.findOne({
+        _id: id,
+      });
+      return resolve(obj);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -506,4 +518,5 @@ module.exports = {
   baliUpdateById,
   updateBaliStudentData,
   updateBaliStatusForcefully,
+  getOneFromLiveCourse,
 };
