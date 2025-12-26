@@ -93,6 +93,7 @@ function getRazorPaymentResultPranicPurification({
   razorpay_signature,
   payDbId,
   password,
+  req
 }) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -115,6 +116,14 @@ function getRazorPaymentResultPranicPurification({
         await paymentRepo.createCouponCodeData(couponcodeData);
         createPranicPurificationStudent(user, password);
         helper.completePranicPurificationAutomationEmail(user, password);
+        const clientData = req ? extractClientData(req) : {};
+        paymentTrackingService.trackPranicPurificationPurchase(
+          {
+            paymentId: razorpay_payment_id,
+            ...clientData,
+          },
+          user
+        );
         return resolve({
           status: "success",
           paymentId: razorpay_payment_id,
@@ -351,7 +360,7 @@ function getRazorpayPaymentResultForPranarambha(
     }
   });
 }
-function getPaymentResultPranicPurification(reqBody) {
+function getPaymentResultPranicPurification(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await stripe.checkout.sessions.retrieve(
@@ -375,6 +384,14 @@ function getPaymentResultPranicPurification(reqBody) {
         helper.completePranicPurificationAutomationEmail(
           user,
           reqBody.password
+        );
+        const clientData = req ? extractClientData(req) : {};
+        paymentTrackingService.trackPranicPurificationPurchase(
+          {
+            paymentId: session.payment_intent,
+            ...clientData,
+          },
+          user
         );
         return resolve({
           status: 200,
@@ -1706,7 +1723,23 @@ function updatePranicPurificationStatusForcefully() {
               isPaymentCheck: true,
             });
             createPranicPurificationStudent(obj, password);
-            helper.completePranicPurificationAutomationEmail(obj, password);
+            helper.completePranicPurificationAutomationEmail(obj, password);           
+            paymentTrackingService.trackPranicPurificationPurchase(
+             {
+                paymentId: session.payment_intent,
+                clientIp: "",
+                userAgent: "",
+                fbc: "",
+                fbp: "",
+              },
+              {
+                email: obj.email,
+                phoneNumber: obj.phoneNumber,
+                name: obj.name,
+                price: obj.price,
+                currency: obj.currency,
+              }
+            );
           } else {
             await paymentRepo.pranicPurificationUpdateById(obj._id, {
               isPaymentCheck: true,
@@ -1732,6 +1765,22 @@ function updatePranicPurificationStatusForcefully() {
                 });
                 createPranicPurificationStudent(obj, password);
                 helper.completePranicPurificationAutomationEmail(obj, password);
+                paymentTrackingService.trackPranicPurificationPurchase(
+                {
+                    paymentId: obj.paymentId,
+                    clientIp: "",
+                    userAgent: "",
+                    fbc: "",
+                    fbp: "",
+                  },
+                  {
+                    email: obj.email,
+                    phoneNumber: obj.phoneNumber,
+                    name: obj.name,
+                    price: obj.price,
+                    currency: obj.currency,
+                  }
+                );
               }
             }
           } else {

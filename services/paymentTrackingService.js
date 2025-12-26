@@ -74,7 +74,7 @@ class PaymentTrackingService {
       const courseData = {
         courseId: "pranic_purification",
         courseName: "Pranic Purification - Best online pranayama sadhana",
-        courseType: "pranayama_course"
+        courseType: "pranic_purification"
       };
 
       const purchaseData = {

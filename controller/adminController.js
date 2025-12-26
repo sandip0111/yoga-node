@@ -1866,7 +1866,7 @@ module.exports = {
   getPaymentResultPranicPurification: async function (req, res) {
     try {
       const returnData =
-        await paymentService.getPaymentResultPranicPurification(req.body);
+        await paymentService.getPaymentResultPranicPurification(req.body, req);
       res.status(returnData.status).json(returnData.data);
     } catch (error) {
       res.status(500).json("Internal server error");
@@ -1901,6 +1901,7 @@ module.exports = {
           razorpay_signature,
           payDbId,
           password,
+          req
         }
       );
       res.status(200).json(result);
