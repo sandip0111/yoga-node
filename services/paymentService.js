@@ -1979,7 +1979,7 @@ function verifyRazorpayPaymentOnlineSadhana({
         password: reqBody.password,
         paymentCourseId: constants.COURSE.ONLINE_LIVE_CLASSES,
         course: onlineData.courses,
-        source: `online_sadhana_${onlineData.month}`,
+        source: `onlineSadhana_${onlineData._id}_${onlineData.month}`,
       });
       const customer = await paymentRepo.getOneFromLiveCourse(val.payDbId);
       const {
@@ -2002,7 +2002,12 @@ function verifyRazorpayPaymentOnlineSadhana({
         var item = mentors.teachersData.find(
           (obj) => courseList[i].id == obj.id
         );
-        await helper.onlineSadhanaClassSendMail(name, email, item, reqBody.password);
+        await helper.onlineSadhanaClassSendMail(
+          name,
+          email,
+          item,
+          reqBody.password
+        );
       }
       const replacements = {
         name: name,
@@ -2032,6 +2037,93 @@ function verifyRazorpayPaymentOnlineSadhana({
         }
       );
       return resolve({ status: "success", paymentId, amount: price, currency });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function verifyStripePaymentOnlineSadhana(reqBody, clientIpReq, userAgentReq) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(
+        reqBody.sessionId
+      );
+      if (session.payment_status == "paid") {
+        let val = {
+          paymentStatus: "paid",
+          payDbId: reqBody.dbPay,
+          paymentId: session.payment_intent,
+        };
+        const onlineData = await paymentRepo.liveCourseUpdateById(val.payDbId, {
+          paymentId: val.paymentId,
+          paymentStatus: val.paymentStatus,
+        });
+        await studentRepo.createStudent({
+          firstName: onlineData.name,
+          email: onlineData.email,
+          phoneNumber: onlineData.phone,
+          isActive: true,
+          password: reqBody.password,
+          paymentCourseId: constants.COURSE.ONLINE_LIVE_CLASSES,
+          course: onlineData.courses,
+          source: `onlineSadhana_${onlineData._id}_${onlineData.month}`,
+        });
+        var { name, email, phone, price, currency, courses } = onlineData;
+        const courseList = courses.reduce((acc, course) => {
+          acc.push({
+            id: course.id,
+          });
+          return acc;
+        }, []);
+        for (var i = 0; i < courseList.length; i++) {
+          const mentors = await courseRepo.getCourseBySlug(
+            "online-yoga-classes"
+          );
+          var item = mentors.teachersData.find(
+            (obj) => courseList[i].id == obj.id
+          );
+          await helper.onlineSadhanaClassSendMail(
+            name,
+            email,
+            item,
+            reqBody.password
+          );
+        }
+        const replacements = {
+          name: name,
+          phoneNo: phone,
+          email: email,
+          price: price,
+          payId: val.paymentId,
+          currency: currency,
+          status: val.paymentStatus,
+          items: courseList,
+        };
+        await helper.adminOnlineSadhanaClassSendMail(replacements);
+        await paymentTrackingService.trackLiveClassPurchase(
+          {
+            paymentId: val.paymentId || session.payment_intent,
+            clientIp: clientIpReq,
+            userAgent: userAgentReq,
+            fbc: reqBody?.fbc || "",
+            fbp: reqBody?.fbq || "",
+          },
+          {
+            email,
+            phone,
+            name,
+            price,
+            currency,
+          }
+        );
+        return resolve({
+          status: "success",
+          sessionId: reqBody.sessionId,
+          paymtId: session.payment_intent,
+          amount: session.amount_total / 100,
+          currency: session.currency,
+        });
+      }
     } catch (error) {
       return reject(error);
     }
@@ -2074,4 +2166,5 @@ module.exports = {
   getStripePaymentResultBali,
   updateBaliStatusForcefully,
   verifyRazorpayPaymentOnlineSadhana,
+  verifyStripePaymentOnlineSadhana,
 };
