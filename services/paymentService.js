@@ -1279,7 +1279,7 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
     try {
       const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
       const now = new Date();
-      const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
       const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
       const paymentData =
         await paymentRepo.updateOnlineSadhanaPaymentStatusForcefully(
@@ -1292,6 +1292,17 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
             obj.paymentId
           );
           if (session.payment_status == "paid") {
+            const pass = helper.genratePass(6);
+            await studentRepo.createStudent({
+              firstName: obj.name,
+              email: obj.email,
+              phoneNumber: obj.phone,
+              isActive: true,
+              password: pass,
+              paymentCourseId: constants.COURSE.ONLINE_LIVE_CLASSES,
+              course: obj.courses,
+              source: `onlineSadhana_${obj._id}_${obj.month}`,
+            });
             await paymentRepo.liveCourseUpdateById(obj._id, {
               paymentStatus: "paid",
               isPaymentCheck: true,
@@ -1322,19 +1333,12 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
               var item = mentors.teachersData.find(
                 (obj) => coursObj.id == obj.id
               );
-
               if (item) {
-                await helper.sendLiveCourseEmail(
-                  {
-                    NAME: obj.name,
-                    ZOOM: item.zoomLink,
-                    MID: item.meetingId,
-                    PASSCODE: item.passcode,
-                    WHATSAPP: item.whatsappLink,
-                  },
+                await helper.onlineSadhanaClassSendMail(
+                  obj.name,
                   obj.email,
-                  `/emailTemplate/${item.emailTemplate}`,
-                  item.subject
+                  item,
+                  pass
                 );
               }
             }
@@ -1357,6 +1361,17 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                 generatedSignature === payment.signature ||
                 !payment.signature
               ) {
+                const pass = helper.genratePass(6);
+                await studentRepo.createStudent({
+                  firstName: obj.name,
+                  email: obj.email,
+                  phoneNumber: obj.phone,
+                  isActive: true,
+                  password: pass,
+                  paymentCourseId: constants.COURSE.ONLINE_LIVE_CLASSES,
+                  course: obj.courses,
+                  source: `onlineSadhana_${obj._id}_${obj.month}`,
+                });
                 await paymentRepo.liveCourseUpdateById(obj._id, {
                   paymentStatus: "paid",
                   isPaymentCheck: true,
@@ -1388,18 +1403,14 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                     (obj) => coursObj.id == obj.id
                   );
                   if (item) {
-                    await helper.sendLiveCourseEmail(
-                      {
-                        NAME: obj.name,
-                        ZOOM: item.zoomLink,
-                        MID: item.meetingId,
-                        PASSCODE: item.passcode,
-                        WHATSAPP: item.whatsappLink,
-                      },
-                      obj.email,
-                      `/emailTemplate/${item.emailTemplate}`,
-                      item.subject
-                    );
+                    if (item) {
+                      await helper.onlineSadhanaClassSendMail(
+                        obj.name,
+                        obj.email,
+                        item,
+                        pass
+                      );
+                    }
                   }
                 }
               }
