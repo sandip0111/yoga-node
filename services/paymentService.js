@@ -748,7 +748,7 @@ function checkoutRazorpayRishikesh(reqBody) {
     }
   });
 }
-function getRazorPaymentResultRishikesh(reqBody) {
+function getRazorPaymentResultRishikesh(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
       const hmac = crypto.createHmac("sha256", razorpay.key_secret);
@@ -800,6 +800,14 @@ function getRazorPaymentResultRishikesh(reqBody) {
           };
         }
         sendMail.createContent(mailData);
+        const clientData = req ? extractClientData(req) : {};
+        paymentTrackingService.trackRishikeshPurchase(
+          {
+            paymentId: reqBody.razorpayPaymentId,
+            ...clientData,
+          },
+          user
+        );
         return resolve({
           amount: +user.price,
           currency: user.currency,
@@ -854,7 +862,7 @@ function checkoutStripeForRishikesh(reqBody) {
     }
   });
 }
-function getStripePaymentResultRishikesh(reqBody) {
+function getStripePaymentResultRishikesh(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await stripe.checkout.sessions.retrieve(
@@ -905,6 +913,14 @@ function getStripePaymentResultRishikesh(reqBody) {
           };
         }
         sendMail.createContent(mailData);
+        const clientData = req ? extractClientData(req) : {};
+        paymentTrackingService.trackRishikeshPurchase(
+          {
+            paymentId: session.payment_intent,
+            ...clientData,
+          },
+          user
+        );
         return resolve({
           status: 200,
           data: {
@@ -1818,6 +1834,22 @@ function updateRishikeshStatusForcefully() {
               isPaymentCheck: true,
             });
             helper.sendRishikeshCourseEmail(obj);
+            paymentTrackingService.trackRishikeshPurchase(
+             {
+                paymentId: session.payment_intent,
+                clientIp: "",
+                userAgent: "",
+                fbc: "",
+                fbp: "",
+              },
+              {
+                email: obj.email,
+                phoneNumber: obj.phoneNumber,
+                name: obj.name,
+                price: obj.price,
+                currency: obj.currency,
+              }
+            );
           } else {
             await paymentRepo.rishikeshUpdateById(obj._id, {
               isPaymentCheck: true,
@@ -1842,6 +1874,22 @@ function updateRishikeshStatusForcefully() {
                   isPaymentCheck: true,
                 });
                 helper.sendRishikeshCourseEmail(obj);
+                paymentTrackingService.trackRishikeshPurchase(
+                {
+                  paymentId: obj.paymentId,
+                  clientIp: "",
+                  userAgent: "",
+                  fbc: "",
+                  fbp: "",
+                },
+                {
+                  email: obj.email,
+                  phoneNumber: obj.phoneNumber,
+                  name: obj.name,
+                  price: obj.price,
+                  currency: obj.currency,
+                }
+            );
               }
             }
           } else {

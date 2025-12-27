@@ -138,20 +138,15 @@ class PaymentTrackingService {
    * Track purchase event for Rishikesh courses
    */
   async trackRishikeshPurchase(paymentData, userData) {
-    try {
-      const courseType = userData.hour === 100 ? "100_hour_ttc" : 
-                        userData.hour === 200 ? "200_hour_ttc" : 
-                        userData.hour === 300 ? "300_hour_ttc" : "rishikesh_course";
+    try {     
 
       const courseData = {
-        courseId: `rishikesh_${userData.hour}`,
-        courseName: `${userData.hour} Hours Yoga Teacher Training in Rishikesh`,
-        courseType: courseType
+        courseId: 'rishikesh_ttc',
+        courseName: 'Rishikesh Yoga Teacher Training Course',
+        courseType: 'rishikesh_ttc'
       };
 
-      const eventId = userData.hour === 100 ? "rishikesh_100" : 
-                     userData.hour === 200 ? "rishikesh_200" : 
-                     userData.hour === 300 ? "rishikesh_300" : "rishikesh";
+      const eventId = 'rishikesh_ttc';
 
       const purchaseData = {
         transactionId: paymentData.paymentId,
