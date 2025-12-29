@@ -213,14 +213,14 @@ class PaymentTrackingService {
       const courseData = {
         courseId: "swara_sadhana",
         courseName: "Swara Sadhana",
-        courseType: "breathing_course"
+        courseType: "swara_sadhana"
       };
 
       const purchaseData = {
         transactionId: paymentData.paymentId,
         paymentId: paymentData.paymentId,
         eventId: "swara_sadhana",
-        amount: userData.price,
+        amount: userData.amount,
         currency: userData.currency,
         clientIp: paymentData.clientIp,
         userAgent: paymentData.userAgent
@@ -228,7 +228,7 @@ class PaymentTrackingService {
 
       const userInfo = {
         email: userData.email,
-        phoneNumber: userData.phoneNumber,
+        phoneNumber: userData.phone,
         firstName: userData.name
       };
 
