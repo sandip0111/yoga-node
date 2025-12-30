@@ -51,6 +51,7 @@ const paymentService = require("../services/paymentService");
 const adminService = require("../services/adminService");
 const courseService = require("../services/courseService");
 const courseRepo = require("../repositories/courseRepository");
+const paymentTrackingService = require("../services/paymentTrackingService");
 
 const mentors = [
   {
@@ -116,6 +117,46 @@ const createToken = (id) => {
     expiresIn: maxAge,
   });
 };
+
+function extractClientData(req) {
+  if (!req) {
+    return {
+      clientIp: "",
+      userAgent: "",
+      fbc: "",
+      fbp: "",
+    };
+  }
+
+  return {
+    clientIp:
+      req.ip ||
+      req.connection?.remoteAddress ||
+      req.socket?.remoteAddress ||
+      (req.connection?.socket ? req.connection.socket.remoteAddress : null) ||
+      req.headers?.["x-forwarded-for"]?.split(",")[0] ||
+      req.headers?.["x-real-ip"] ||
+      "",
+    userAgent: req.get?.("User-Agent") || "",
+    fbc: req.body?.fbc || req.query?.fbc || req.cookies?._fbc || "",
+    fbp: req.body?.fbp || req.query?.fbp || req.cookies?._fbp || "",
+  };
+}
+
+async function getPriceDetails(priceId) {
+  const price = await stripe.prices.retrieve(priceId);
+
+    return {
+      priceId: price.id,
+      currency: price.currency,           
+      unitAmount: price.unit_amount,       
+      unitAmountDecimal: price.unit_amount_decimal,
+      isRecurring: !!price.recurring,
+      interval: price.recurring?.interval, 
+      productId: price.product
+    };
+}
+
 
 const decodeToken = (token) => {
   jwt.verify(token, "net ninja secret", (err, decodedToken) => {
@@ -555,6 +596,19 @@ module.exports = {
               ],
             },
           };
+          var priceDetails = await getPriceDetails(pay.priceId);
+          const clientData = req ? extractClientData(req) : {};
+          paymentTrackingService.trackSwaraSadhanaPurchase(
+            {
+              paymentId: session.payment_intent,
+              ...clientData,
+            },
+            {
+              ...pay,
+              currency: priceDetails.currency,
+              amount: priceDetails.unitAmount / 100,
+            }
+          );
 
           transporter.sendMail(mailOptions, async (err, result) => {
             if (err) {
@@ -564,6 +618,8 @@ module.exports = {
                 status: "success",
                 sessionId: req.body.sessionId,
                 paymtId: session.payment_intent,
+                currency: priceDetails.currency,
+                amount: priceDetails.unitAmount / 100,
               });
             }
           });
@@ -692,17 +748,19 @@ module.exports = {
             }
           });
 
-          // axios
-          //   .post(whatsappCloudApiUrl, messageData, {
-          //     headers: {
-          //       Authorization: `Bearer ${whatsappAccessToken}`,
-          //       "Content-Type": "application/json",
-          //     },
-          //   })
-          //   .then((response) => {})
-          //   .catch((error) => {
-          //     res.status(400).json("Oops error occurred in WhatsApp message");
-          //   });
+         
+          const clientData = req ? extractClientData(req) : {};
+          paymentTrackingService.trackSwaraSadhanaPurchase(
+            {
+              paymentId: razorpay_payment_id,
+              ...clientData,
+            },
+            {
+              ...pay,
+              currency: req.body.currency,
+              amount: req.body.amount,
+            }
+          );
 
           res.status(200).json({
             status: "success",
