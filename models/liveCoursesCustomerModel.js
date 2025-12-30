@@ -42,7 +42,7 @@ const liveCoursesCustomerSchema = new mongoose.Schema({
   },
   month: {
     type: String,
-    default: () => "January",
+    default: () => "January, 2026",
   },
   paymentType: {
     type: String,
