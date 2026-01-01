@@ -259,6 +259,7 @@ function getRazorpayPaymentResultForPranarambha(
         ? studentDoc.course
         : [...studentDoc.course, course];
       await studentRepo.updateStudentCourse(student, updatedCourses);
+      var date = new Date();
       let coursetitle = await courseRepo.getCourseById(course);
       const { firstName, email, password, phoneNumber } =
         await studentRepo.getStudentById(student);
@@ -277,58 +278,60 @@ function getRazorpayPaymentResultForPranarambha(
           date: date.toString(),
           password: password,
         });
-        const wspMessage = {
-          messaging_product: "whatsapp",
-          to: phoneNumber,
-          type: "template",
-          template: {
-            name: "prana_arambha",
-            language: { code: "en" },
-            components: [
-              {
-                type: "header",
-                parameters: [
-                  {
-                    type: "text",
-                    text: firstName,
-                  },
-                ],
-              },
-              {
-                type: "body",
-                parameters: [
-                  { type: "text", text: coursetitle },
-                  { type: "text", text: coursetitle },
-                  { type: "text", text: `${amount} ${currency}` },
-                  { type: "text", text: date.toString() },
-                  { type: "text", text: email },
-                  { type: "text", text: password },
-                ],
-              },
-            ],
-          },
-        };
-        axios
-          .post(process.env.WHATSAPP_API_URL, wspMessage, {
-            headers: {
-              Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            console.log("WhatsApp message sent successfully:", response.data);
-          })
-          .catch((error) => {
-            console.log("WhatsApp message error:", error.message);
-          });
+        // const wspMessage = {
+        //   messaging_product: "whatsapp",
+        //   to: phoneNumber,
+        //   type: "template",
+        //   template: {
+        //     name: "prana_arambha",
+        //     language: { code: "en" },
+        //     components: [
+        //       {
+        //         type: "header",
+        //         parameters: [
+        //           {
+        //             type: "text",
+        //             text: firstName,
+        //           },
+        //         ],
+        //       },
+        //       {
+        //         type: "body",
+        //         parameters: [
+        //           { type: "text", text: coursetitle },
+        //           { type: "text", text: coursetitle },
+        //           { type: "text", text: `${amount} ${currency}` },
+        //           { type: "text", text: date.toString() },
+        //           { type: "text", text: email },
+        //           { type: "text", text: password },
+        //         ],
+        //       },
+        //     ],
+        //   },
+        // };
+        // axios
+        //   .post(process.env.WHATSAPP_API_URL, wspMessage, {
+        //     headers: {
+        //       Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+        //       "Content-Type": "application/json",
+        //     },
+        //   })
+        //   .then((response) => {
+        //     console.log("WhatsApp message sent successfully:", response.data);
+        //   })
+        //   .catch((error) => {
+        //     console.log("WhatsApp message error:", error.message);
+        //   });
         const { paymentId } = paymentRepo.getPaymentDetailsById(payDbId);
-        filePath = path.join(
+        let filePath = path.join(
           __dirname,
           "..",
           "controller",
           constants.EMAIL_TEMPLATE.ADMIN_ORDER
         );
-        htmlToSend = template({
+        const source = fs.readFileSync(filePath, "utf-8").toString();
+        let template = handlebars.compile(source);
+        let htmlToSend = template({
           name: firstName,
           course: coursetitle,
           email: email,
@@ -336,7 +339,7 @@ function getRazorpayPaymentResultForPranarambha(
           payId: paymentId,
           currency: currency,
         });
-        mailOptions = {
+        let mailOptions = {
           from: "Yoga Vidya School <info@yogavidyaschool.com>",
           to: "info@yogavidyaschool.com",
           subject: `Admin Purchase Confirmation - ${coursetitle}`,
