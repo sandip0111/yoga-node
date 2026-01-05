@@ -37,17 +37,19 @@ function uploadCourseVideo(reqFile, reqBody) {
       const result = await s3Service.uploadVideoToS3(
         reqFile.buffer,
         reqFile.originalname,
-        reqBody.selectedCourse,//constants.COURSE.TWO_THOUSANDS_TTC,
+        reqBody.selectedCourse,
         reqFile.mimetype
       );
       const lastUploadedVideo = await courseRepo.getLastCourseVideo(
-        reqBody.selectedCourse //constants.COURSE.TWO_THOUSANDS_TTC
+        reqBody.selectedCourse
       );
       await courseRepo.uploadCourseVideo({
-        courseId: reqBody.selectedCourse, //constants.COURSE.TWO_THOUSANDS_TTC,
+        courseId: reqBody.selectedCourse,
         title: reqBody.courseName,
-        sortBy: +lastUploadedVideo.sortBy + 1,
+        sortBy: lastUploadedVideo ? +lastUploadedVideo.sortBy + 1 : 1,
         videoName: result.fileName.split(".")[0],
+        month: reqBody.month,
+        teacherId: +reqBody.teacherId,
       });
       return resolve({
         success: true,

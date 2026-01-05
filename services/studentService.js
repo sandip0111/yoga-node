@@ -804,6 +804,8 @@ let allCourseVideo = function (getVideoData, reqBody) {
                 title: getObj.title,
                 sortBy: getObj.sortBy,
                 url: newUrl,
+                month: getObj.month,
+                teacherId: getObj.teacherId,
               };
               arr.push(val);
             }
