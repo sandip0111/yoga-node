@@ -139,28 +139,30 @@ function createLiveCourseCustomer(reqBody, mentors) {
       const paymentData = {
         name: reqBody.name,
         email: reqBody.email,
-        phone: reqBody.phone,
         paymentStatus: "paid",
         courses: reqBody.course,
         paymentType: "paypal",
+        month: reqBody.month,
       };
-      await liveCoursesCustomermodel.create(paymentData);
+      const onlineData = await liveCoursesCustomermodel.create(paymentData);
+      await studentRepo.createStudent({
+        firstName: reqBody.name,
+        email: reqBody.email,
+        isActive: true,
+        password: reqBody.password,
+        paymentCourseId: constant.COURSE.ONLINE_LIVE_CLASSES,
+        course: reqBody.courses,
+        source: `onlineSadhana_${onlineData._id}_${onlineData.month}`,
+      });
       for (let coursObj of reqBody.courseList) {
-        const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
-        var item = mentors.teachersData.find((obj) => coursObj == obj.id);
-        // var item = mentors.find((obj) => coursObj.includes(obj.name));
+        // const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
+        var item = coursObj;
         if (item) {
-          await helper.sendLiveCourseEmail(
-            {
-              NAME: reqBody.name,
-              ZOOM: item.zoomLink,
-              MID: item.meetingId,
-              PASSCODE: item.passcode,
-              WHATSAPP: item.whatsappLink,
-            },
+          await helper.onlineSadhanaClassSendMail(
+            reqBody.name,
             reqBody.email,
-            `/emailTemplate/${item.emailTemplate}`,
-            item.subject
+            item,
+            reqBody.password
           );
         }
       }

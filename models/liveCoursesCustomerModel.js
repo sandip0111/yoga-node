@@ -11,7 +11,6 @@ const liveCoursesCustomerSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
   },
   currency: {
     type: String,
