@@ -55,8 +55,7 @@ const rishikeshStudentSchema = new mongoose.Schema({
     default: false,
   },
   month: {
-    type: String,
-    default: () => "March, 2026",
+    type: String
   },
 });
 
