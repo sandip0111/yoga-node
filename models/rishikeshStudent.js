@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 
+export const MonthEnum = {
+  March26: "March, 2026",
+  October26: "October, 2026",
+};
+
 const rishikeshStudentSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -55,7 +60,7 @@ const rishikeshStudentSchema = new mongoose.Schema({
     default: false,
   },
   month: {
-    type: String
+    type: String,
   },
 });
 

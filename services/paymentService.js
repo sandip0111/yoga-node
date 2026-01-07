@@ -15,6 +15,7 @@ const mongoose = require("mongoose");
 const courseRepo = require("../repositories/courseRepository");
 const helper = require("../helpers/helper");
 const paymentTrackingService = require("./paymentTrackingService");
+const { MonthEnum } = require("../models/rishikeshStudent");
 
 function extractClientData(req) {
   if (!req) {
@@ -93,7 +94,7 @@ function getRazorPaymentResultPranicPurification({
   razorpay_signature,
   payDbId,
   password,
-  req
+  req,
 }) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -765,17 +766,31 @@ function getRazorPaymentResultRishikesh(reqBody, req = null) {
         );
         let mailData;
         if (user.hour == 100) {
-          const fileName = constants.EMAIL_TEMPLATE.RISHI100;
-          mailData = {
-            replacements: {
-              NAME: user.name,
-              WLINK: constants.LINK["100_HOURS_RISHIKESH"],
-              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
-            },
-            mailTo: user.email,
-            contentPath: fileName,
-            subject: "🕉 Welcome to Your Yogic Journey – 100 Hrs TTC",
-          };
+          if (user.month == MonthEnum.March26) {
+            const fileName = constants.EMAIL_TEMPLATE.RISHI100;
+            mailData = {
+              replacements: {
+                NAME: user.name,
+                WLINK: constants.LINK["100_HOURS_RISHIKESH_MARCH"],
+                BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
+              },
+              mailTo: user.email,
+              contentPath: fileName,
+              subject: "🕉 Welcome to Your Yogic Journey – 100 Hrs TTC",
+            };
+          } else if (user.month == MonthEnum.October26) {
+            const fileName = constants.EMAIL_TEMPLATE.RISHI100;
+            mailData = {
+              replacements: {
+                NAME: user.name,
+                WLINK: constants.LINK["100_HOURS_RISHIKESH_OCTOBER"],
+                BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
+              },
+              mailTo: user.email,
+              contentPath: fileName,
+              subject: "🕉 Welcome to Your Yogic Journey – 100 Hrs TTC",
+            };
+          }
         } else if (user.hour == 200) {
           const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
           mailData = {
@@ -1753,9 +1768,9 @@ function updatePranicPurificationStatusForcefully() {
               isPaymentCheck: true,
             });
             createPranicPurificationStudent(obj, password);
-            helper.completePranicPurificationAutomationEmail(obj, password);           
+            helper.completePranicPurificationAutomationEmail(obj, password);
             paymentTrackingService.trackPranicPurificationPurchase(
-             {
+              {
                 paymentId: session.payment_intent,
                 clientIp: "",
                 userAgent: "",
@@ -1796,7 +1811,7 @@ function updatePranicPurificationStatusForcefully() {
                 createPranicPurificationStudent(obj, password);
                 helper.completePranicPurificationAutomationEmail(obj, password);
                 paymentTrackingService.trackPranicPurificationPurchase(
-                {
+                  {
                     paymentId: obj.paymentId,
                     clientIp: "",
                     userAgent: "",
@@ -1849,7 +1864,7 @@ function updateRishikeshStatusForcefully() {
             });
             helper.sendRishikeshCourseEmail(obj);
             paymentTrackingService.trackRishikeshPurchase(
-             {
+              {
                 paymentId: session.payment_intent,
                 clientIp: "",
                 userAgent: "",
@@ -1889,21 +1904,21 @@ function updateRishikeshStatusForcefully() {
                 });
                 helper.sendRishikeshCourseEmail(obj);
                 paymentTrackingService.trackRishikeshPurchase(
-                {
-                  paymentId: obj.paymentId,
-                  clientIp: "",
-                  userAgent: "",
-                  fbc: "",
-                  fbp: "",
-                },
-                {
-                  email: obj.email,
-                  phoneNumber: obj.phoneNumber,
-                  name: obj.name,
-                  price: obj.price,
-                  currency: obj.currency,
-                }
-            );
+                  {
+                    paymentId: obj.paymentId,
+                    clientIp: "",
+                    userAgent: "",
+                    fbc: "",
+                    fbp: "",
+                  },
+                  {
+                    email: obj.email,
+                    phoneNumber: obj.phoneNumber,
+                    name: obj.name,
+                    price: obj.price,
+                    currency: obj.currency,
+                  }
+                );
               }
             }
           } else {
