@@ -792,30 +792,59 @@ function getRazorPaymentResultRishikesh(reqBody, req = null) {
             };
           }
         } else if (user.hour == 200) {
-          const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
-          mailData = {
-            replacements: {
-              NAME: user.name,
-              COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
-              WLINK: constants.LINK["100_HOURS_RISHIKESH"],
-              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
-            },
-            mailTo: user.email,
-            contentPath: fileName,
-            subject: "🕉 Welcome to the Yoga Vidya Family!",
-          };
+          if (user.month == MonthEnum.March26) {
+            const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
+            mailData = {
+              replacements: {
+                NAME: user.name,
+                COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
+                WLINK: constants.LINK["100_HOURS_RISHIKESH"],
+                BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
+              },
+              mailTo: user.email,
+              contentPath: fileName,
+              subject: "🕉 Welcome to the Yoga Vidya Family!",
+            };
+          } else if (user.month == MonthEnum.October26) {
+            const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
+            mailData = {
+              replacements: {
+                NAME: user.name,
+                COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
+                WLINK: constants.LINK["100_HOURS_RISHIKESH"],
+                BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
+              },
+              mailTo: user.email,
+              contentPath: fileName,
+              subject: "🕉 Welcome to the Yoga Vidya Family!",
+            };
+          }
         } else if (user.hour == 300) {
-          const fileName = constants.EMAIL_TEMPLATE.RISHI300;
-          mailData = {
-            replacements: {
-              NAME: user.name,
-              WLINK: constants.LINK["300_HOURS_RISHIKESH"],
-              BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
-            },
-            mailTo: user.email,
-            contentPath: fileName,
-            subject: "🕉 Welcome to the Next Step – 300 Hrs TTC",
-          };
+          if (user.month == MonthEnum.March26) {
+            const fileName = constants.EMAIL_TEMPLATE.RISHI300;
+            mailData = {
+              replacements: {
+                NAME: user.name,
+                WLINK: constants.LINK["300_HOURS_RISHIKESH"],
+                BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
+              },
+              mailTo: user.email,
+              contentPath: fileName,
+              subject: "🕉 Welcome to the Next Step – 300 Hrs TTC",
+            };
+          } else if (user.month == MonthEnum.October26) {
+            const fileName = constants.EMAIL_TEMPLATE.RISHI300;
+            mailData = {
+              replacements: {
+                NAME: user.name,
+                WLINK: constants.LINK["300_HOURS_RISHIKESH"],
+                BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
+              },
+              mailTo: user.email,
+              contentPath: fileName,
+              subject: "🕉 Welcome to the Next Step – 300 Hrs TTC",
+            };
+          }
         }
         sendMail.createContent(mailData);
         const clientData = req ? extractClientData(req) : {};
