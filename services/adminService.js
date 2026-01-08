@@ -151,7 +151,7 @@ function createLiveCourseCustomer(reqBody, mentors) {
         isActive: true,
         password: reqBody.password,
         paymentCourseId: constant.COURSE.ONLINE_LIVE_CLASSES,
-        course: reqBody.courses,
+        course: reqBody.course,
         source: `onlineSadhana_${onlineData._id}_${onlineData.month}`,
       });
       for (let coursObj of reqBody.courseList) {
