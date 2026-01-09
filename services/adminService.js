@@ -216,6 +216,7 @@ function createRishikeshCustomer(reqBody) {
         hour: reqBody.hour,
         paymentStatus: "paid",
         paymentType: "paypal",
+        month: reqBody.month,
       };
       await paymentRepo.createRishikeshData(paymentData);
       await helper.sendRishikeshCourseEmail(reqBody);
