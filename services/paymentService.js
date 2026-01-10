@@ -666,15 +666,6 @@ function savePranaArambhOn200TTC(user, reqBody) {
         paymentCourseId: constants.COURSE.TWO_THOUSANDS_TTC,
       };
       let studentRes = await studentRepo.createStudent(studentData);
-      // let paymentData = {
-      //   courseId: mongoose.Types.ObjectId(constants.COURSE.PRANA_ARAMBHA),
-      //   studentId: mongoose.Types.ObjectId(studentRes._id),
-      //   paymentStatus: constants.PAYMENT_STATUS.PAID,
-      //   amount: user.price,
-      //   currency: user.currency,
-      //   paymentId: reqBody.razorpayPaymentId,
-      // };
-      // await paymentRepo.createPaymentDetails(paymentData);
       return resolve(1);
     } catch (error) {
       return reject(error);

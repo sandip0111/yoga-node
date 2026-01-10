@@ -22,7 +22,8 @@ async function getRazorPaymentResultRishikesh(req, res) {
   {
     try {
       const result = await paymentService.getRazorPaymentResultRishikesh(
-        req.body, req
+        req.body,
+        req
       );
       res.status(200).json(result);
     } catch (err) {
@@ -40,7 +41,10 @@ async function checkoutStripeForRishikesh(req, res) {
 }
 async function getStripePaymentResultRishikesh(req, res) {
   try {
-    let result = await paymentService.getStripePaymentResultRishikesh(req.body, req);
+    let result = await paymentService.getStripePaymentResultRishikesh(
+      req.body,
+      req
+    );
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json(error);
