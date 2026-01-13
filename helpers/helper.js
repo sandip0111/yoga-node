@@ -378,19 +378,24 @@ let completePranicPurificationEmail = async function (student) {
 };
 let completeRishikeshEmail = async function (student) {
   let link = "";
-  switch (student.hour) {
-    case 100:
-      link =
-        "https://www.yogavidyaschool.com/checkout/100-hours-yoga-teacher-training-in-rishikesh";
-      break;
-    case 200:
-      link =
-        "https://www.yogavidyaschool.com/checkout/200-hours-yoga-teacher-training-in-rishikesh";
-      break;
-    case 300:
-      link =
-        "https://www.yogavidyaschool.com/checkout/300-hours-yoga-teacher-training-in-rishikesh";
-      break;
+  if (student.hour == 100) {
+    if (student.month == MonthEnum.March26) {
+      link = constants.LINK["RISHIKESH_100_HRS_MARCH_CHECKOUT"];
+    } else if (student.month == MonthEnum.October26) {
+      link = constants.LINK["RISHIKESH_100_HRS_OCTOBER_CHECKOUT"];
+    }
+  } else if (student.hour == 200) {
+    if (student.month == MonthEnum.March26) {
+      link = constants.LINK["RISHIKESH_200_HRS_MARCH_CHECKOUT"];
+    } else if (student.month == MonthEnum.October26) {
+      link = constants.LINK["RISHIKESH_200_HRS_OCTOBER_CHECKOUT"];
+    }
+  } else if (student.hour == 300) {
+    if (student.month == MonthEnum.March26) {
+      link = constants.LINK["RISHIKESH_300_HRS_MARCH_CHECKOUT"];
+    } else if (student.month == MonthEnum.October26) {
+      link = constants.LINK["RISHIKESH_300_HRS_OCTOBER_CHECKOUT"];
+    }
   }
   const mailData = {
     replacements: {
