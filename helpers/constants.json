@@ -26,6 +26,7 @@
     "RISHI100": "/emailTemplate/rishikesh100.html",
     "BALI300": "/emailTemplate/bali300.html",
     "BALI200": "/emailTemplate/bali200.html",
+    "BALI100": "/emailTemplate/bali100.html",
     "ONLINE_PRASHANT": "/emailTemplate/OrderConfirmationForLiveClassesPrashant.html",
     "SWARA": "/emailTemplate/swarayoga.html",
     "COMPLETE_200_TTC_PAYMENT": "/emailTemplate/complete200ttcPayment.html",

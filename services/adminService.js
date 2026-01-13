@@ -891,49 +891,6 @@ function sendBulkMail200TTC() {
     }
   });
 }
-// function sendBulkMail200TTC() {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       const customerData = {
-//         isAdminMailSend: false,
-//         paymentStatus: "pending",
-//         month: "November",
-//         // email: "kaushik.das.mca18@gmail.com",
-//       };
-//       let data = await adminRepo.get200TTCList(customerData);
-//       for (let obj of data) {
-//         let studentData = await studentRepo.getStudentBy200TTCOnline(
-//           obj.email,
-//           obj.name
-//         );
-//         if (studentData) {
-//           console.log(studentData._id);
-//           // await helper.sendBulkMail200TTC(studentData);
-//           // await paymentRepo.update200ttcPayment(
-//           //   { isAdminMailSend: true },
-//           //   obj._id
-//           // );
-//         }
-//         // await new Promise((resolve) => setTimeout(resolve, 7000));
-//       }
-//       let msg;
-//       if (data.length > 0) {
-//         msg = "Email send succesfully";
-//       } else {
-//         msg = "No new user exist";
-//       }
-//       return resolve({
-//         data: {
-//           status: "ok",
-//           message: msg,
-//         },
-//         status: 200,
-//       });
-//     } catch (error) {
-//       reject(error);
-//     }
-//   });
-// }
 function giveAccessToUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -1006,6 +963,32 @@ function getAllLiveClassTeacher(reqBody) {
     }
   });
 }
+function createBaliCustomer(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const paymentData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phone: reqBody.phone,
+        hour: reqBody.hour,
+        paymentStatus: "paid",
+        paymentType: "paypal",
+        month: reqBody.month,
+      };
+      await paymentRepo.createBaliData(paymentData);
+      await helper.sendBaliCourseEmail(reqBody);
+      return resolve({
+        data: {
+          status: "ok",
+          message: "User registered successfully!",
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
@@ -1021,4 +1004,5 @@ module.exports = {
   giveAccessToUser,
   foundationOfSpiritualitySave,
   getAllLiveClassTeacher,
+  createBaliCustomer
 };

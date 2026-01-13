@@ -146,17 +146,16 @@ function extractClientData(req) {
 async function getPriceDetails(priceId) {
   const price = await stripe.prices.retrieve(priceId);
 
-    return {
-      priceId: price.id,
-      currency: price.currency,           
-      unitAmount: price.unit_amount,       
-      unitAmountDecimal: price.unit_amount_decimal,
-      isRecurring: !!price.recurring,
-      interval: price.recurring?.interval, 
-      productId: price.product
-    };
+  return {
+    priceId: price.id,
+    currency: price.currency,
+    unitAmount: price.unit_amount,
+    unitAmountDecimal: price.unit_amount_decimal,
+    isRecurring: !!price.recurring,
+    interval: price.recurring?.interval,
+    productId: price.product,
+  };
 }
-
 
 const decodeToken = (token) => {
   jwt.verify(token, "net ninja secret", (err, decodedToken) => {
@@ -748,7 +747,6 @@ module.exports = {
             }
           });
 
-         
           const clientData = req ? extractClientData(req) : {};
           paymentTrackingService.trackSwaraSadhanaPurchase(
             {
@@ -1959,7 +1957,7 @@ module.exports = {
           razorpay_signature,
           payDbId,
           password,
-          req
+          req,
         }
       );
       res.status(200).json(result);
@@ -2604,6 +2602,16 @@ module.exports = {
     {
       try {
         const returnData = await adminService.getAllLiveClassTeacher();
+        res.status(returnData.status).json(returnData.data);
+      } catch (err) {
+        res.status(400).json({ err });
+      }
+    }
+  },
+  createBaliCustomer: async function (req, res) {
+    {
+      try {
+        const returnData = await adminService.createBaliCustomer(req.body);
         res.status(returnData.status).json(returnData.data);
       } catch (err) {
         res.status(400).json({ err });

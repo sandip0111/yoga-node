@@ -406,16 +406,15 @@ let completeRishikeshEmail = async function (student) {
 let sendBaliCourseEmail = async function (user) {
   let mailData;
   if (user.hour == 100) {
-    // const fileName = constants.EMAIL_TEMPLATE.RISHI100;
-    // mailData = {
-    //   replacements: {
-    //     NAME: user.name,
-    //     WLINK: constants.LINK["100_HOURS_RISHIKESH"],
-    //   },
-    //   mailTo: user.email,
-    //   contentPath: fileName,
-    //   subject: "🕉 Welcome to Your Yogic Journey – 100 Hrs TTC",
-    // };
+    const fileName = constants.EMAIL_TEMPLATE.BALI100;
+    mailData = {
+      replacements: {
+        NAME: user.name,
+      },
+      mailTo: user.email,
+      contentPath: fileName,
+      subject: "🕉 Welcome to the Next Step – 100 Hrs TTC Bali",
+    };
   } else if (user.hour == 200) {
     const fileName = constants.EMAIL_TEMPLATE.BALI200;
     mailData = {

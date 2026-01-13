@@ -613,5 +613,9 @@ router.post(
   adminController.foundationOfSpiritualitySave
 );
 router.get("/getAllLiveClassTeacher", adminController.getAllLiveClassTeacher);
+router.post(
+  "/createBaliCustomer",
+  adminController.createBaliCustomer
+);
 
 module.exports = router;

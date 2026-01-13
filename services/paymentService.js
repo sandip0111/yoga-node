@@ -1937,33 +1937,6 @@ function updateBaliStatusForcefully() {
             await helper.completeBaliEmail(obj);
           }
         }
-        // else {
-        //   const payments = await razorpay.orders.fetchPayments(obj.paymentId);
-        //   if (payments.items && payments.items.length > 0) {
-        //     const payment = payments.items[0];
-        //     if (payment.status === "captured") {
-        //       const generatedSignature = crypto
-        //         .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-        //         .update(obj.paymentId + "|" + payment.id)
-        //         .digest("hex");
-        //       if (
-        //         generatedSignature === payment.signature ||
-        //         !payment.signature
-        //       ) {
-        //         await paymentRepo.rishikeshUpdateById(obj._id, {
-        //           paymentStatus: "paid",
-        //           isPaymentCheck: true,
-        //         });
-        //         helper.sendRishikeshCourseEmail(obj);
-        //       }
-        //     }
-        //   } else {
-        //     await paymentRepo.rishikeshUpdateById(obj._id, {
-        //       isPaymentCheck: true,
-        //     });
-        //     await helper.completeRishikeshEmail(obj);
-        //   }
-        // }
       }
       resolve(1);
     } catch (error) {
