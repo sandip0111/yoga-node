@@ -4,6 +4,7 @@ const courseRepo = require("../repositories/courseRepository");
 const constants = require("./constants.json");
 const sendMail = require("./nodemail");
 const { MonthEnum } = require("../models/rishikeshStudent");
+const pranicPurificationUsersModel = require("../models/pranicPurificationUsersModel");
 
 function getTimeBefore(duration) {
   // Split start and end times
@@ -255,7 +256,7 @@ let completeSwaraSadhanaEmail = async function (student) {
 };
 let completePranicPurificationAutomationEmail = async function (
   user,
-  password
+  password,
 ) {
   const mailData = {
     replacements: {
@@ -283,7 +284,7 @@ let sendFreeWebinarConfirmationEmail = async function (data) {
   } catch (error) {
     console.error(
       `❌ Failed to send webinar confirmation email to ${email}`,
-      error
+      error,
     );
   }
 };
@@ -353,7 +354,7 @@ let genratePass = function (len) {
   return password;
 };
 let get24HoursPranicPurificationMailAfterPaymentEmail = async function (
-  student
+  student,
 ) {
   const mailData = {
     replacements: {
@@ -514,6 +515,48 @@ let adminOnlineSadhanaClassSendMail = async function (replacements) {
   };
   sendMail.createContent(mailData);
 };
+let sendMailForcefully = async function (req, res) {
+  const pipeline = [
+    {
+      $match: {
+        month: "January, 2026",
+        paymentStatus: "paid",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        email: 1,
+      },
+    },
+  ];
+  const users = await pranicPurificationUsersModel.aggregate(pipeline);
+  console.log(`Found ${users.length} students to send emails to`);
+  for (const user of users) {
+    const mailData = {
+      replacements: {
+        NAME: user.name,
+      },
+      mailTo: user.email,
+      contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION_FORCEFULLY,
+      subject: "Sacred Guidelines for Pranic Purification",
+    };
+
+    try {
+      await sendMail.createContent(mailData);
+      console.log(`Email sent successfully to ${user.name} (${user.email})`);
+    } catch (emailError) {
+      console.error(`Failed to send email to ${user.email}:`, emailError);
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    totalUsers: users.length,
+    message: `Emails sent to ${users.length} users`,
+  });
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -543,4 +586,5 @@ module.exports = {
   completefOSEmail,
   onlineSadhanaClassSendMail,
   adminOnlineSadhanaClassSendMail,
+  sendMailForcefully,
 };

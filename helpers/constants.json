@@ -42,7 +42,8 @@
     "COMPLETE_BALI": "/emailTemplate/completeBaliPayment.html",
     "FOUNDATION_OF_SPIRITUALITY": "/emailTemplate/foundationOfSpiritualityConfirmation.html",
     "COMPLETE_FOS": "/emailTemplate/completeFoundationSpiritualPayment.html",
-    "ADMIN_ORDERS_FOR_LIVE_CLASSES": "/emailTemplate/adminOrdersForLiveClasses.html"
+    "ADMIN_ORDERS_FOR_LIVE_CLASSES": "/emailTemplate/adminOrdersForLiveClasses.html",
+    "PRANIC_PURIFICATION_FORCEFULLY": "/emailTemplate/pranicPurificationForcefully.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",

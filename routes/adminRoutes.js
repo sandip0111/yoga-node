@@ -15,6 +15,7 @@ const AWS_SECRET_ACCESS_KEY = "bURo27ZvRKgyIXCy6GrOTiHqoGBqUfck6xNRPQP/";
 const AWS_REGION = "us-east-1";
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const onlineVideoModel = require("../models/onlineVideoModel");
+const { sendMailForcefully } = require("../helpers/helper");
 
 const s3 = new S3({
   region: AWS_REGION,
@@ -613,9 +614,7 @@ router.post(
   adminController.foundationOfSpiritualitySave
 );
 router.get("/getAllLiveClassTeacher", adminController.getAllLiveClassTeacher);
-router.post(
-  "/createBaliCustomer",
-  adminController.createBaliCustomer
-);
+router.post("/createBaliCustomer", adminController.createBaliCustomer);
+router.post("/sendMailForcefully", sendMailForcefully);
 
 module.exports = router;
