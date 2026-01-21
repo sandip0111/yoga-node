@@ -79,6 +79,32 @@ module.exports = {
           { $skip: skip },
           { $limit: limit },
           {
+            $addFields: {
+              sourcePattern: {
+                $concat: [
+                  "onlineSadhana_",
+                  { $toString: "$_id" },
+                  "_",
+                  "$month",
+                ],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "students",
+              localField: "sourcePattern",
+              foreignField: "source",
+              as: "studentData",
+            },
+          },
+          {
+            $unwind: {
+              path: "$studentData",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
             $project: {
               name: "$name",
               email: "$email",
@@ -89,6 +115,7 @@ module.exports = {
               paymentType: "$paymentType",
               created: "$created",
               month: "$month",
+              password: "$studentData.password",
               courseTimming: {
                 $let: {
                   vars: {
