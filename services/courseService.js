@@ -38,19 +38,31 @@ function uploadCourseVideo(reqFile, reqBody) {
         reqFile.buffer,
         reqFile.originalname,
         reqBody.selectedCourse,
-        reqFile.mimetype
+        reqFile.mimetype,
       );
       const lastUploadedVideo = await courseRepo.getLastCourseVideo(
-        reqBody.selectedCourse
+        reqBody.selectedCourse,
       );
-      await courseRepo.uploadCourseVideo({
-        courseId: reqBody.selectedCourse,
-        title: reqBody.courseName,
-        sortBy: lastUploadedVideo ? +lastUploadedVideo.sortBy + 1 : 1,
-        videoName: result.fileName.split(".")[0],
-        month: reqBody.month,
-        teacherId: +reqBody.teacherId,
-      });
+      let newData;
+      if (reqBody.selectedCourse == constants.COURSE.ONLINE_LIVE_CLASSES) {
+        newData = {
+          courseId: reqBody.selectedCourse,
+          title: reqBody.courseName,
+          sortBy: lastUploadedVideo ? +lastUploadedVideo.sortBy + 1 : 1,
+          videoName: result.fileName.split(".")[0],
+          month: reqBody.month,
+          teacherId: +reqBody.teacherId,
+        };
+      } else {
+        newData = {
+          courseId: reqBody.selectedCourse,
+          title: reqBody.courseName,
+          sortBy: lastUploadedVideo ? +lastUploadedVideo.sortBy + 1 : 1,
+          videoName: result.fileName.split(".")[0],
+          month: reqBody.month,
+        };
+      }
+      await courseRepo.uploadCourseVideo(newData);
       return resolve({
         success: true,
         message: "Video uploaded successfully",
