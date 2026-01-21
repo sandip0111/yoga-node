@@ -33,7 +33,7 @@ module.exports = {
           limit,
           searchText,
           startDate,
-          endDate
+          endDate,
         );
         studentList = studentObj.studentList;
         totalStudent = studentObj.totalData;
@@ -118,7 +118,7 @@ module.exports = {
         ];
         const studentObj = await studentRepo.getAllLiveClassStudent(
           pipeLine,
-          pipeLineCount
+          pipeLineCount,
         );
         const studentList = studentObj.studentList;
         const totalData =
@@ -232,7 +232,7 @@ module.exports = {
         }
         const swarData = await studentRepo.getAllSwaraSadhanaData(
           pipeLine,
-          pipeLineCount
+          pipeLineCount,
         );
         const studentList = swarData?.studentList;
         const totalData = swarData?.totalData[0]?.total;
@@ -299,7 +299,7 @@ module.exports = {
         }
         const freeData = await studentRepo.getAllFreeWebinarData(
           pipeLine,
-          pipeLineCount
+          pipeLineCount,
         );
         const studentList = freeData?.studentList;
         const totalData = freeData?.totalData[0]?.total;
@@ -330,7 +330,7 @@ module.exports = {
         const fosData = await studentRepo.getFosStudentList(
           filterCondition,
           skip,
-          limit
+          limit,
         );
         return resolve({
           studentList: fosData.data,
@@ -414,6 +414,27 @@ module.exports = {
             },
           },
           {
+            $addFields: {
+              sourcePattern: {
+                $concat: ["PranicPurification_", { $toString: "$_id" }],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "students",
+              localField: "sourcePattern",
+              foreignField: "source",
+              as: "studentData",
+            },
+          },
+          {
+            $unwind: {
+              path: "$studentData",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
             $project: {
               _id: 1,
               name: 1,
@@ -428,6 +449,7 @@ module.exports = {
               couponUsed: "$couponData.isUsed",
               paymentType: 1,
               month: 1,
+              password: "$studentData.password",
             },
           },
           { $sort: { created: -1 } },
@@ -458,7 +480,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       try {
         const getVideoData = await studentRepo.getStudentVideoByCourse(
-          reqBody.courseId
+          reqBody.courseId,
         );
         let arr = [];
         if (reqBody.courseId == constants.COURSE.PRANA_ARAMBHA) {
@@ -479,7 +501,7 @@ module.exports = {
         const url = await s3Bucket.getPresignedUrl("yogacourses", key);
         const newUrl = url.replace(
           "yogacourses.s3.us-east-1.amazonaws.com",
-          "d3mzqk1fxuwngx.cloudfront.net"
+          "d3mzqk1fxuwngx.cloudfront.net",
         );
         return resolve(newUrl);
       } catch (err) {
@@ -641,7 +663,7 @@ module.exports = {
         const result = await studentRepo.getRishikeshDataWithFilters(
           filter,
           skip,
-          validSize
+          validSize,
         );
         return resolve({
           studentList: result.data,
@@ -695,7 +717,7 @@ module.exports = {
         const result = await studentRepo.getBaliDataWithFilters(
           filter,
           skip,
-          validSize
+          validSize,
         );
         return resolve({
           studentList: result.data,
@@ -716,13 +738,13 @@ module.exports = {
 
       const pranicData = await studentRepo.get24HoursPranicPurificationData(
         startTime,
-        endTime
+        endTime,
       );
 
       for (let student of pranicData) {
         try {
           await helper.get24HoursPranicPurificationMailAfterPaymentEmail(
-            student
+            student,
           );
           await studentRepo.updatePranicPurificationMailStatus(student._id);
         } catch (loopErr) {
@@ -790,12 +812,12 @@ let allCourseVideo = function (getVideoData, reqBody) {
             const key = item.Key;
             const id = key.substring(
               key.lastIndexOf("/") + 1,
-              key.lastIndexOf(".")
+              key.lastIndexOf("."),
             );
             const url = await s3Bucket.getPresignedUrl("yogacourses", key);
             const newUrl = url.replace(
               "yogacourses.s3.us-east-1.amazonaws.com",
-              "d3mzqk1fxuwngx.cloudfront.net"
+              "d3mzqk1fxuwngx.cloudfront.net",
             );
             const getObj = getVideoData.find((e) => e.videoName == id);
             if (getObj) {
@@ -824,7 +846,7 @@ let getBrathDtoxAllData = async function (
   limit,
   searchText,
   fromDate,
-  toDate
+  toDate,
 ) {
   let studentList;
   let matchStage = { course: courseId };
@@ -879,7 +901,7 @@ let getBrathDtoxAllData = async function (
     courseId,
     searchText,
     fromDate,
-    toDate
+    toDate,
   );
   return { studentList, totalData };
 };
@@ -887,7 +909,7 @@ let getBrathDtoxCount = async function (
   courseId,
   searchText,
   fromDate,
-  toDate
+  toDate,
 ) {
   let filterCondition = {
     course: courseId,
