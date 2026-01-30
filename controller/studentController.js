@@ -44,7 +44,7 @@ module.exports = {
   getAllFoundationOfSpiritualityStudent: async function (req, res) {
     try {
       const result = await studentService.getAllFoundationOfSpiritualityStudent(
-        req.body
+        req.body,
       );
       res
         .status(200)
@@ -175,7 +175,7 @@ module.exports = {
           // Merge courses if email exists in studentData
           const existingData = combinedData.get(liveCustomer._id);
           existingData.courses = existingData.courses.concat(
-            liveCustomer.courses
+            liveCustomer.courses,
           );
         } else {
           // If email is only in liveCoursesCustomer, add new entry
@@ -288,6 +288,19 @@ module.exports = {
           .json({ status: "400", msg: `Old password does not match` });
         return;
       }
+
+      const samePasswordCheck = await Student.findOne({
+        email: student.email,
+        password: newPassword,
+      });
+
+      if (samePasswordCheck) {
+        return res.status(400).json({
+          status: "400",
+          msg: "You cannot use the same password again. Please choose a different password.",
+        });
+      }
+
       // update password
       student.password = newPassword;
       //update database
@@ -305,7 +318,7 @@ module.exports = {
     try {
       const user = await Student.findOneAndUpdate(
         { _id: req.body._id },
-        req.body
+        req.body,
       );
       res.status(200).json({ status: "ok", msg: `User Deleted Successfully` });
     } catch (err) {
@@ -333,7 +346,7 @@ module.exports = {
       val.course = uniqueArray;
       const up = await Student.findOneAndUpdate(
         { _id: req.body.studentId },
-        val
+        val,
       );
       sendRegistrationEmail(req.body.studentId);
       res.status(200).json({ status: "ok" });
@@ -362,7 +375,7 @@ module.exports = {
       val.course = uniqueArray;
       const up = await Student.findOneAndUpdate(
         { _id: req.body.studentId },
-        val
+        val,
       );
       sendRegistrationEmailV3(req.body.studentId);
       res.status(200).json({ status: "ok" });
@@ -391,7 +404,7 @@ module.exports = {
       val.course = uniqueArray;
       const up = await Student.findOneAndUpdate(
         { _id: req.body.studentId },
-        val
+        val,
       );
       sendRegistrationEmailV4(req.body.studentId);
       res.status(200).json({ status: "ok" });
@@ -483,7 +496,7 @@ module.exports = {
   getAllPranicPurificationStudent: async function (req, res) {
     try {
       const result = await studentService.getAllPranicPurificationStudent(
-        req.body
+        req.body,
       );
       res
         .status(200)
