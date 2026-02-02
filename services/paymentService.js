@@ -662,7 +662,7 @@ function savePranaArambhOn200TTC(user, reqBody) {
           constants.COURSE.PRANA_ARAMBHA,
           constants.COURSE.BREATCH_DTOX,
         ],
-        source: "200TTC",
+        source: `200TTC_${user._id}_November, 2026`,
         paymentCourseId: constants.COURSE.TWO_THOUSANDS_TTC,
       };
       let studentRes = await studentRepo.createStudent(studentData);

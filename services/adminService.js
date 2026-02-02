@@ -835,7 +835,7 @@ function sendBulkMail200TTC() {
       const customerData = {
         isAdminMailSend: false,
         paymentStatus: "paid",
-        month: "November",
+        month: "November, 2026",
         // email: "kaushik.das.mca18@gmail.com",
       };
       let data = await adminRepo.get200TTCList(customerData);
@@ -854,11 +854,11 @@ function sendBulkMail200TTC() {
           let data = await studentRepo.createStudent({
             firstName: obj.name,
             email: obj.email,
-            password: "hgfy@846",
+            password: helper.genratePass(6),
             isActive: true,
             paymentCourseId: constant.COURSE.TWO_THOUSANDS_TTC,
             is200TTC: true,
-            source: "200TTC",
+            source: "200TTC_id_November, 2026",
             course: [
               constant.COURSE.TWO_THOUSANDS_TTC,
               constant.COURSE.PRANA_ARAMBHA,
@@ -901,7 +901,7 @@ function giveAccessToUser(reqBody) {
         isActive: true,
         paymentCourseId: constant.COURSE.TWO_THOUSANDS_TTC,
         is200TTC: true,
-        source: "200TTC",
+        source: `200TTC_${reqBody._id}_November, 2026`,
         course: [
           constant.COURSE.TWO_THOUSANDS_TTC,
           constant.COURSE.PRANA_ARAMBHA,
