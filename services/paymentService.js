@@ -105,7 +105,7 @@ function getRazorPaymentResultPranicPurification({
         const user = await paymentRepo.updatePranicUserData(
           payDbId,
           razorpay_payment_id,
-          true
+          true,
         );
         const couponCode = generateCouponCode(user.name);
         const couponcodeData = {
@@ -123,7 +123,7 @@ function getRazorPaymentResultPranicPurification({
             paymentId: razorpay_payment_id,
             ...clientData,
           },
-          user
+          user,
         );
         return resolve({
           status: "success",
@@ -227,7 +227,7 @@ function getRazorpayPaymentResultForPranarambha(
   payDbId,
   reqAmount,
   reqCurrency,
-  couponCodeId
+  couponCodeId,
 ) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -328,7 +328,7 @@ function getRazorpayPaymentResultForPranarambha(
           __dirname,
           "..",
           "controller",
-          constants.EMAIL_TEMPLATE.ADMIN_ORDER
+          constants.EMAIL_TEMPLATE.ADMIN_ORDER,
         );
         const source = fs.readFileSync(filePath, "utf-8").toString();
         let template = handlebars.compile(source);
@@ -368,13 +368,13 @@ function getPaymentResultPranicPurification(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await stripe.checkout.sessions.retrieve(
-        reqBody.pranicPurificationSessionId
+        reqBody.pranicPurificationSessionId,
       );
       if (session.payment_status == "paid") {
         const user = await paymentRepo.updatePranicUserData(
           reqBody.payDbId,
           session.payment_intent,
-          true
+          true,
         );
         const couponCode = generateCouponCode(user.name);
         const couponcodeData = {
@@ -387,7 +387,7 @@ function getPaymentResultPranicPurification(reqBody, req = null) {
         createPranicPurificationStudent(user, reqBody.password);
         helper.completePranicPurificationAutomationEmail(
           user,
-          reqBody.password
+          reqBody.password,
         );
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.trackPranicPurificationPurchase(
@@ -395,7 +395,7 @@ function getPaymentResultPranicPurification(reqBody, req = null) {
             paymentId: session.payment_intent,
             ...clientData,
           },
-          user
+          user,
         );
         return resolve({
           status: 200,
@@ -439,7 +439,7 @@ function checkoutRazorpayFor200TTC(reqBody) {
       if (reqBody.id) {
         pay = await paymentRepo.updateInstallmentPayment200TTCata(
           reqBody.id,
-          reqBody.price
+          reqBody.price,
         );
       } else {
         let userData = {
@@ -487,7 +487,7 @@ function getRazorPaymentResult200TTC(reqBody, req = null) {
           reqBody.razorpayPaymentId,
           true,
           reqBody.installment,
-          reqBody.dueAmnt
+          reqBody.dueAmnt,
         );
         if (reqBody.installment == "2nd") {
           await savePranaArambhOn200TTC(user, reqBody);
@@ -511,7 +511,7 @@ function getRazorPaymentResult200TTC(reqBody, req = null) {
             paymentId: reqBody.razorpayPaymentId,
             ...clientData,
           },
-          user
+          user,
         );
         return resolve({
           amount: +user.price,
@@ -533,7 +533,7 @@ function checkoutStripeFor200TTC(reqBody) {
       if (reqBody.id) {
         pay = await paymentRepo.updateInstallmentPayment200TTCata(
           reqBody.id,
-          reqBody.price
+          reqBody.price,
         );
       } else {
         let userData = {
@@ -583,7 +583,7 @@ function getStripePaymentResult200TTC(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await stripe.checkout.sessions.retrieve(
-        reqBody.sessionId
+        reqBody.sessionId,
       );
       if (session.payment_status == "paid") {
         const user = await paymentRepo.update200TTCata(
@@ -591,7 +591,7 @@ function getStripePaymentResult200TTC(reqBody, req = null) {
           session.payment_intent,
           true,
           reqBody.installment,
-          reqBody.dueAmnt
+          reqBody.dueAmnt,
         );
         if (reqBody.installment == "2nd") {
           await savePranaArambhOn200TTC(user, reqBody);
@@ -622,7 +622,7 @@ function getStripePaymentResult200TTC(reqBody, req = null) {
             paymentId: session.payment_intent,
             ...clientData,
           },
-          user
+          user,
         );
         return resolve({
           status: 200,
@@ -650,22 +650,39 @@ function getStripePaymentResult200TTC(reqBody, req = null) {
 }
 function savePranaArambhOn200TTC(user, reqBody) {
   return new Promise(async (resolve, reject) => {
+    let studentData;
     try {
-      let studentData = {
-        email: user.email,
-        firstName: user.name,
-        isActive: true,
-        password: reqBody.password,
-        phoneNumber: user.phoneNumber,
-        course: [
-          constants.COURSE.TWO_THOUSANDS_TTC,
-          constants.COURSE.PRANA_ARAMBHA,
-          constants.COURSE.BREATCH_DTOX,
-        ],
-        source: `200TTC_${user._id}_November, 2026`,
-        paymentCourseId: constants.COURSE.TWO_THOUSANDS_TTC,
-      };
-      let studentRes = await studentRepo.createStudent(studentData);
+      if (user.phoneNumber == "N/A") {
+        studentData = {
+          email: user.email,
+          firstName: user.name,
+          isActive: true,
+          password: reqBody.password,
+          course: [
+            constants.COURSE.TWO_THOUSANDS_TTC,
+            constants.COURSE.PRANA_ARAMBHA,
+            constants.COURSE.BREATCH_DTOX,
+          ],
+          source: `200TTC_${user._id}_November, 2026`,
+          paymentCourseId: constants.COURSE.TWO_THOUSANDS_TTC,
+        };
+      } else {
+        studentData = {
+          email: user.email,
+          firstName: user.name,
+          isActive: true,
+          password: reqBody.password,
+          phoneNumber: user.phoneNumber,
+          course: [
+            constants.COURSE.TWO_THOUSANDS_TTC,
+            constants.COURSE.PRANA_ARAMBHA,
+            constants.COURSE.BREATCH_DTOX,
+          ],
+          source: `200TTC_${user._id}_November, 2026`,
+          paymentCourseId: constants.COURSE.TWO_THOUSANDS_TTC,
+        };
+      }
+      await studentRepo.createStudent(studentData);
       return resolve(1);
     } catch (error) {
       return reject(error);
@@ -682,7 +699,7 @@ function secondInstallmentPaymentMail() {
       threeWeeks.setDate(today.getDate() - 21);
       const paymentData = await paymentRepo.secondInstallmentPaymentMail(
         threeWeeks,
-        Fortnight
+        Fortnight,
       );
       for (const obj of paymentData) {
         const mailData = {
@@ -753,7 +770,7 @@ function getRazorPaymentResultRishikesh(reqBody, req = null) {
         const user = await paymentRepo.updateRishikeshStudentData(
           reqBody.payDbId,
           reqBody.razorpayPaymentId,
-          true
+          true,
         );
         await helper.sendRishikeshCourseEmail(user);
         const clientData = req ? extractClientData(req) : {};
@@ -762,7 +779,7 @@ function getRazorPaymentResultRishikesh(reqBody, req = null) {
             paymentId: reqBody.razorpayPaymentId,
             ...clientData,
           },
-          user
+          user,
         );
         return resolve({
           amount: +user.price,
@@ -772,7 +789,7 @@ function getRazorPaymentResultRishikesh(reqBody, req = null) {
         await paymentRepo.updateRishikeshStudentData(
           reqBody.payDbId,
           null,
-          false
+          false,
         );
         return reject("Payment verification failed");
       }
@@ -822,13 +839,13 @@ function getStripePaymentResultRishikesh(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await stripe.checkout.sessions.retrieve(
-        reqBody.sessionId
+        reqBody.sessionId,
       );
       if (session.payment_status == "paid") {
         const user = await paymentRepo.updateRishikeshStudentData(
           reqBody.payDbId,
           session.payment_intent,
-          true
+          true,
         );
         await helper.sendRishikeshCourseEmail(user);
         const clientData = req ? extractClientData(req) : {};
@@ -837,7 +854,7 @@ function getStripePaymentResultRishikesh(reqBody, req = null) {
             paymentId: session.payment_intent,
             ...clientData,
           },
-          user
+          user,
         );
         return resolve({
           status: 200,
@@ -852,7 +869,7 @@ function getStripePaymentResultRishikesh(reqBody, req = null) {
         await paymentRepo.updateRishikeshStudentData(
           reqBody.payDbId,
           null,
-          false
+          false,
         );
         return resolve({
           status: 200,
@@ -899,12 +916,12 @@ function updatePaymentStatusForcefully() {
       const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
       const paymentData = await paymentRepo.updatePaymentStatusForcefully(
         tenMinutesAhead.toISOString(),
-        fiveMinutesAhead.toISOString()
+        fiveMinutesAhead.toISOString(),
       );
       for (const obj of paymentData) {
         if (obj.paymentType == "stripe") {
           const session = await stripe.checkout.sessions.retrieve(
-            obj.paymentId
+            obj.paymentId,
           );
           if (
             session.payment_status == "paid" &&
@@ -912,7 +929,7 @@ function updatePaymentStatusForcefully() {
           ) {
             await paymentRepo.update200ttcPayment(
               { paymentStatus: "paid", isPaymentCheck: true },
-              obj._id
+              obj._id,
             );
             await helper.send200TTCEmail(obj);
 
@@ -931,12 +948,12 @@ function updatePaymentStatusForcefully() {
                 name: obj.name,
                 price: obj.price,
                 currency: obj.currency,
-              }
+              },
             );
           } else {
             await paymentRepo.update200ttcPayment(
               { isPaymentCheck: true },
-              obj._id
+              obj._id,
             );
             await helper.complete200TTCEmail(obj);
           }
@@ -959,7 +976,7 @@ function updatePaymentStatusForcefully() {
               ) {
                 await paymentRepo.update200ttcPayment(
                   { paymentStatus: "paid", isPaymentCheck: true },
-                  obj._id
+                  obj._id,
                 );
                 await helper.send200TTCEmail(obj);
 
@@ -978,14 +995,14 @@ function updatePaymentStatusForcefully() {
                     name: obj.name,
                     price: obj.price,
                     currency: obj.currency,
-                  }
+                  },
                 );
               }
             }
           } else {
             await paymentRepo.update200ttcPayment(
               { isPaymentCheck: true },
-              obj._id
+              obj._id,
             );
             await helper.complete200TTCEmail(obj);
           }
@@ -1041,12 +1058,12 @@ function updateSwaraSadhanaPaymentStatusForcefully() {
       const paymentData =
         await paymentRepo.updateSwaraSadhanaPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),
-          fiveMinutesAhead.toISOString()
+          fiveMinutesAhead.toISOString(),
         );
       for (const obj of paymentData) {
         if (obj.paymentType == "stripe") {
           const session = await stripe.checkout.sessions.retrieve(
-            obj.paymentId
+            obj.paymentId,
           );
           if (session.payment_status == "paid") {
             await paymentRepo.webinnerUpdateById(obj._id, {
@@ -1060,7 +1077,7 @@ function updateSwaraSadhanaPaymentStatusForcefully() {
                 email: obj.email,
                 password: obj.password,
               },
-              obj.email
+              obj.email,
             );
           } else {
             await paymentRepo.webinnerUpdateById(obj._id, {
@@ -1092,7 +1109,7 @@ function updateSwaraSadhanaPaymentStatusForcefully() {
                     email: obj.email,
                     password: obj.password,
                   },
-                  obj.email
+                  obj.email,
                 );
               }
             }
@@ -1235,12 +1252,12 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
       const paymentData =
         await paymentRepo.updateOnlineSadhanaPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),
-          fiveMinutesAhead.toISOString()
+          fiveMinutesAhead.toISOString(),
         );
       for (const obj of paymentData) {
         if (obj.paymentType == "stripe") {
           const session = await stripe.checkout.sessions.retrieve(
-            obj.paymentId
+            obj.paymentId,
           );
           if (session.payment_status == "paid") {
             const pass = helper.genratePass(6);
@@ -1272,24 +1289,24 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                   name: obj.name,
                   price: obj.price,
                   currency: obj.currency,
-                }
+                },
               );
             } catch (e) {
               console.error(
                 "Live Class purchase tracking (Stripe force) failed:",
-                e?.message || e
+                e?.message || e,
               );
             }
             for (let coursObj of obj.courses) {
               var item = mentors.teachersData.find(
-                (obj) => coursObj.id == obj.id
+                (obj) => coursObj.id == obj.id,
               );
               if (item) {
                 await helper.onlineSadhanaClassSendMail(
                   obj.name,
                   obj.email,
                   item,
-                  pass
+                  pass,
                 );
               }
             }
@@ -1341,17 +1358,17 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                       name: obj.name,
                       price: obj.price,
                       currency: obj.currency,
-                    }
+                    },
                   );
                 } catch (e) {
                   console.error(
                     "Live Class purchase tracking (Razorpay force) failed:",
-                    e?.message || e
+                    e?.message || e,
                   );
                 }
                 for (let coursObj of obj.courses) {
                   var item = mentors.teachersData.find(
-                    (obj) => coursObj.id == obj.id
+                    (obj) => coursObj.id == obj.id,
                   );
                   if (item) {
                     if (item) {
@@ -1359,7 +1376,7 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
                         obj.name,
                         obj.email,
                         item,
-                        pass
+                        pass,
                       );
                     }
                   }
@@ -1468,14 +1485,14 @@ function updatePranaArambhPaymentStatusForcefully() {
       const paymentData =
         await paymentRepo.updatePranaArambhPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),
-          fiveMinutesAhead.toISOString()
+          fiveMinutesAhead.toISOString(),
         );
       for (const obj of paymentData) {
         let coursetitle = await courseRepo.getCourseById(course);
         let studentData = await studentRepo.getStudentById(obj.studentId);
         if (obj.paymentBy == "Stripe") {
           const session = await stripe.checkout.sessions.retrieve(
-            obj.paymentId
+            obj.paymentId,
           );
           if (session.payment_status == "paid") {
             await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
@@ -1508,7 +1525,7 @@ function updatePranaArambhPaymentStatusForcefully() {
               : [...studentData.course, course];
             await studentRepo.updateStudentCourse(
               obj.studentId,
-              updatedCourses
+              updatedCourses,
             );
           } else {
             await paymentRepo.updatePranaArambhPaymentUserData(obj._id, {
@@ -1573,7 +1590,7 @@ function updatePranaArambhPaymentStatusForcefully() {
                   : [...studentData.course, course];
                 await studentRepo.updateStudentCourse(
                   obj.studentId,
-                  updatedCourses
+                  updatedCourses,
                 );
               }
             }
@@ -1654,13 +1671,13 @@ function updatePranicPurificationStatusForcefully() {
       const paymentData =
         await paymentRepo.updatePranicPurificationStatusForcefully(
           tenMinutesAhead.toISOString(),
-          fiveMinutesAhead.toISOString()
+          fiveMinutesAhead.toISOString(),
         );
       for (const obj of paymentData) {
         const password = helper.genratePass(6);
         if (obj.paymentType == "stripe") {
           const session = await stripe.checkout.sessions.retrieve(
-            obj.paymentId
+            obj.paymentId,
           );
           if (session.payment_status == "paid") {
             await paymentRepo.pranicPurificationUpdateById(obj._id, {
@@ -1683,7 +1700,7 @@ function updatePranicPurificationStatusForcefully() {
                 name: obj.name,
                 price: obj.price,
                 currency: obj.currency,
-              }
+              },
             );
           } else {
             await paymentRepo.pranicPurificationUpdateById(obj._id, {
@@ -1724,7 +1741,7 @@ function updatePranicPurificationStatusForcefully() {
                     name: obj.name,
                     price: obj.price,
                     currency: obj.currency,
-                  }
+                  },
                 );
               }
             }
@@ -1750,12 +1767,12 @@ function updateRishikeshStatusForcefully() {
       const tenMinutesAhead = new Date(now.getTime() - 50 * 60 * 1000);
       const paymentData = await paymentRepo.updateRishikeshStatusForcefully(
         tenMinutesAhead.toISOString(),
-        fiveMinutesAhead.toISOString()
+        fiveMinutesAhead.toISOString(),
       );
       for (const obj of paymentData) {
         if (obj.paymentType == "stripe") {
           const session = await stripe.checkout.sessions.retrieve(
-            obj.paymentId
+            obj.paymentId,
           );
           if (session.payment_status == "paid") {
             await paymentRepo.rishikeshUpdateById(obj._id, {
@@ -1777,7 +1794,7 @@ function updateRishikeshStatusForcefully() {
                 name: obj.name,
                 price: obj.price,
                 currency: obj.currency,
-              }
+              },
             );
           } else {
             await paymentRepo.rishikeshUpdateById(obj._id, {
@@ -1817,7 +1834,7 @@ function updateRishikeshStatusForcefully() {
                     name: obj.name,
                     price: obj.price,
                     currency: obj.currency,
-                  }
+                  },
                 );
               }
             }
@@ -1876,13 +1893,13 @@ function getStripePaymentResultBali(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await stripe.checkout.sessions.retrieve(
-        reqBody.sessionId
+        reqBody.sessionId,
       );
       if (session.payment_status == "paid") {
         const user = await paymentRepo.updateBaliStudentData(
           reqBody.payDbId,
           session.payment_intent,
-          true
+          true,
         );
         await helper.sendBaliCourseEmail(user);
         return resolve({
@@ -1917,12 +1934,12 @@ function updateBaliStatusForcefully() {
       const tenMinutesAhead = new Date(now.getTime() - 50 * 60 * 1000);
       const paymentData = await paymentRepo.updateBaliStatusForcefully(
         tenMinutesAhead.toISOString(),
-        fiveMinutesAhead.toISOString()
+        fiveMinutesAhead.toISOString(),
       );
       for (const obj of paymentData) {
         if (obj.paymentType == "stripe") {
           const session = await stripe.checkout.sessions.retrieve(
-            obj.paymentId
+            obj.paymentId,
           );
           if (session.payment_status == "paid") {
             await paymentRepo.baliUpdateById(obj._id, {
@@ -1999,13 +2016,13 @@ function verifyRazorpayPaymentOnlineSadhana({
       for (var i = 0; i < courseList.length; i++) {
         const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
         var item = mentors.teachersData.find(
-          (obj) => courseList[i].id == obj.id
+          (obj) => courseList[i].id == obj.id,
         );
         await helper.onlineSadhanaClassSendMail(
           name,
           email,
           item,
-          reqBody.password
+          reqBody.password,
         );
       }
       const replacements = {
@@ -2033,7 +2050,7 @@ function verifyRazorpayPaymentOnlineSadhana({
           name,
           price,
           currency,
-        }
+        },
       );
       return resolve({ status: "success", paymentId, amount: price, currency });
     } catch (error) {
@@ -2045,7 +2062,7 @@ function verifyStripePaymentOnlineSadhana(reqBody, clientIpReq, userAgentReq) {
   return new Promise(async (resolve, reject) => {
     try {
       const session = await stripe.checkout.sessions.retrieve(
-        reqBody.sessionId
+        reqBody.sessionId,
       );
       if (session.payment_status == "paid") {
         let val = {
@@ -2076,16 +2093,16 @@ function verifyStripePaymentOnlineSadhana(reqBody, clientIpReq, userAgentReq) {
         }, []);
         for (var i = 0; i < courseList.length; i++) {
           const mentors = await courseRepo.getCourseBySlug(
-            "online-yoga-classes"
+            "online-yoga-classes",
           );
           var item = mentors.teachersData.find(
-            (obj) => courseList[i].id == obj.id
+            (obj) => courseList[i].id == obj.id,
           );
           await helper.onlineSadhanaClassSendMail(
             name,
             email,
             item,
-            reqBody.password
+            reqBody.password,
           );
         }
         const replacements = {
@@ -2113,7 +2130,7 @@ function verifyStripePaymentOnlineSadhana(reqBody, clientIpReq, userAgentReq) {
             name,
             price,
             currency,
-          }
+          },
         );
         return resolve({
           status: "success",
@@ -2166,4 +2183,5 @@ module.exports = {
   updateBaliStatusForcefully,
   verifyRazorpayPaymentOnlineSadhana,
   verifyStripePaymentOnlineSadhana,
+  savePranaArambhOn200TTC,
 };

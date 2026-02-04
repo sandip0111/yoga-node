@@ -119,6 +119,7 @@ function register200TTCUser(reqBody) {
         created: new Date(),
         paymentType: "paypal",
       });
+      await paymentService.savePranaArambhOn200TTC(savedUser, reqBody);
       await helper.send200TTCEmail(savedUser);
       return resolve({
         data: {
