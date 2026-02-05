@@ -20,7 +20,7 @@ const subsSchema = new mongoose.Schema({
   },
   emailStage: {
     type: Number,
-    default: 0, // 0: No emails sent, 1: First email sent, etc.
+    default: 0,
   },
   nextEmailDate: {
     type: Date,

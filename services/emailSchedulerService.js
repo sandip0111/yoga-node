@@ -31,7 +31,7 @@ const startScheduler = async () => {
             replacements: {},
           });
 
-          sub.emailStage = 4;
+          sub.emailStage = null;
           sub.nextEmailDate = null;
           await sub.save();
         }
