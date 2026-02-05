@@ -11,7 +11,8 @@ const path = require("path");
 const cron = require("node-cron");
 const paymentService = require("./services/paymentService");
 const courseService = require("./services/courseService");
-const studentService = require('./services/studentService');
+const studentService = require("./services/studentService");
+const emailSchedulerService = require("./services/emailSchedulerService");
 
 //middleware
 app.use(express.json());
@@ -51,6 +52,7 @@ cron.schedule("*/1 * * * *", async function () {
   paymentService.updatePranicPurificationStatusForcefully();
   paymentService.updateRishikeshStatusForcefully();
   paymentService.updateBaliStatusForcefully();
+  emailSchedulerService.startScheduler();
 });
 cron.schedule("10 18 17 * * *", async function () {
   // paymentService.updateabc();

@@ -25,7 +25,7 @@ const webinarUser = require("../models/webinarRegiserUserModel");
 const fs = require("fs");
 const path = require("path");
 const handlebars = require("handlebars");
-const { transporter } = require("../helpers/nodemail");
+const { transporter, createContent } = require("../helpers/nodemail");
 const { getTimeBefore } = require("../helpers/helper");
 const mongoose = require("mongoose");
 const XLSX = require("xlsx");
@@ -225,7 +225,7 @@ module.exports = {
         if (req.body._id) {
           const user = await mentorModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -283,7 +283,7 @@ module.exports = {
         if (req.body._id) {
           const user = await sliderModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -328,7 +328,7 @@ module.exports = {
         if (req.body._id) {
           const course = await courseModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -383,7 +383,7 @@ module.exports = {
       ];
       const course = await courseModel.find(
         { isActive: true, _id: { $in: documentIds } },
-        { _id: 1, coursetitle: 1 }
+        { _id: 1, coursetitle: 1 },
       );
       res.status(200).json({ data: course });
     } catch (err) {
@@ -461,7 +461,7 @@ module.exports = {
       // Send mail
       const filePath = path.join(
         __dirname,
-        "/emailTemplate/registerWebinar.html"
+        "/emailTemplate/registerWebinar.html",
       );
       const source = fs.readFileSync(filePath, "utf-8").toString();
       const template = handlebars.compile(source);
@@ -512,7 +512,7 @@ module.exports = {
   getPaymentResultSwarSadhana: async function (req, res) {
     try {
       const session = await stripe.checkout.sessions.retrieve(
-        req.body.sessionId
+        req.body.sessionId,
       );
       if (session.payment_status == "paid") {
         let val = {
@@ -526,16 +526,16 @@ module.exports = {
               paymentStatus: "paid",
               paymentId: session.payment_intent,
               refferalCode: "swarayoga@prashantji",
-            }
+            },
           );
           const dbTimeSlot = await timeSlots.findOne({ _id: pay.timeSlot });
           const { startTime, timeBefore } = getTimeBefore(
-            dbTimeSlot.slotDuration
+            dbTimeSlot.slotDuration,
           );
           // Send mail
           const filePath = path.join(
             __dirname,
-            "/emailTemplate/swarayoga.html"
+            "/emailTemplate/swarayoga.html",
           );
           const source = fs.readFileSync(filePath, "utf-8").toString();
           const template = handlebars.compile(source);
@@ -606,7 +606,7 @@ module.exports = {
               ...pay,
               currency: priceDetails.currency,
               amount: priceDetails.unitAmount / 100,
-            }
+            },
           );
 
           transporter.sendMail(mailOptions, async (err, result) => {
@@ -628,7 +628,7 @@ module.exports = {
       } else {
         const pay = await webinarUser.findOneAndUpdate(
           { _id: req.body.userId },
-          { paymentStatus: "failed" }
+          { paymentStatus: "failed" },
         );
         res
           .status(200)
@@ -641,7 +641,7 @@ module.exports = {
   checkoutRazorpayNewSwarSadhana: async function (req, res) {
     try {
       let result = await paymentService.checkoutRazorpayNewSwarSadhana(
-        req.body
+        req.body,
       );
       res.setHeader("Access-Control-Expose-Headers", "x-rtb-fingerprint-id");
       res.status(200).json(result);
@@ -672,18 +672,18 @@ module.exports = {
             {
               paymentStatus: "paid",
               refferalCode: "swarayoga@prashantji",
-            }
+            },
           );
 
           const dbTimeSlot = await timeSlots.findOne({ _id: pay.timeSlot });
           const { startTime, timeBefore } = getTimeBefore(
-            dbTimeSlot.slotDuration
+            dbTimeSlot.slotDuration,
           );
 
           // Email Template
           const filePath = path.join(
             __dirname,
-            "/emailTemplate/swarayoga.html"
+            "/emailTemplate/swarayoga.html",
           );
           const source = fs.readFileSync(filePath, "utf-8").toString();
           const template = handlebars.compile(source);
@@ -757,7 +757,7 @@ module.exports = {
               ...pay,
               currency: req.body.currency,
               amount: req.body.amount,
-            }
+            },
           );
 
           res.status(200).json({
@@ -771,7 +771,7 @@ module.exports = {
       } else {
         await webinarUser.findOneAndUpdate(
           { _id: userId },
-          { paymentStatus: "failed" }
+          { paymentStatus: "failed" },
         );
         res
           .status(200)
@@ -837,7 +837,7 @@ module.exports = {
         if (req.body._id) {
           const user = await categoryModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -971,7 +971,7 @@ module.exports = {
       } else {
         const filePath = path.join(
           __dirname,
-          "/emailTemplate/testEmailV2.html"
+          "/emailTemplate/testEmailV2.html",
         );
         const source = fs.readFileSync(filePath, "utf-8").toString();
         const template = handlebars.compile(source);
@@ -1018,7 +1018,7 @@ module.exports = {
           req.body.authorId = mongoose.Types.ObjectId(req.body.authorId);
           const blog = await blogModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -1113,7 +1113,7 @@ module.exports = {
         if (req.body._id) {
           const blog = await mediaModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -1137,7 +1137,7 @@ module.exports = {
         if (req.body._id) {
           const page = await pageModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -1176,7 +1176,7 @@ module.exports = {
         if (req.body._id) {
           const test = await testimonialModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -1202,7 +1202,7 @@ module.exports = {
         if (req.body._id) {
           const subcat = await subcategoryModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -1246,7 +1246,7 @@ module.exports = {
         if (req.body._id) {
           const subcat = await subcoursecategoryModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res.status(200).json({
             status: "ok",
@@ -1304,7 +1304,7 @@ module.exports = {
         if (req.body._id) {
           const event = await eventModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -1351,7 +1351,7 @@ module.exports = {
         if (req.body._id) {
           const contact = await inquiryModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res.status(200).json({ status: "ok", msg: `Updated Successfully` });
         } else {
@@ -1369,7 +1369,7 @@ module.exports = {
         if (req.body._id) {
           const user = await adminModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -1445,7 +1445,7 @@ module.exports = {
             // If lastTimeLoggedIn has a value, check if 48 hours have passed
             const lastLoggedInTime = new Date(webinarUserData.lastTimeLoggedIn);
             const timeAfter96Hours = new Date(
-              lastLoggedInTime.getTime() + 24 * 30 * 60 * 60 * 1000
+              lastLoggedInTime.getTime() + 24 * 30 * 60 * 60 * 1000,
             ); // Add 48 hours
 
             if (currentTime > timeAfter96Hours) {
@@ -1506,7 +1506,7 @@ module.exports = {
       if (req.body._id) {
         const blog = await feedbackModel.findOneAndUpdate(
           { _id: req.body._id },
-          req.body
+          req.body,
         );
         res
           .status(200)
@@ -1520,7 +1520,7 @@ module.exports = {
         if (course.coursetitle == "Breath Detox Course Online") {
           const filePath = path.join(
             __dirname,
-            "/emailTemplate/breathDetox.html"
+            "/emailTemplate/breathDetox.html",
           );
           const source = fs.readFileSync(filePath, "utf-8").toString();
           template = handlebars.compile(source);
@@ -1535,7 +1535,7 @@ module.exports = {
         } else {
           const filePath = path.join(
             __dirname,
-            "/emailTemplate/feedbackMail.html"
+            "/emailTemplate/feedbackMail.html",
           );
           const source = fs.readFileSync(filePath, "utf-8").toString();
           template = handlebars.compile(source);
@@ -1611,7 +1611,7 @@ module.exports = {
         if (req.body._id) {
           const user = await accesslogModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res.status(200).json({ status: "ok", msg: `success` });
         } else {
@@ -1809,7 +1809,7 @@ module.exports = {
     res.set("Content-Disposition", "attachment; filename=inquiryExcel.xlsx");
     res.set(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
     res.send(excelBuffer);
   },
@@ -1836,7 +1836,7 @@ module.exports = {
   checkoutRazorpayForLiveClasses: async function (req, res) {
     try {
       let result = await paymentService.checkoutRazorpayForLiveClasses(
-        req.body
+        req.body,
       );
       res.setHeader("Access-Control-Expose-Headers", "x-rtb-fingerprint-id");
       res.status(200).json(result);
@@ -1911,7 +1911,7 @@ module.exports = {
   checkoutStripeForPranicPurification: async function (req, res) {
     try {
       let result = await paymentService.checkoutStripeForPranicPurification(
-        req.body
+        req.body,
       );
       res.status(200).json(result);
     } catch (error) {
@@ -1932,7 +1932,7 @@ module.exports = {
   checkoutRazorpayForPranicPurification: async function (req, res) {
     try {
       let result = await paymentService.checkoutRazorpayForPranicPurification(
-        req.body
+        req.body,
       );
       res.status(200).json(result);
     } catch (error) {
@@ -1958,7 +1958,7 @@ module.exports = {
           payDbId,
           password,
           req,
-        }
+        },
       );
       res.status(200).json(result);
     } catch (error) {
@@ -2006,7 +2006,7 @@ module.exports = {
   checkoutRazorpayNewPranaarabha: async function (req, res) {
     try {
       let result = await paymentService.checkoutRazorpayNewPranaarabha(
-        req.body
+        req.body,
       );
       res.setHeader("Access-Control-Expose-Headers", "x-rtb-fingerprint-id");
       res.status(200).json(result);
@@ -2018,7 +2018,7 @@ module.exports = {
   getPaymentResult: async function (req, res) {
     try {
       const session = await stripe.checkout.sessions.retrieve(
-        req.body.sessionId
+        req.body.sessionId,
       );
       if (session.payment_status == "paid") {
         let val = {
@@ -2041,7 +2041,7 @@ module.exports = {
                 amount: val.amount,
                 currency: val.currency,
                 paymentStatus: val.paymentStatus,
-              }
+              },
             );
             await paymentRepo.disableCouponCode(req.body.couponCode);
           } catch (e) {
@@ -2066,7 +2066,7 @@ module.exports = {
             };
             let up = await studentModel.findOneAndUpdate(
               { _id: val.student },
-              bodyUp
+              bodyUp,
             );
           } catch (e) {
             console.log("student course update failed");
@@ -2144,7 +2144,7 @@ module.exports = {
           payDbId,
           amount,
           currency,
-          couponCodeId
+          couponCodeId,
         );
       res.status(returnData.status).json(returnData.result);
     } catch (error) {
@@ -2160,7 +2160,7 @@ module.exports = {
       let data = await paymentService.verifyStripePaymentOnlineSadhana(
         req.body,
         clientIp,
-        userAgent
+        userAgent,
       );
       res.status(200).json(data);
     } catch (error) {
@@ -2170,7 +2170,7 @@ module.exports = {
   getPaymentResultV2: async function (req, res) {
     try {
       const session = await stripe.checkout.sessions.retrieve(
-        req.body.sessionId
+        req.body.sessionId,
       );
       if (session.payment_status == "paid") {
         let val = {
@@ -2205,7 +2205,7 @@ module.exports = {
         if (req.body._id) {
           const onlineVideo = await onlineVideoModel.findOneAndUpdate(
             { _id: req.body._id },
-            req.body
+            req.body,
           );
           res
             .status(200)
@@ -2395,7 +2395,26 @@ module.exports = {
             .status(200)
             .json({ status: "ok", msg: `Email Already registered` });
         } else {
-          const subs = await subscribeModel.create(req.body);
+          let subs = await subscribeModel.create(req.body);
+
+          // Send Email 1
+          try {
+            await createContent({
+              contentPath: "emailTemplate/subscriberEmail1.html",
+              mailTo: req.body.email,
+              subject: "Welcome to Yoga Vidya School - Subscription Confirmed",
+              replacements: {},
+            });
+
+            // Update stage and schedule next email (48 hours later)
+            subs.emailStage = 2; // Next is Email 2
+            subs.nextEmailDate = new Date(Date.now() + 48 * 60 * 60 * 1000);
+            await subs.save();
+          } catch (emailErr) {
+            console.error("Error sending subscription email:", emailErr);
+            // Optionally handle error, but usually we don't want to fail the subscription if email fails
+          }
+
           res
             .status(200)
             .json({ status: "ok", msg: `Subscriber Inserted Success` });
@@ -2456,7 +2475,7 @@ module.exports = {
     try {
       const returnData = await paymentService.getStripePaymentResult200TTC(
         req.body,
-        req
+        req,
       );
       res.status(returnData.status).json(returnData.data);
     } catch (error) {
@@ -2468,7 +2487,7 @@ module.exports = {
       try {
         const returnData = await adminService.createLiveCourseCustomer(
           req.body,
-          mentors
+          mentors,
         );
         res.status(returnData.status).json(returnData.data);
       } catch (err) {
@@ -2481,7 +2500,7 @@ module.exports = {
     {
       try {
         const returnData = await adminService.createFreeWebinarCustomer(
-          req.body
+          req.body,
         );
         res.status(returnData.status).json(returnData.data);
       } catch (err) {
@@ -2504,7 +2523,7 @@ module.exports = {
     {
       try {
         const returnData = await adminService.createPranaArambhCustomer(
-          req.body
+          req.body,
         );
         res.status(returnData.status).json(returnData.data);
       } catch (err) {
@@ -2536,7 +2555,7 @@ module.exports = {
     {
       try {
         const returnData = await adminService.getAllPendingPaymentList(
-          req.body
+          req.body,
         );
         res.status(200).json({
           status: true,
@@ -2578,7 +2597,7 @@ module.exports = {
         }
         const returnData = await courseService.uploadCourseVideo(
           req.file,
-          req.body
+          req.body,
         );
         res.status(200).json(returnData);
       } catch (err) {
@@ -2590,7 +2609,7 @@ module.exports = {
     {
       try {
         const returnData = await adminService.foundationOfSpiritualitySave(
-          req.body
+          req.body,
         );
         res.status(returnData.status).json(returnData.data);
       } catch (err) {
@@ -2624,7 +2643,7 @@ let updatePaymentV2 = async function (data) {
   try {
     const pay = await onlinepaymentModel.findOneAndUpdate(
       { _id: data.payDbId },
-      { paymentId: data.paymentId, paymentStatus: data.paymentStatus }
+      { paymentId: data.paymentId, paymentStatus: data.paymentStatus },
     );
   } catch (error) {
     res.staus(500).json("Internal server error");
@@ -2635,7 +2654,7 @@ let updatePaymentOnlineLiveClasses = async function (data) {
   try {
     const pay = await liveCoursesCustomermodel.findOneAndUpdate(
       { _id: data.payDbId },
-      { paymentId: data.paymentId, paymentStatus: data.paymentStatus }
+      { paymentId: data.paymentId, paymentStatus: data.paymentStatus },
     );
   } catch (error) {
     res.staus(500).json("Internal server error");

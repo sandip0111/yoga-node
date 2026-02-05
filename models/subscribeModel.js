@@ -18,6 +18,14 @@ const subsSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  emailStage: {
+    type: Number,
+    default: 0, // 0: No emails sent, 1: First email sent, etc.
+  },
+  nextEmailDate: {
+    type: Date,
+    default: null,
+  },
 });
 
 const Subscribe = mongoose.model("subscribe", subsSchema);
