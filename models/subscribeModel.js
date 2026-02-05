@@ -1,23 +1,25 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const subsSchema = new mongoose.Schema({
-    email:{
-        type:String
-    },
-    isActive:Boolean,
-    created:{
-        type: Date,
-        default: function() {
-            return new Date(Date.now() + (5.5 * 60 * 60 * 1000));
-          }
-    }
-})
+  name: {
+    type: String,
+    required: [true, "Name is required"],
+    minlength: [2, "Name must be at least 2 characters"],
+  },
+  email: {
+    type: String,
+    required: [true, "Email is required"],
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      "Please provide a valid email address",
+    ],
+  },
+  created: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-const Subscribe = mongoose.model('subscribe',subsSchema);
+const Subscribe = mongoose.model("subscribe", subsSchema);
 
 module.exports = Subscribe;
-
-// [{
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'user'
-//   }]
