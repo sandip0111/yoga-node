@@ -2396,8 +2396,6 @@ module.exports = {
             .json({ status: "ok", msg: `Email Already registered` });
         } else {
           let subs = await subscribeModel.create(req.body);
-
-          // Send Email 1
           try {
             await createContent({
               contentPath: "emailTemplate/subscriberEmail1.html",
@@ -2406,18 +2404,20 @@ module.exports = {
               replacements: {},
             });
 
-            // Update stage and schedule next email (48 hours later)
-            subs.emailStage = 2; // Next is Email 2
+            subs.emailStage = 2;
             subs.nextEmailDate = new Date(Date.now() + 48 * 60 * 60 * 1000);
             await subs.save();
+            res.status(200).json({
+              status: "ok",
+              msg: `Subscriber Inserted Success & Email Sent`,
+            });
           } catch (emailErr) {
-            console.error("Error sending subscription email:", emailErr);
-            // Optionally handle error, but usually we don't want to fail the subscription if email fails
+            console.error(emailErr);
+            res.status(200).json({
+              status: "ok",
+              msg: `Subscriber Inserted Success but Email Failed`,
+            });
           }
-
-          res
-            .status(200)
-            .json({ status: "ok", msg: `Subscriber Inserted Success` });
         }
       } catch (err) {
         res.status(400).json({ msg: "Internal Server error" });
