@@ -2398,10 +2398,12 @@ module.exports = {
           let subs = await subscribeModel.create(req.body);
           try {
             await createContent({
-              contentPath: "emailTemplate/subscriberEmail1.html",
+              contentPath: constants.EMAIL_TEMPLATES.SUBSCRIBER_EMAIL_1,
               mailTo: req.body.email,
-              subject: "Welcome to Yoga Vidya School - Subscription Confirmed",
-              replacements: {},
+              subject: "Welcome to Yoga Vidya – The Journey Within Begins",
+              replacements: {
+                NAME: req.body.name,
+              },
             });
 
             subs.emailStage = 2;

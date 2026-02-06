@@ -14,7 +14,7 @@ const startScheduler = async () => {
       try {
         if (sub.emailStage === 2) {
           await createContent({
-            contentPath: "emailTemplate/subscriberEmail2.html",
+            contentPath: constants.EMAIL_TEMPLATES.SUBSCRIBER_EMAIL_2,
             mailTo: sub.email,
             subject: "More Insights from Yoga Vidya School",
             replacements: {},
@@ -25,7 +25,7 @@ const startScheduler = async () => {
           await sub.save();
         } else if (sub.emailStage === 3) {
           await createContent({
-            contentPath: "emailTemplate/subscriberEmail3.html",
+            contentPath: constants.EMAIL_TEMPLATES.SUBSCRIBER_EMAIL_3,
             mailTo: sub.email,
             subject: "Continuing Your Journey with Yoga Vidya School",
             replacements: {},
