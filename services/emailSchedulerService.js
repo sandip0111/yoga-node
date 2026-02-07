@@ -1,5 +1,6 @@
 const subscribeModel = require("../models/subscribeModel");
 const { createContent } = require("../helpers/nodemail");
+const constants = require("../helpers/constants.json");
 
 const startScheduler = async () => {
   try {
@@ -14,9 +15,9 @@ const startScheduler = async () => {
       try {
         if (sub.emailStage === 2) {
           await createContent({
-            contentPath: constants.EMAIL_TEMPLATES.SUBSCRIBER_EMAIL_2,
+            contentPath: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_2,
             mailTo: sub.email,
-            subject: "More Insights from Yoga Vidya School",
+            subject: "Meet Yoga Vidya & Prashant – A Path of Tradition and Transformation",
             replacements: {},
           });
 
@@ -25,9 +26,9 @@ const startScheduler = async () => {
           await sub.save();
         } else if (sub.emailStage === 3) {
           await createContent({
-            contentPath: constants.EMAIL_TEMPLATES.SUBSCRIBER_EMAIL_3,
+            contentPath: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_3,
             mailTo: sub.email,
-            subject: "Continuing Your Journey with Yoga Vidya School",
+            subject: "Free course: Breath Detox Yoga 🕉️- Your next step into this path",
             replacements: {},
           });
 

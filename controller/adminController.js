@@ -2398,7 +2398,7 @@ module.exports = {
           let subs = await subscribeModel.create(req.body);
           try {
             await createContent({
-              contentPath: constants.EMAIL_TEMPLATES.SUBSCRIBER_EMAIL_1,
+              contentPath: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_1,
               mailTo: req.body.email,
               subject: "Welcome to Yoga Vidya – The Journey Within Begins",
               replacements: {
