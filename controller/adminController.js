@@ -378,16 +378,25 @@ module.exports = {
   getAllSubscribers: async function (req, res) {
     let size = req.body.size || 10;
     let pageNo = req.body.pageNo || 1;
+    let searchText = req.body.searchText || "";
     const query = {};
-    query.skip = Number(size * (pageNo - 1));
-    query.limit = Number(size) || 0;
+    if (searchText) {
+      query.$or = [
+        { name: { $regex: searchText, $options: "i" } },
+        { email: { $regex: searchText, $options: "i" } },
+      ];
+    }
+    const skip = Number(size * (pageNo - 1));
+    const limit = Number(size) || 0;
     const sort = { _id: -1 };
-    const totalSubscribers = await subscribeModel.find();
+
+    // Pass the query (which might contain the search filter) to both find calls
+    const totalSubscribers = await subscribeModel.find(query);
     const subscribers = await subscribeModel
-      .find()
+      .find(query)
       .sort(sort)
-      .skip(query.skip)
-      .limit(query.limit);
+      .skip(skip)
+      .limit(limit);
     res.status(200).json({ data: subscribers, total: totalSubscribers.length });
   },
   getAllCourseV2: async function (req, res) {
