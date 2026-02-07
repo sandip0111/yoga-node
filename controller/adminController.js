@@ -367,8 +367,28 @@ module.exports = {
     query.limit = Number(size) || 0;
     const sort = { _id: -1 };
     const totalUsers = await webinarUser.find();
-    const users = await webinarUser.find().skip(query.skip).limit(query.limit);
+    const users = await webinarUser
+      .find()
+      .sort(sort)
+      .skip(query.skip)
+      .limit(query.limit);
     res.status(200).json({ data: users, total: totalUsers.length });
+  },
+
+  getAllSubscribers: async function (req, res) {
+    let size = req.body.size || 10;
+    let pageNo = req.body.pageNo || 1;
+    const query = {};
+    query.skip = Number(size * (pageNo - 1));
+    query.limit = Number(size) || 0;
+    const sort = { _id: -1 };
+    const totalSubscribers = await subscribeModel.find();
+    const subscribers = await subscribeModel
+      .find()
+      .sort(sort)
+      .skip(query.skip)
+      .limit(query.limit);
+    res.status(200).json({ data: subscribers, total: totalSubscribers.length });
   },
   getAllCourseV2: async function (req, res) {
     try {

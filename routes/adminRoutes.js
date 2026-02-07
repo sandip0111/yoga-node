@@ -46,7 +46,7 @@ router.get("/getMentorBySlug/:id", adminController.getMentorBySlug);
 router.post("/getHomeMentors", adminController.getHomeMentors);
 router.post(
   "/getMentorsForCoursePage",
-  adminController.getMentorsForCoursePage
+  adminController.getMentorsForCoursePage,
 );
 
 /////////////
@@ -63,7 +63,7 @@ router.get("/getCategoryById/:id", adminController.getCategoryById);
 router.post("/getSubCategoryByCatId", adminController.getSubCategoryByCatId);
 router.post(
   "/getSubCourseCategoryBySubCatId",
-  adminController.getSubCourseCategoryBySubCatId
+  adminController.getSubCourseCategoryBySubCatId,
 );
 
 //subcategory
@@ -76,12 +76,12 @@ router.get("/getSubCategoryById/:id", adminController.getSubCategoryById);
 
 router.post(
   "/createSubCoursecategory",
-  adminController.createSubCoursecategory
+  adminController.createSubCoursecategory,
 );
 router.get("/getAllSubCourseCategory", adminController.getAllSubCourseCategory);
 router.get(
   "/getSubCourseCategoryById/:id",
-  adminController.getSubCourseCategoryById
+  adminController.getSubCourseCategoryById,
 );
 
 //course
@@ -156,81 +156,82 @@ router.get("/exportInquiry", adminController.exportInquiry);
 router.post("/stripe", adminController.checkoutStripe);
 router.post(
   "/checkoutStripeForLiveClasses",
-  adminController.checkoutStripeForLiveClasses
+  adminController.checkoutStripeForLiveClasses,
 );
 router.post(
   "/createRazorpayOrder",
-  adminController.checkoutRazorpayForLiveClasses
+  adminController.checkoutRazorpayForLiveClasses,
 );
 router.post(
   "/verifyRazorpayPaymentAndSendMail",
-  adminController.verifyRazorpayPaymentAndSendMail
+  adminController.verifyRazorpayPaymentAndSendMail,
 );
 router.post("/registerWebinarUser", adminController.registerWebinarUser);
 router.post(
   "/getPaymentResultAndSendMailForLiveClass",
-  adminController.getPaymentResultAndSendMailForLiveClass
+  adminController.getPaymentResultAndSendMailForLiveClass,
 );
 router.post(
   "/getAllWebinarRegistration",
-  adminController.getAllWebinarRegistration
+  adminController.getAllWebinarRegistration,
 );
+router.post("/getAllSubscribers", adminController.getAllSubscribers);
 router.post(
   "/checkoutRazorpayNewPranaarabha",
-  adminController.checkoutRazorpayNewPranaarabha
+  adminController.checkoutRazorpayNewPranaarabha,
 );
 router.post(
   "/getRazorpayPaymentResultForPranarambha",
-  adminController.getRazorpayPaymentResultForPranarambha
+  adminController.getRazorpayPaymentResultForPranarambha,
 );
 router.post(
   "/checkoutRazorpayForPranicPurification",
-  adminController.checkoutRazorpayForPranicPurification
+  adminController.checkoutRazorpayForPranicPurification,
 );
 router.post(
   "/getRazorPaymentResultPranicPurification",
-  adminController.getRazorPaymentResultPranicPurification
+  adminController.getRazorPaymentResultPranicPurification,
 );
 
 router.post(
   "/checkoutRazorpayNewSwarSadhana",
-  adminController.checkoutRazorpayNewSwarSadhana
+  adminController.checkoutRazorpayNewSwarSadhana,
 );
 router.post(
   "/getRazorPaymentResultSwarSadhana",
-  adminController.getRazorPaymentResultSwarSadhana
+  adminController.getRazorPaymentResultSwarSadhana,
 );
 
 router.post(
   "/stripeWithoutProduct",
-  adminController.checkoutStripeWithoutProduct
+  adminController.checkoutStripeWithoutProduct,
 );
 router.post(
   "/checkoutStripeForPranicPurification",
-  adminController.checkoutStripeForPranicPurification
+  adminController.checkoutStripeForPranicPurification,
 );
 router.post("/getPaymentResponse", adminController.getPaymentResult);
 router.post("/getPaymentResponseV2", adminController.getPaymentResultV2);
 router.post(
   "/getPaymentResultPranicPurification",
-  adminController.getPaymentResultPranicPurification
+  adminController.getPaymentResultPranicPurification,
 );
 router.post(
   "/registerSwarSadhanaWebinarUser",
-  adminController.registerSwarSadhanaWebinarUser
+  adminController.registerSwarSadhanaWebinarUser,
 );
 router.post(
   "/registerPranicPurificationUser",
-  adminController.registerPranicPurificationUser
+  adminController.registerPranicPurificationUser,
 );
 router.post("/register200TTCUser", adminController.register200TTCUser);
 router.post(
   "/checkoutSwarSadhanaStripe",
-  adminController.checkoutSwarSadhanaStripe
+  adminController.checkoutSwarSadhanaStripe,
 );
 router.post(
   "/getPaymentResultSwarSadhana",
-  adminController.getPaymentResultSwarSadhana
+  adminController.getPaymentResultSwarSadhana,
 );
 router.post("/getAllTimeSlot", adminController.getAllTimeSlot);
 
@@ -239,30 +240,30 @@ router.post("/getAllTimeSlot", adminController.getAllTimeSlot);
 router.post("/createVideo", adminController.createOnlineVideo);
 router.get(
   "/getCourseVideoDataById/:id",
-  adminController.getCourseVideoDataById
+  adminController.getCourseVideoDataById,
 );
 //Dashboard
 
 router.post("/getAllParayanamStudent", adminController.getAllParayanamStudent);
 router.post(
   "/getAllLiveClassStudent",
-  studentController.getAllLiveClassStudent
+  studentController.getAllLiveClassStudent,
 );
 router.post(
   "/getAllBreathDetoxStudent",
-  studentController.getAllBreathDetoxStudent
+  studentController.getAllBreathDetoxStudent,
 );
 router.post(
   "/getAllFoundationOfSpiritualityStudent",
-  studentController.getAllFoundationOfSpiritualityStudent
+  studentController.getAllFoundationOfSpiritualityStudent,
 );
 router.post(
   "/getAllStudentCourseListAndCount",
-  studentController.getAllStudentCourseListAndCount
+  studentController.getAllStudentCourseListAndCount,
 );
 router.get(
   "/getKundaliniParichayRefferalCode",
-  studentController.getKundaliniParichayRefferalCode
+  studentController.getKundaliniParichayRefferalCode,
 );
 //anaylytics
 router.post("/createAnalytics", adminController.createAnalytics);
@@ -280,7 +281,7 @@ router.post("/getCourseVideosById", studentController.getCourseVideosById);
 router.post("/getAllFreeWebinarData", studentController.getAllFreeWebinarData);
 router.post(
   "/createFreeWebinarCustomer",
-  adminController.createFreeWebinarCustomer
+  adminController.createFreeWebinarCustomer,
 );
 
 router.post("/getWebinarVideosByName", async (req, res) => {
@@ -303,7 +304,7 @@ router.post("/getWebinarVideosByName", async (req, res) => {
       const response = await s3.listObjectsV2(params);
 
       const filteredObjects = response.Contents.filter(
-        (obj) => !obj.Key.endsWith(".ts")
+        (obj) => !obj.Key.endsWith(".ts"),
       );
 
       allObjects = allObjects.concat(filteredObjects);
@@ -327,12 +328,12 @@ router.post("/getWebinarVideosByName", async (req, res) => {
           const key = item.Key;
           const id = key.substring(
             key.lastIndexOf("/") + 1,
-            key.lastIndexOf(".")
+            key.lastIndexOf("."),
           );
           const url = await getPresignedUrl("yogacourses", key);
           const newUrl = url.replace(
             "yogacourses.s3.us-east-1.amazonaws.com",
-            "d3mzqk1fxuwngx.cloudfront.net"
+            "d3mzqk1fxuwngx.cloudfront.net",
           );
 
           //  console.log(getObj,'filte rdata');
@@ -410,7 +411,7 @@ router.post(
   },
   (error, req, res, next) => {
     res.status(400).send({ error: error.message });
-  }
+  },
 );
 
 const videoStorage = multer.diskStorage({
@@ -421,7 +422,7 @@ const videoStorage = multer.diskStorage({
   filename: (req, file, cb) => {
     cb(
       null,
-      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+      file.fieldname + "_" + Date.now() + path.extname(file.originalname),
     );
   },
 });
@@ -449,7 +450,7 @@ router.post(
   },
   (error, req, res, next) => {
     res.status(400).send({ error: error.message });
-  }
+  },
 );
 
 router.post(
@@ -472,7 +473,7 @@ router.post(
 
     const vname = req.body.videoName.substring(
       0,
-      req.body.videoName.lastIndexOf(".")
+      req.body.videoName.lastIndexOf("."),
     );
     const vidBody = {
       courseId: req.body.courseId,
@@ -486,7 +487,7 @@ router.post(
     } else {
       res.status(400).json({ status: "error", msg: "Error on uploading!" });
     }
-  }
+  },
 );
 
 router.post("/uploadReview", videoUpload.single("video"), async (req, res) => {
@@ -530,72 +531,72 @@ router.post("/uploadReview", videoUpload.single("video"), async (req, res) => {
 });
 router.post(
   "/getAllSwaraSadhanaData",
-  studentController.getAllSwaraSadhanaData
+  studentController.getAllSwaraSadhanaData,
 );
 router.post("/getCouponCode", adminController.getCouponCode);
 router.post("/disableCouponCode", adminController.disableCouponCode);
 router.post(
   "/checkoutRazorpayFor200TTC",
-  adminController.checkoutRazorpayFor200TTC
+  adminController.checkoutRazorpayFor200TTC,
 );
 router.post(
   "/getRazorPaymentResult200TTC",
-  adminController.getRazorPaymentResult200TTC
+  adminController.getRazorPaymentResult200TTC,
 );
 router.post(
   "/checkoutStripeFor200TTC",
-  adminController.checkoutStripeFor200TTC
+  adminController.checkoutStripeFor200TTC,
 );
 router.post(
   "/getStripePaymentResult200TTC",
-  adminController.getStripePaymentResult200TTC
+  adminController.getStripePaymentResult200TTC,
 );
 router.post(
   "/getAllPranicPurificationStudent",
-  studentController.getAllPranicPurificationStudent
+  studentController.getAllPranicPurificationStudent,
 );
 router.post("/getTabVideo", studentController.getTabVideo);
 router.post("/get200ttcData", studentController.get200ttcData);
 router.post("/getPaymentDetailsById", paymentController.getPaymentDetailsById);
 router.post(
   "/checkoutRazorpayRishikesh",
-  paymentController.checkoutRazorpayRishikesh
+  paymentController.checkoutRazorpayRishikesh,
 );
 router.post(
   "/getRazorPaymentResultRishikesh",
-  paymentController.getRazorPaymentResultRishikesh
+  paymentController.getRazorPaymentResultRishikesh,
 );
 router.post(
   "/checkoutStripeForRishikesh",
-  paymentController.checkoutStripeForRishikesh
+  paymentController.checkoutStripeForRishikesh,
 );
 router.post(
   "/getStripePaymentResultRishikesh",
-  paymentController.getStripePaymentResultRishikesh
+  paymentController.getStripePaymentResultRishikesh,
 );
 router.post("/checkoutStripeForBali", paymentController.checkoutStripeForBali);
 router.post(
   "/getStripePaymentResultBali",
-  paymentController.getStripePaymentResultBali
+  paymentController.getStripePaymentResultBali,
 );
 router.post("/sendMailToPrashantJi", studentController.sendMailToPrashantJi);
 router.post(
   "/createLiveCourseCustomer",
-  adminController.createLiveCourseCustomer
+  adminController.createLiveCourseCustomer,
 );
 router.post(
   "/createRishikeshCustomer",
-  adminController.createRishikeshCustomer
+  adminController.createRishikeshCustomer,
 );
 router.post(
   "/createPranaArambhCustomer",
-  adminController.createPranaArambhCustomer
+  adminController.createPranaArambhCustomer,
 );
 router.post("/updatePaymentId200ttc", paymentController.updatePaymentId200ttc);
 router.get("/sendBulkMailFreeWebiner", adminController.sendBulkMailFreeWebiner);
 router.post(
   "/getAllPendingPaymentList",
-  adminController.getAllPendingPaymentList
+  adminController.getAllPendingPaymentList,
 );
 router.get("/sendBulkMail200TTC", adminController.sendBulkMail200TTC);
 router.post("/giveAccessToUser", adminController.giveAccessToUser);
@@ -607,11 +608,11 @@ const upload = multer({
 router.post(
   "/upload-video",
   upload.single("video"),
-  adminController.uploadCourseVideo
+  adminController.uploadCourseVideo,
 );
 router.post(
   "/foundationOfSpiritualitySave",
-  adminController.foundationOfSpiritualitySave
+  adminController.foundationOfSpiritualitySave,
 );
 router.get("/getAllLiveClassTeacher", adminController.getAllLiveClassTeacher);
 router.post("/createBaliCustomer", adminController.createBaliCustomer);
