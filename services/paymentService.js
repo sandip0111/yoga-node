@@ -492,19 +492,7 @@ function getRazorPaymentResult200TTC(reqBody, req = null) {
         if (reqBody.installment == "2nd") {
           await savePranaArambhOn200TTC(user, reqBody);
         }
-        const fileName =
-          reqBody.installment == "1st"
-            ? constants.EMAIL_TEMPLATE["200_HOURS_TTC_1ST"]
-            : constants.EMAIL_TEMPLATE["200_HOURS_TTC"];
-        const mailData = {
-          replacements: {
-            name: user.name,
-          },
-          mailTo: user.email,
-          contentPath: fileName,
-          subject: "🕉 Welcome to the Yoga Vidya Family!",
-        };
-        sendMail.createContent(mailData);
+        await helper.send200TTCInstalmentEmail(user, reqBody);
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.track200TTCPurchase(
           {
@@ -596,26 +584,7 @@ function getStripePaymentResult200TTC(reqBody, req = null) {
         if (reqBody.installment == "2nd") {
           await savePranaArambhOn200TTC(user, reqBody);
         }
-        const fileName =
-          reqBody.installment == "1st"
-            ? constants.EMAIL_TEMPLATE["200_HOURS_TTC_1ST"]
-            : constants.EMAIL_TEMPLATE["200_HOURS_TTC"];
-        const mailData = {
-          replacements: {
-            name: user.name,
-            whatsappGroupLink: constants.LINK.WHATSAPP,
-            startDate: user.courseStartDate.toDateString(),
-            startTime: user.courseTimeDuration,
-            userId: user.email,
-            pass: reqBody.password,
-            courseTitle: reqBody.courseTitle,
-          },
-          mailTo: user.email,
-          contentPath: fileName,
-          subject: "🕉 Welcome to the Yoga Vidya Family!",
-        };
-        sendMail.createContent(mailData);
-
+        await helper.send200TTCInstalmentEmail(user, reqBody);
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.track200TTCPurchase(
           {
@@ -912,7 +881,7 @@ function updatePaymentStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
       const now = new Date();
-      const fiveMinutesAhead = new Date(now.getTime() - 3 * 60 * 1000);
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
       const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
       const paymentData = await paymentRepo.updatePaymentStatusForcefully(
         tenMinutesAhead.toISOString(),
@@ -931,8 +900,12 @@ function updatePaymentStatusForcefully() {
               { paymentStatus: "paid", isPaymentCheck: true },
               obj._id,
             );
-            await helper.send200TTCEmail(obj);
-
+            const reqBody = {
+              password: helper.genratePass(6),
+              installment: "2nd",
+            };
+            await savePranaArambhOn200TTC(obj, reqBody);
+            await helper.send200TTCInstalmentEmail(obj, reqBody);
             // Track purchase event with Meta Conversions API
             paymentTrackingService.track200TTCPurchase(
               {
@@ -978,8 +951,12 @@ function updatePaymentStatusForcefully() {
                   { paymentStatus: "paid", isPaymentCheck: true },
                   obj._id,
                 );
-                await helper.send200TTCEmail(obj);
-
+                const reqBody = {
+                  password: helper.genratePass(6),
+                  installment: "2nd",
+                };
+                await savePranaArambhOn200TTC(obj, reqBody);
+                await helper.send200TTCInstalmentEmail(obj, reqBody);
                 // Track purchase event with Meta Conversions API
                 paymentTrackingService.track200TTCPurchase(
                   {

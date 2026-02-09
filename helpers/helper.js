@@ -119,6 +119,23 @@ let send200TTCEmail = async function (student) {
   };
   sendMail.createContent(mailData);
 };
+let send200TTCInstalmentEmail = async function (user, reqBody) {
+  const fileName =
+    reqBody.installment == "1st"
+      ? constants.EMAIL_TEMPLATE["200_HOURS_TTC_1ST"]
+      : constants.EMAIL_TEMPLATE["200_HOURS_TTC"];
+  const mailData = {
+    replacements: {
+      NAME: user.name,
+      USER: user.email,
+      PASS: reqBody.password,
+    },
+    mailTo: user.email,
+    contentPath: fileName,
+    subject: "🕉 Welcome to the Yoga Vidya Family!",
+  };
+  sendMail.createContent(mailData);
+};
 let complete200TTCEmail = async function (student) {
   const mailData = {
     replacements: {
@@ -587,4 +604,5 @@ module.exports = {
   onlineSadhanaClassSendMail,
   adminOnlineSadhanaClassSendMail,
   sendMailForcefully,
+  send200TTCInstalmentEmail,
 };
