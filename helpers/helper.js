@@ -557,7 +557,7 @@ let sendMailForcefully = async function (req, res) {
       },
       mailTo: user.email,
       contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION_FORCEFULLY,
-      subject: "Sacred Guidelines for Pranic Purification",
+      subject: "Continuing the Path After Pranic Purification",
     };
 
     try {
@@ -571,6 +571,7 @@ let sendMailForcefully = async function (req, res) {
   res.status(200).json({
     success: true,
     totalUsers: users.length,
+    users,
     message: `Emails sent to ${users.length} users`,
   });
 };
