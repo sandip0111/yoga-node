@@ -18,7 +18,9 @@ const startScheduler = async () => {
             contentPath: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_2,
             mailTo: sub.email,
             subject: "Meet Yoga Vidya & Prashant – A Path of Tradition and Transformation",
-            replacements: {},
+            replacements: {
+              NAME: sub.name,
+            },
           });
 
           sub.emailStage = 3;
@@ -29,7 +31,9 @@ const startScheduler = async () => {
             contentPath: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_3,
             mailTo: sub.email,
             subject: "Free course: Breath Detox Yoga 🕉️- Your next step into this path",
-            replacements: {},
+            replacements: {
+              NAME: sub.name,
+            },
           });
 
           sub.emailStage = null;
