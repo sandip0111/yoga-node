@@ -2416,41 +2416,44 @@ module.exports = {
   createSubscriber: async function (req, res) {
     {
       try {
-        const checkEmail = await subscribeModel.countDocuments({
+        let subs = await subscribeModel.findOne({
           email: req.body.email,
         });
-        if (checkEmail > 0) {
-          res
-            .status(200)
-            .json({ status: "ok", msg: `Email Already registered` });
-        } else {
-          let subs = await subscribeModel.create(req.body);
-          try {
-            await createContent({
-              contentPath: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_1,
-              mailTo: req.body.email,
-              subject: "Welcome to Yoga Vidya – The Journey Within Begins",
-              replacements: {
-                NAME: req.body.name,
-              },
-            });
 
-            subs.emailStage = 2;
-            subs.nextEmailDate = new Date(Date.now() + 48 * 60 * 60 * 1000);
-            await subs.save();
-            res.status(200).json({
-              status: "ok",
-              msg: `Subscriber Inserted Success & Email Sent`,
-            });
-          } catch (emailErr) {
-            console.error(emailErr);
-            res.status(200).json({
-              status: "ok",
-              msg: `Subscriber Inserted Success but Email Failed`,
-            });
+        if (!subs) {
+          subs = await subscribeModel.create(req.body);
+        } else {
+          if (req.body.name) {
+            subs.name = req.body.name;
           }
         }
+
+        try {
+          await createContent({
+            contentPath: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_1,
+            mailTo: req.body.email,
+            subject: "Welcome to Yoga Vidya – The Journey Within Begins",
+            replacements: {
+              NAME: subs.name,
+            },
+          });
+
+          subs.emailStage = 2;
+          subs.nextEmailDate = new Date(Date.now() + 48 * 60 * 60 * 1000);
+          await subs.save();
+          res.status(200).json({
+            status: "ok",
+            msg: `Subscriber Inserted Success & Email Sent`,
+          });
+        } catch (emailErr) {
+          console.error(emailErr);
+          res.status(200).json({
+            status: "ok",
+            msg: `Subscriber Inserted Success but Email Failed`,
+          });
+        }
       } catch (err) {
+        console.log(err);
         res.status(400).json({ msg: "Internal Server error" });
       }
     }
