@@ -2671,6 +2671,20 @@ module.exports = {
       }
     }
   },
+  sendMailToSubscribersForcefully: async function (req, res) {
+    try {
+      await createContent({
+        replacements: {},
+        mailTo: ["dassandip190@gmail.com", "kingshukmath2014@gmail.com"],
+        contentPath: "emailTemplate/subscribers/subscriberEmail_20260214.html",
+        subject: "Subscriber Email 2026-02-14",
+      });
+      res.status(200).json({ status: "ok", msg: "Email sent successfully" });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ msg: "Internal Server error" });
+    }
+  },
 };
 
 let updatePaymentV2 = async function (data) {

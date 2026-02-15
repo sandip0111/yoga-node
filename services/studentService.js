@@ -876,7 +876,7 @@ let getBrathDtoxAllData = async function (
   toDate,
 ) {
   let studentList;
-  let matchStage = { course: courseId };
+  let matchStage = { paymentCourseId: courseId };
 
   if (fromDate && toDate) {
     matchStage.created = {};

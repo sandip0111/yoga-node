@@ -617,5 +617,9 @@ router.post(
 router.get("/getAllLiveClassTeacher", adminController.getAllLiveClassTeacher);
 router.post("/createBaliCustomer", adminController.createBaliCustomer);
 router.post("/sendMailForcefully", sendMailForcefully);
+router.post(
+  "/sendMailToSubscribersForcefully",
+  adminController.sendMailToSubscribersForcefully,
+);
 
 module.exports = router;
