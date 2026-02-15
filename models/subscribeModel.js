@@ -26,27 +26,30 @@ const subsSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
-  emailHistory: [
-    {
-      emailSubject: {
-        type: String,
-        required: true,
+  emailHistory: {
+    type: [
+      {
+        emailSubject: {
+          type: String,
+          required: true,
+        },
+        created: {
+          type: Date,
+          required: true,
+          default: Date.now,
+        },
+        isSend: {
+          type: Boolean,
+          default: false,
+        },
+        isRead: {
+          type: Boolean,
+          default: false,
+        },
       },
-      created: {
-        type: Date,
-        required: true,
-        default: Date.now,
-      },
-      isSend: {
-        type: Boolean,
-        default: false,
-      },
-      isRead: {
-        type: Boolean,
-        default: false,
-      },
-    },
-  ],
+    ],
+    default: [],
+  },
 });
 
 const Subscribe = mongoose.model("subscribe", subsSchema);
