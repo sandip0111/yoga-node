@@ -939,7 +939,7 @@ let getBrathDtoxCount = async function (
   toDate,
 ) {
   let filterCondition = {
-    course: courseId,
+    paymentCourseId: courseId,
   };
 
   if (fromDate && toDate) {
