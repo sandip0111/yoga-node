@@ -2675,8 +2675,8 @@ module.exports = {
     try {
       await createContent({
         replacements: {},
-        mailTo: ["dassandip190@gmail.com", "kingshukmath2014@gmail.com"],
-        contentPath: "emailTemplate/subscribers/subscriberEmail_20260214.html",
+        mailTo: ["kingshukmath2014@gmail.com"],
+        contentPath: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_FORCEFULLY,
         subject: "Subscriber Email 2026-02-14",
       });
       res.status(200).json({ status: "ok", msg: "Email sent successfully" });
