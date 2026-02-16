@@ -2674,13 +2674,22 @@ module.exports = {
   },
   sendMailToSubscribersForcefully: async function (req, res) {
     try {
-      const result = await subscriberService.sendBulkEmailToSubscribers();
+      const emailSubject =
+        req.body.emailSubject?.trim() ||
+        "A New Beginning at Yoga Vidya School – A Message from Prashant";
+      const limit = parseInt(req.body.limit) || 500;
+
+      const result = await subscriberService.sendBulkEmailToSubscribers(
+        emailSubject,
+        limit,
+      );
+
       res.status(200).json(result);
     } catch (err) {
       console.error("Error in sendMailToSubscribersForcefully:", err);
       res.status(500).json({
         status: "error",
-        message: "Internal Server error",
+        message: "Internal server error",
         error: err.message,
       });
     }
