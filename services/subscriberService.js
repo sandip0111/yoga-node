@@ -81,7 +81,6 @@ function sendBulkEmailToSubscribers(
                 emailSubject: emailSubject,
                 created: new Date(),
                 isSend: true,
-                isRead: false,
               },
             });
             console.log(`✓ Email sent successfully to: ${subscriber.email}`);
@@ -97,7 +96,6 @@ function sendBulkEmailToSubscribers(
                 emailSubject: emailSubject,
                 created: new Date(),
                 isSend: false,
-                isRead: false,
               },
             });
             console.log(`✗ Failed to send email to: ${subscriber.email}`);
