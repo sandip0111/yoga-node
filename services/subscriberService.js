@@ -1,26 +1,22 @@
 "use strict";
 const subscriberRepo = require("../repositories/subscriberRepository");
-const { transporter } = require("../helpers/nodemail");
-const fs = require("fs");
-const path = require("path");
-const handlebars = require("handlebars");
+const sendMail = require("../helpers/nodemail");
 const constants = require("../helpers/constants.json");
 
 /**
  * Send bulk emails to all subscribers with robust error handling
- * @param {String} emailSubject - Subject line for the email
- * @param {String} templatePath - Path to email template (relative to controller folder)
+ * Uses the standard sendMail.createContent pattern
  * @returns {Promise<Object>} Result with success/failure counts and details
  */
-function sendBulkEmailToSubscribers(
-  emailSubject = "Welcome to Yoga Vidya School",
-  templatePath = constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_FORCEFULLY,
-) {
+function sendBulkEmailToSubscribers() {
   return new Promise(async (resolve, reject) => {
     try {
+      const emailSubject =
+        "A New Beginning at Yoga Vidya School – A Message from Prashant";
+      const templatePath =
+        constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_FORCEFULLY;
+
       console.log("=== Starting Bulk Email Send Process ===");
-      console.log(`Email Subject: ${emailSubject}`);
-      console.log(`Template: ${templatePath}`);
 
       // Get all subscribers
       const subscribers = await subscriberRepo.getAllSubscribers();
@@ -36,11 +32,6 @@ function sendBulkEmailToSubscribers(
           details: [],
         });
       }
-
-      // Load email template
-      const filePath = path.join(__dirname, "..", "controller", templatePath);
-      const source = fs.readFileSync(filePath, "utf-8").toString();
-      const template = handlebars.compile(source);
 
       // Tracking variables
       const successfulEmails = [];
@@ -64,8 +55,8 @@ function sendBulkEmailToSubscribers(
         for (const subscriber of batch) {
           const emailResult = await sendEmailWithRetry(
             subscriber,
-            template,
             emailSubject,
+            templatePath,
             MAX_RETRIES,
             RETRY_DELAY,
           );
@@ -150,18 +141,18 @@ function sendBulkEmailToSubscribers(
 }
 
 /**
- * Send email with retry logic
+ * Send email with retry logic using sendMail.createContent
  * @param {Object} subscriber - Subscriber object with name and email
- * @param {Function} template - Compiled handlebars template
  * @param {String} emailSubject - Email subject
+ * @param {String} templatePath - Path to email template
  * @param {Number} maxRetries - Maximum number of retry attempts
  * @param {Number} retryDelay - Delay between retries in milliseconds
  * @returns {Promise<Object>} Result object with success status and error if any
  */
 async function sendEmailWithRetry(
   subscriber,
-  template,
   emailSubject,
+  templatePath,
   maxRetries,
   retryDelay,
 ) {
@@ -169,22 +160,16 @@ async function sendEmailWithRetry(
 
   while (attempts <= maxRetries) {
     try {
-      // Prepare email content
-      const replacements = {
-        name: subscriber.name || "Yogi",
-      };
-      const htmlToSend = template(replacements);
-
-      const mailOptions = {
-        from: constants.EMAIL_DATA.FROM,
-        to: subscriber.email,
+      // Prepare mail data using the standard pattern
+      const mailData = {
+        replacements: {},
+        mailTo: subscriber.email,
+        contentPath: templatePath,
         subject: emailSubject,
-        replyTo: constants.EMAIL_DATA.REPLY_TO,
-        html: htmlToSend,
       };
 
-      // Send email
-      await transporter.sendMail(mailOptions);
+      // Send email using createContent
+      await sendMail.createContent(mailData);
 
       return { success: true };
     } catch (error) {

@@ -2674,22 +2674,7 @@ module.exports = {
   },
   sendMailToSubscribersForcefully: async function (req, res) {
     try {
-      console.log("\n========================================");
-      console.log("Bulk Email Request Received");
-      console.log("========================================");
-
-      // Get email subject from request body or use default
-      const emailSubject =
-        req.body.emailSubject || "Welcome to Yoga Vidya School";
-
-      // Call subscriber service to send bulk emails
-      const result =
-        await subscriberService.sendBulkEmailToSubscribers(emailSubject);
-
-      console.log("\n========================================");
-      console.log("Bulk Email Request Completed");
-      console.log("========================================\n");
-
+      const result = await subscriberService.sendBulkEmailToSubscribers();
       res.status(200).json(result);
     } catch (err) {
       console.error("Error in sendMailToSubscribersForcefully:", err);
