@@ -52,6 +52,7 @@ const adminService = require("../services/adminService");
 const courseService = require("../services/courseService");
 const courseRepo = require("../repositories/courseRepository");
 const paymentTrackingService = require("../services/paymentTrackingService");
+const subscriberService = require("../services/subscriberService");
 
 const mentors = [
   {
@@ -2673,16 +2674,24 @@ module.exports = {
   },
   sendMailToSubscribersForcefully: async function (req, res) {
     try {
-      await createContent({
-        replacements: {},
-        mailTo: ["kingshukmath2014@gmail.com"],
-        contentPath: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_FORCEFULLY,
-        subject: "Subscriber Email 2026-02-14",
-      });
-      res.status(200).json({ status: "ok", msg: "Email sent successfully" });
+      const emailSubject =
+        req.body.emailSubject?.trim() ||
+        "A New Beginning at Yoga Vidya School – A Message from Prashant";
+      const limit = parseInt(req.body.limit) || 500;
+
+      const result = await subscriberService.sendBulkEmailToSubscribers(
+        emailSubject,
+        limit,
+      );
+
+      res.status(200).json(result);
     } catch (err) {
-      console.log(err);
-      res.status(500).json({ msg: "Internal Server error" });
+      console.error("Error in sendMailToSubscribersForcefully:", err);
+      res.status(500).json({
+        status: "error",
+        message: "Internal server error",
+        error: err.message,
+      });
     }
   },
 };
