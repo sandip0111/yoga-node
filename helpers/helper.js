@@ -514,6 +514,9 @@ let onlineSadhanaClassSendMail = async function (name, email, item, pass) {
     WHATSAPP: item.whatsappLink,
     USER: email,
     PASS: pass,
+    SDATE: item.startDate,
+    CDAYS: item.date,
+    CTIME: item.time,
   };
   const mailData = {
     replacements: replacements,
