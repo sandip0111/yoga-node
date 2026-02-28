@@ -1152,6 +1152,7 @@ function checkoutRazorpayForLiveClasses(reqBody) {
         paymentStatus: "pending",
         courses: reqBody.courses,
         paymentType: "razorpay",
+        month: reqBody.month
       };
       const pay = await studentRepo.createLiveClassData(paymentData);
       const order = await razorpay.orders.create({
@@ -1185,6 +1186,7 @@ function checkoutStripeForLiveClasses(reqBody) {
         phone: reqBody.phone,
         courses: reqBody.courses,
         paymentType: "stripe",
+        month: reqBody.month
       };
       const pay = await studentRepo.createLiveClassData(paymentData);
       const session = await stripe.checkout.sessions.create({

@@ -134,7 +134,7 @@ function register200TTCUser(reqBody) {
     }
   });
 }
-function createLiveCourseCustomer(reqBody, mentors) {
+function createLiveCourseCustomer(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
       const paymentData = {
@@ -143,7 +143,7 @@ function createLiveCourseCustomer(reqBody, mentors) {
         paymentStatus: "paid",
         courses: reqBody.course,
         paymentType: "paypal",
-        month: reqBody.month,
+        month: reqBody.courseList[0].month,
       };
       const onlineData = await liveCoursesCustomermodel.create(paymentData);
       await studentRepo.createStudent({

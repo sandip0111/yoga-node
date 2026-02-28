@@ -2522,7 +2522,6 @@ module.exports = {
       try {
         const returnData = await adminService.createLiveCourseCustomer(
           req.body,
-          mentors,
         );
         res.status(returnData.status).json(returnData.data);
       } catch (err) {
