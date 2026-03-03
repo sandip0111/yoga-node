@@ -1,11 +1,11 @@
 "use strict";
 const pranicPurificationUsers = require("../models/pranicPurificationUsersModel");
 const paymentModel = require("../models/paymentModel");
+const studentModel = require("../models/StudentModel");
 const webinerModel = require("../models/webinarRegiserUserModel");
 const twoHundredHourTTCModel = require("../models/twoHundredHourTTCModel");
 const livecoursescustomersModel = require("../models/liveCoursesCustomerModel");
 const rishikeshstudentmodels = require("../models/rishikeshStudent");
-const onlinepaymentModel = require("../models/onlinePaymentModel");
 function getAllPendingPaymentList(pipeLine) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -79,7 +79,17 @@ function get200TTCList(obj) {
 function fosCreateStudent(obj) {
   return new Promise(async (resolve, reject) => {
     try {
-      const data = await onlinepaymentModel.create(obj);
+      const data = await studentModel.create(obj);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function createPayment(obj) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await paymentModel.create(obj);
       return resolve(data);
     } catch (error) {
       return reject(error);
@@ -94,5 +104,6 @@ module.exports = {
   getAllOnlineLiveClassList,
   getAllRishikeshList,
   get200TTCList,
-  fosCreateStudent
+  fosCreateStudent,
+  createPayment
 };
