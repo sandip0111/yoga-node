@@ -42,7 +42,7 @@ module.exports = {
     courseId,
     skip,
     limit,
-    paymentStatus
+    paymentStatus,
   ) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -60,13 +60,13 @@ module.exports = {
           skip,
           limit,
           searchText,
-          paymentStatus
+          paymentStatus,
         );
         const studentListCount = await getTotalStudentCount(
           courseId,
           studentIds,
           searchText,
-          paymentStatus
+          paymentStatus,
         );
         let total = studentListCount.length > 0 ? studentListCount[0].total : 0;
         return resolve({ studentList, total });
@@ -81,7 +81,7 @@ module.exports = {
     searchText,
     courseId,
     skip,
-    limit
+    limit,
   ) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -98,12 +98,12 @@ module.exports = {
           studentIds,
           skip,
           limit,
-          searchText
+          searchText,
         );
         const studentListCount = await getTotalbDtoxStudentCount(
           courseId,
           studentIds,
-          searchText
+          searchText,
         );
         let total = studentListCount.length > 0 ? studentListCount[0].total : 0;
         return resolve({ studentList, total });
@@ -115,9 +115,8 @@ module.exports = {
   getAllLiveClassStudent: function (pipeLine, pipeLineCount) {
     return new Promise(async (resolve, reject) => {
       try {
-        const totalData = await liveCoursesCustomerModel.aggregate(
-          pipeLineCount
-        );
+        const totalData =
+          await liveCoursesCustomerModel.aggregate(pipeLineCount);
         const studentList = await liveCoursesCustomerModel.aggregate(pipeLine);
         return resolve({ studentList, totalData });
       } catch (error) {
@@ -164,7 +163,7 @@ module.exports = {
       try {
         const student = await studentModel.findOneAndUpdate(
           { _id: reqBody._id },
-          reqBody
+          reqBody,
         );
         return resolve(student);
       } catch (error) {
@@ -197,7 +196,7 @@ module.exports = {
       try {
         await studentModel.findOneAndUpdate(
           { _id: id },
-          { course: updatedCourses }
+          { course: updatedCourses },
         );
         return resolve(1);
       } catch (error) {
@@ -347,16 +346,52 @@ module.exports = {
       }
     });
   },
-  getFosStudentList: function (filter, skip, limit) {
+  getFosStudentList: function (matchCondition, skip, limit) {
     return new Promise(async (resolve, reject) => {
       try {
-        const totalRecords = await onlinepaymentModel.countDocuments(filter);
-        const data = await onlinepaymentModel
-          .find(filter)
-          .sort({ created: -1 })
-          .skip(skip)
-          .limit(limit)
-          .lean();
+        const pipeline = [
+          { $match: matchCondition },
+          { $sort: { created: -1 } },
+          {
+            $lookup: {
+              from: "payments",
+              localField: "_id",
+              foreignField: "studentId",
+              as: "paymentDetails",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 0,
+                    paymentStatus: 1,
+                    paymentBy: 1,
+                    amount: 1,
+                    currency: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              paymentStatus: {
+                $arrayElemAt: ["$paymentDetails.paymentStatus", 0],
+              },
+              paymentBy: { $arrayElemAt: ["$paymentDetails.paymentBy", 0] },
+              amount: { $arrayElemAt: ["$paymentDetails.amount", 0] },
+              currency: { $arrayElemAt: ["$paymentDetails.currency", 0] },
+            },
+          },
+          { $unset: "paymentDetails" },
+          {
+            $facet: {
+              metadata: [{ $count: "total" }],
+              data: [{ $skip: skip }, { $limit: limit }],
+            },
+          },
+        ];
+        const result = await studentModel.aggregate(pipeline);
+        const data = result[0]?.data || [];
+        const totalRecords = result[0]?.metadata[0]?.total || 0;
         return resolve({ data, totalRecords });
       } catch (error) {
         return reject(error);
@@ -384,7 +419,7 @@ module.exports = {
     try {
       return await pranicPurificationModel.updateOne(
         { _id: id },
-        { $set: { isOneHourMailSend: true } }
+        { $set: { isOneHourMailSend: true } },
       );
     } catch (error) {
       throw error;
@@ -413,7 +448,7 @@ let getTotalStudent = async function (
   skip,
   limit,
   searchText,
-  paymentStatus
+  paymentStatus,
 ) {
   let pipeline = [
     { $match: { _id: { $in: studentIds }, course: courseId } },
@@ -455,7 +490,7 @@ let getTotalStudentCount = async function (
   courseId,
   studentIds,
   searchText,
-  paymentStatus
+  paymentStatus,
 ) {
   let pipeline = [
     { $match: { _id: { $in: studentIds }, course: courseId } },
@@ -497,7 +532,7 @@ let getTotalbDtoxStudent = async function (
   studentIds,
   skip,
   limit,
-  searchText
+  searchText,
 ) {
   let pipeline = [
     { $match: { _id: { $in: studentIds }, course: courseId } },
@@ -540,7 +575,7 @@ let getTotalbDtoxStudent = async function (
 let getTotalbDtoxStudentCount = async function (
   courseId,
   studentIds,
-  searchText
+  searchText,
 ) {
   let pipeline = [
     { $match: { _id: { $in: studentIds }, course: courseId } },

@@ -63,7 +63,7 @@ function registerSwarSadhanaWebinarUser(reqBody) {
             email: email,
             password: password,
           },
-          email
+          email,
         );
       }
       return resolve({
@@ -93,7 +93,7 @@ function registerPranicPurificationUser(reqBody) {
       await paymentService.createPranicPurificationStudent(savedUser, password);
       await helper.completePranicPurificationAutomationEmail(
         savedUser,
-        password
+        password,
       );
       return resolve({
         data: {
@@ -163,7 +163,7 @@ function createLiveCourseCustomer(reqBody) {
             reqBody.name,
             reqBody.email,
             item,
-            reqBody.password
+            reqBody.password,
           );
         }
       }
@@ -251,7 +251,7 @@ function createPranaArambhCustomer(reqBody) {
       };
       await paymentModel.create(paymentData);
       let coursetitle = await courseRepo.getCourseById(
-        "644f9dfc499ffcfb45df35cd"
+        "644f9dfc499ffcfb45df35cd",
       );
       let date = new Date();
       let replacement = {
@@ -325,7 +325,7 @@ function getAllParayanamStudent(reqBody) {
         limit,
         searchText,
         reqBody.paymentStatus,
-        reqBody.isGetAll
+        reqBody.isGetAll,
       );
       studentList = studentObj.studentList;
       totalStudent = studentObj.totalData;
@@ -344,7 +344,7 @@ let getPranaArmbhAllData = async function (
   limit,
   searchText,
   paymentStatus,
-  isGetAll
+  isGetAll,
 ) {
   try {
     let pipeLine = [];
@@ -843,13 +843,13 @@ function sendBulkMail200TTC() {
       for (let obj of data) {
         let studentData = await studentRepo.getStudentBy200TTCOnline(
           obj.email,
-          obj.name
+          obj.name,
         );
         if (studentData) {
           await helper.sendBulkMail200TTC(studentData);
           await paymentRepo.update200ttcPayment(
             { isAdminMailSend: true },
-            obj._id
+            obj._id,
           );
         } else {
           let data = await studentRepo.createStudent({
@@ -869,7 +869,7 @@ function sendBulkMail200TTC() {
           await helper.sendBulkMail200TTC(data);
           await paymentRepo.update200ttcPayment(
             { isAdminMailSend: true },
-            obj._id
+            obj._id,
           );
         }
         await new Promise((resolve) => setTimeout(resolve, 7000));
@@ -912,7 +912,7 @@ function giveAccessToUser(reqBody) {
       await helper.sendBulkMail200TTC(data);
       await paymentRepo.update200ttcPayment(
         { isAdminMailSend: true },
-        reqBody._id
+        reqBody._id,
       );
       return resolve({
         data: {
@@ -929,13 +929,32 @@ function giveAccessToUser(reqBody) {
 function foundationOfSpiritualitySave(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      let paymentData = {
-        name: reqBody.name,
+      let paymentDataForStudent = {
+        firstName: reqBody.name.split(" ")[0],
+        lastName: reqBody.name.split(" ")[1] || "",
         email: reqBody.email,
-        paymentStatus: "paid",
-        paymentType: "paypal",
+        password: reqBody.password,
+        paymentCourseId: constant.COURSE.FOUNDATION_SPIRITUALITY,
+        source: "admin",
+        isActive: true,
+        created: new Date(),
       };
-      await adminRepo.fosCreateStudent(paymentData);
+      const createdStudent = await adminRepo.fosCreateStudent(
+        paymentDataForStudent,
+      );
+      let dataForPayment = {
+        studentId: createdStudent._id,
+        courseId: constant.COURSE.FOUNDATION_SPIRITUALITY,
+        paymentStatus: "paid",
+        paymentBy: "Paypal",
+        created: new Date(),
+      };
+      await adminRepo.createPayment(dataForPayment);
+      await helper.completeFoundationOfSpiritualityMail({
+        firstName: createdStudent.firstName,
+        email: createdStudent.email,
+        password: createdStudent.password,
+      });
       return resolve({
         data: {
           status: true,
@@ -1005,5 +1024,5 @@ module.exports = {
   giveAccessToUser,
   foundationOfSpiritualitySave,
   getAllLiveClassTeacher,
-  createBaliCustomer
+  createBaliCustomer,
 };

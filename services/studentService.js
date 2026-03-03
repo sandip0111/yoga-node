@@ -345,17 +345,19 @@ module.exports = {
         let searchText = reqBody.searchText;
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
-        const filterCondition = {
+
+        const matchCondition = {
+          paymentCourseId: constants.COURSE.FOUNDATION_SPIRITUALITY,
           ...(searchText && {
             $or: [
               { firstName: { $regex: searchText, $options: "i" } },
-              { lastName: { $regex: searchText, $options: "i" } },
               { email: { $regex: searchText, $options: "i" } },
             ],
           }),
         };
+
         const fosData = await studentRepo.getFosStudentList(
-          filterCondition,
+          matchCondition,
           skip,
           limit,
         );
