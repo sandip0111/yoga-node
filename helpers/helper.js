@@ -208,12 +208,11 @@ let sendRishikeshCourseEmail = async function (user) {
         subject: "🕉 Welcome to the Yoga Vidya Family!",
       };
     } else if (user.month == MonthEnum.October26) {
-      const fileName = constants.EMAIL_TEMPLATE.RISHIKESH;
+      const fileName = constants.EMAIL_TEMPLATE.OCTOBER_200_HOURS_RISHIKESH;
       mailData = {
         replacements: {
           NAME: user.name,
           COURSE: "200-Hour Yoga Teacher Training in Rishikesh",
-          WLINK: constants.LINK["100_HOURS_RISHIKESH_OCTOBER"],
           BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
         },
         mailTo: user.email,
@@ -235,11 +234,10 @@ let sendRishikeshCourseEmail = async function (user) {
         subject: "🕉 Welcome to the Next Step – 300 Hrs TTC",
       };
     } else if (user.month == MonthEnum.October26) {
-      const fileName = constants.EMAIL_TEMPLATE.RISHI300;
+      const fileName = constants.EMAIL_TEMPLATE.OCTOBER_300_HOURS_RISHIKESH;
       mailData = {
         replacements: {
           NAME: user.name,
-          WLINK: constants.LINK["300_HOURS_RISHIKESH_OCTOBER"],
           BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
         },
         mailTo: user.email,
