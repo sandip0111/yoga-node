@@ -363,7 +363,7 @@ module.exports = {
                   $project: {
                     _id: 0,
                     paymentStatus: 1,
-                    paymentId: 1,
+                    paymentBy: 1,
                   },
                 },
               ],
@@ -374,7 +374,7 @@ module.exports = {
               paymentStatus: {
                 $arrayElemAt: ["$paymentDetails.paymentStatus", 0],
               },
-              paymentId: { $arrayElemAt: ["$paymentDetails.paymentId", 0] },
+              paymentBy: { $arrayElemAt: ["$paymentDetails.paymentBy", 0] },
             },
           },
           { $unset: "paymentDetails" },
