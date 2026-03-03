@@ -937,16 +937,18 @@ function foundationOfSpiritualitySave(reqBody) {
         paymentCourseId: constant.COURSE.FOUNDATION_SPIRITUALITY,
         source: "admin",
         isActive: true,
-        created: new Date()
+        created: new Date(),
       };
-      await adminRepo.fosCreateStudent(paymentDataForStudent);
+      const createdStudent = await adminRepo.fosCreateStudent(
+        paymentDataForStudent,
+      );
       let dataForPayment = {
-        studentId: paymentDataForStudent._id,
+        studentId: createdStudent._id,
         courseId: constant.COURSE.FOUNDATION_SPIRITUALITY,
         paymentStatus: "paid",
         paymentBy: "Paypal",
-        created: new Date()
-      }
+        created: new Date(),
+      };
       await adminRepo.createPayment(dataForPayment);
       return resolve({
         data: {
