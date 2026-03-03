@@ -950,6 +950,11 @@ function foundationOfSpiritualitySave(reqBody) {
         created: new Date(),
       };
       await adminRepo.createPayment(dataForPayment);
+      await helper.completeFoundationOfSpiritualityMail({
+        firstName: createdStudent.firstName,
+        email: createdStudent.email,
+        password: createdStudent.password,
+      });
       return resolve({
         data: {
           status: true,
