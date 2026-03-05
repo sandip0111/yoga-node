@@ -343,6 +343,14 @@ module.exports = {
         let size = reqBody.size || 10;
         let pageNo = reqBody.pageNo || 1;
         let searchText = reqBody.searchText;
+        let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
+        let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
+        if (startDate) {
+          startDate.setHours(0, 0, 0, 0);
+        }
+        if (endDate) {
+          endDate.setHours(23, 59, 59, 999);
+        }
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
 
@@ -354,6 +362,10 @@ module.exports = {
               { email: { $regex: searchText, $options: "i" } },
             ],
           }),
+          ...(startDate &&
+            endDate && {
+              created: { $gte: startDate, $lte: endDate },
+            }),
         };
 
         const fosData = await studentRepo.getFosStudentList(
