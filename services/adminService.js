@@ -314,6 +314,14 @@ function getAllParayanamStudent(reqBody) {
       let size = reqBody.size || 10;
       let pageNo = reqBody.pageNo || 1;
       let searchText = reqBody.searchText;
+      let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
+      let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
+      if (startDate) {
+        startDate.setHours(0, 0, 0, 0);
+      }
+      if (endDate) {
+        endDate.setHours(23, 59, 59, 999);
+      }
       const skip = Number(size * (pageNo - 1));
       const limit = Number(size) || 0;
       let studentObj;
@@ -326,6 +334,8 @@ function getAllParayanamStudent(reqBody) {
         searchText,
         reqBody.paymentStatus,
         reqBody.isGetAll,
+        startDate,
+        endDate,
       );
       studentList = studentObj.studentList;
       totalStudent = studentObj.totalData;
@@ -345,78 +355,45 @@ let getPranaArmbhAllData = async function (
   searchText,
   paymentStatus,
   isGetAll,
+  startDate,
+  endDate,
 ) {
   try {
     let pipeLine = [];
+
+    // Date range filter applied at the top (on payments.created)
+    if (startDate && endDate) {
+      pipeLine.push({
+        $match: {
+          created: { $gte: startDate, $lte: endDate },
+        },
+      });
+    }
+
     if (searchText || paymentStatus) {
       if (searchText && !paymentStatus) {
-        pipeLine = [
-          {
-            $lookup: {
-              from: "students",
-              localField: "studentId",
-              foreignField: "_id",
-              as: "studentInfo",
-              pipeline: [
-                {
-                  $match: {
-                    paymentCourseId: courseId,
-                    $or: [
-                      { firstName: { $regex: searchText, $options: "i" } },
-                      { email: { $regex: searchText, $options: "i" } },
-                    ],
-                  },
+        pipeLine.push({
+          $lookup: {
+            from: "students",
+            localField: "studentId",
+            foreignField: "_id",
+            as: "studentInfo",
+            pipeline: [
+              {
+                $match: {
+                  paymentCourseId: courseId,
+                  $or: [
+                    { firstName: { $regex: searchText, $options: "i" } },
+                    { email: { $regex: searchText, $options: "i" } },
+                  ],
                 },
-              ],
-            },
+              },
+            ],
           },
-        ];
+        });
       } else if (paymentStatus && !searchText) {
-        pipeLine = [
-          { $match: { paymentStatus: paymentStatus } },
-          {
-            $lookup: {
-              from: "students",
-              localField: "studentId",
-              foreignField: "_id",
-              as: "studentInfo",
-              pipeline: [
-                {
-                  $match: {
-                    paymentCourseId: courseId,
-                  },
-                },
-              ],
-            },
-          },
-        ];
-      } else if (paymentStatus && searchText) {
-        pipeLine = [
-          { $match: { paymentStatus: paymentStatus } },
-          {
-            $lookup: {
-              from: "students",
-              localField: "studentId",
-              foreignField: "_id",
-              as: "studentInfo",
-              pipeline: [
-                {
-                  $match: {
-                    paymentCourseId: courseId,
-                    $or: [
-                      { firstName: { $regex: searchText, $options: "i" } },
-                      { email: { $regex: searchText, $options: "i" } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ];
-      }
-    } else {
-      pipeLine = [
-        {
+        pipeLine.push({ $match: { paymentStatus: paymentStatus } });
+        pipeLine.push({
           $lookup: {
             from: "students",
             localField: "studentId",
@@ -430,8 +407,45 @@ let getPranaArmbhAllData = async function (
               },
             ],
           },
+        });
+      } else if (paymentStatus && searchText) {
+        pipeLine.push({ $match: { paymentStatus: paymentStatus } });
+        pipeLine.push({
+          $lookup: {
+            from: "students",
+            localField: "studentId",
+            foreignField: "_id",
+            as: "studentInfo",
+            pipeline: [
+              {
+                $match: {
+                  paymentCourseId: courseId,
+                  $or: [
+                    { firstName: { $regex: searchText, $options: "i" } },
+                    { email: { $regex: searchText, $options: "i" } },
+                  ],
+                },
+              },
+            ],
+          },
+        });
+      }
+    } else {
+      pipeLine.push({
+        $lookup: {
+          from: "students",
+          localField: "studentId",
+          foreignField: "_id",
+          as: "studentInfo",
+          pipeline: [
+            {
+              $match: {
+                paymentCourseId: courseId,
+              },
+            },
+          ],
         },
-      ];
+      });
     }
     pipeLine.push({
       $unwind: {
@@ -455,6 +469,7 @@ let getPranaArmbhAllData = async function (
     console.log(err);
   }
 };
+
 function getAllPendingPaymentList(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
