@@ -278,6 +278,14 @@ module.exports = {
         const skip = Number(size * (pageNo - 1));
         const limit = Number(size) || 0;
         const searchText = reqBody.searchText;
+        let startDate = reqBody.fromDate ? new Date(reqBody.fromDate) : null;
+        let endDate = reqBody.toDate ? new Date(reqBody.toDate) : null;
+        if (startDate) {
+          startDate.setHours(0, 0, 0, 0);
+        }
+        if (endDate) {
+          endDate.setHours(23, 59, 59, 999);
+        }
 
         let pipeLine = [
           { $sort: { _id: -1 } },
@@ -321,6 +329,24 @@ module.exports = {
           pipeLineCount.splice(0, 0, {
             $match: {
               month: reqBody.month,
+            },
+          });
+        }
+        if (startDate && endDate) {
+          pipeLine.splice(0, 0, {
+            $match: {
+              $and: [
+                { created: { $gte: startDate } },
+                { created: { $lte: endDate } },
+              ],
+            },
+          });
+          pipeLineCount.splice(0, 0, {
+            $match: {
+              $and: [
+                { created: { $gte: startDate } },
+                { created: { $lte: endDate } },
+              ],
             },
           });
         }
