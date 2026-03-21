@@ -346,7 +346,7 @@ module.exports = {
       }
     });
   },
-  getFosStudentList: function (matchCondition, skip, limit) {
+  getFosStudentList: function (matchCondition, skip, limit, paymentFilter) {
     return new Promise(async (resolve, reject) => {
       try {
         const pipeline = [
@@ -382,13 +382,22 @@ module.exports = {
             },
           },
           { $unset: "paymentDetails" },
-          {
-            $facet: {
-              metadata: [{ $count: "total" }],
-              data: [{ $skip: skip }, { $limit: limit }],
-            },
-          },
         ];
+        
+        if (paymentFilter) {
+          pipeline.push({
+            $match: {
+              paymentStatus: { $regex: paymentFilter, $options: "i" },
+            },
+          });
+        }
+        
+        pipeline.push({
+          $facet: {
+            metadata: [{ $count: "total" }],
+            data: [{ $skip: skip }, { $limit: limit }],
+          },
+        });
         const result = await studentModel.aggregate(pipeline);
         const data = result[0]?.data || [];
         const totalRecords = result[0]?.metadata[0]?.total || 0;

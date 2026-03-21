@@ -393,11 +393,13 @@ module.exports = {
               created: { $gte: startDate, $lte: endDate },
             }),
         };
+        const paymentStatus = reqBody.paymentStatus;
 
         const fosData = await studentRepo.getFosStudentList(
           matchCondition,
           skip,
           limit,
+          paymentStatus,
         );
         return resolve({
           studentList: fosData.data,
