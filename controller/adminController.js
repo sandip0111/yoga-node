@@ -2675,7 +2675,7 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "A New Beginning at Yoga Vidya School – A Message from Prashant";
+        "A Gentle Return to Practice – New Batch Starts April 6";
       const limit = parseInt(req.body.limit) || 500;
 
       const result = await subscriberService.sendBulkEmailToSubscribers(
