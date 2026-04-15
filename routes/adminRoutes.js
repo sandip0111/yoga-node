@@ -417,6 +417,9 @@ router.post(
 const videoStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadPath = path.join(__dirname, "..", "public/video");
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
@@ -602,12 +605,9 @@ router.get("/sendBulkMail200TTC", adminController.sendBulkMail200TTC);
 router.post("/giveAccessToUser", adminController.giveAccessToUser);
 router.post("/getRishikeshData", studentController.getRishikeshData);
 router.post("/getBaliData", studentController.getBaliData);
-const upload = multer({
-  storage: multer.memoryStorage(),
-});
 router.post(
   "/upload-video",
-  upload.single("video"),
+  videoUpload.single("video"),
   adminController.uploadCourseVideo,
 );
 router.post(

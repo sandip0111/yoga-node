@@ -34,12 +34,22 @@ function changeCourseStatusToOngoing() {
 function uploadCourseVideo(reqFile, reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
+      const fs = require("fs");
+      const fileStream = fs.createReadStream(reqFile.path);
+
       const result = await s3Service.uploadVideoToS3(
-        reqFile.buffer,
+        fileStream,
         reqFile.originalname,
         reqBody.selectedCourse,
         reqFile.mimetype,
+        reqFile.size
       );
+
+      // Remove temp file from disk after uploading to S3
+      fs.unlink(reqFile.path, (err) => {
+        if (err) console.error("Error deleting temp video file:", err);
+      });
+
       const lastUploadedVideo = await courseRepo.getLastCourseVideo(
         reqBody.selectedCourse,
       );
