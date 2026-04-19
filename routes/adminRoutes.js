@@ -621,5 +621,9 @@ router.post(
   "/sendMailToSubscribersForcefully",
   adminController.sendMailToSubscribersForcefully,
 );
+router.post(
+  "/sendPranicGuidanceWebinarForcefully",
+  adminController.sendPranicGuidanceWebinarForcefully,
+);
 
 module.exports = router;

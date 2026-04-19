@@ -20,6 +20,7 @@ const paymentModel = require("../models/paymentModel");
 const onlinepaymentModel = require("../models/onlinePaymentModel");
 const onlineVideoModel = require("../models/onlineVideoModel");
 const analyticsModel = require("../models/analyticsModel");
+const pranicPurificationUsersModel = require("../models/pranicPurificationUsersModel");
 const subscribeModel = require("../models/subscribeModel");
 const webinarUser = require("../models/webinarRegiserUserModel");
 const fs = require("fs");
@@ -2691,6 +2692,88 @@ module.exports = {
         message: "Internal server error",
         error: err.message,
       });
+    }
+  },
+  sendPranicGuidanceWebinarForcefully: async function (req, res) {
+    try {
+      const users = await pranicPurificationUsersModel.find({
+        paymentStatus: "paid",
+      });
+      console.log(
+        `Found ${users.length} students to send Pranic Guidance Webinar email`,
+      );
+
+      // Respond immediately before starting the long-running email process
+      res.status(200).json({
+        success: true,
+        totalUsers: users.length,
+        message: `Emails are being sent to ${users.length} users in the background to ensure all are delivered safely.`,
+      });
+
+      // Run email sending in background
+      (async () => {
+        let successCount = 0;
+        let failedCount = 0;
+        const MAX_RETRIES = 3;
+        const DELAY_BETWEEN_EMAILS = 2000; // 2 second delay avoids SMTP rate-limiting
+
+        for (let i = 0; i < users.length; i++) {
+          const user = users[i];
+          const mailData = {
+            replacements: {},
+            mailTo: user.email,
+            contentPath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
+            subject: "Continue Your Sadhana – Special Webinar Invitation",
+          };
+
+          let attempts = 0;
+          let success = false;
+
+          while (attempts < MAX_RETRIES && !success) {
+            try {
+              await createContent(mailData);
+              success = true;
+              successCount++;
+              console.log(
+                `[${i + 1}/${users.length}] ✓ Email sent successfully to ${user.name} (${user.email})`,
+              );
+            } catch (emailError) {
+              attempts++;
+              console.error(
+                `[${i + 1}/${users.length}] ✗ Attempt ${attempts} failed for ${user.email} - Retrying...`,
+              );
+              if (attempts < MAX_RETRIES) {
+                await new Promise((r) => setTimeout(r, 2000)); // delay before retry
+              }
+            }
+          }
+
+          if (!success) {
+            failedCount++;
+            console.error(
+              `[${i + 1}/${users.length}] ❌ Final failure for ${user.email} after ${MAX_RETRIES} attempts.`,
+            );
+          }
+
+          // Small delay before next user
+          if (i < users.length - 1) {
+            await new Promise((r) => setTimeout(r, DELAY_BETWEEN_EMAILS));
+          }
+        }
+
+        console.log(
+          `✅ Bulk email process finished. Success: ${successCount}, Failed: ${failedCount}`,
+        );
+      })();
+    } catch (err) {
+      console.error("Error in sendPranicGuidanceWebinarForcefully:", err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          status: "error",
+          message: "Internal server error",
+          error: err.message,
+        });
+      }
     }
   },
 };
