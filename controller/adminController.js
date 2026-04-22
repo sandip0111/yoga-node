@@ -2697,7 +2697,7 @@ module.exports = {
   sendPranicGuidanceWebinarForcefully: async function (req, res) {
     try {
       const users = await pranicPurificationUsersModel.find({
-        paymentStatus: "paid",
+        paymentStatus: "paid"
       });
       console.log(
         `Found ${users.length} students to send Pranic Guidance Webinar email`,
@@ -2723,7 +2723,7 @@ module.exports = {
             replacements: {},
             mailTo: user.email,
             contentPath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
-            subject: "Continue Your Sadhana – Special Webinar Invitation",
+            subject: "Join the Webinar: PRANIC GUIDANCE",
           };
 
           let attempts = 0;
