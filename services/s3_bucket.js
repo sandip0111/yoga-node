@@ -6,14 +6,8 @@ const {
 } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const AWS_REGION = process.env.AWS_REGION;
-const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
-const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 const s3 = new S3({
   region: AWS_REGION,
-  credentials: {
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  },
 });
 async function getPresignedUrl(bucket, key) {
   const command = new GetObjectCommand({
@@ -46,8 +40,6 @@ async function uploadVideoToS3(fileBuffer, fileName, courseId, contentType) {
   const AWS = require("aws-sdk");
   const s3v2 = new AWS.S3({
     region: process.env.AWS_REGION,
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   });
 
   const timestamp = Date.now();
