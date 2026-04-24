@@ -9,7 +9,8 @@
     "ONLINE_LIVE_CLASSES": "63fc3fdc6d203300eae38625",
     "RISHIKESH_100_HOURS": "63b817ec3362bfaf05d7cf3b",
     "RISHIKESH_200_HOURS": "63bd41f275bff3365e233ab9",
-    "RISHIKESH_300_HOURS": "63c3d9caaa1fce47a3fa6f41"
+    "RISHIKESH_300_HOURS": "63c3d9caaa1fce47a3fa6f41",
+    "PRANIC_PURIFICATION_II": "69e7d39453f4414df206d1ee"
   },
   "EMAIL_TEMPLATE": {
     "PRANIC_PURIFICATION": "/emailTemplate/pranicPurification.html",
@@ -49,7 +50,9 @@
     "SUBSCRIBER_EMAIL_3": "/emailTemplate/subscriberEmail3.html",
     "SUBSCRIBER_EMAIL_FORCEFULLY": "/emailTemplate/subscribers/subscriberEmail_20260330.html",
     "OCTOBER_200_HOURS_RISHIKESH": "/emailTemplate/october200HrsRishikesh.html",
-    "OCTOBER_300_HOURS_RISHIKESH": "/emailTemplate/october300HrsRishikesh.html"
+    "OCTOBER_300_HOURS_RISHIKESH": "/emailTemplate/october300HrsRishikesh.html",
+    "PRANIC_PURIFICATION_II": "/emailTemplate/Pranic_purification_ii.html",
+    "COMPLETE_PRANIC_PURIFICATION_II": "/emailTemplate/completePranicPurificationII.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
@@ -85,6 +88,7 @@
     "FAILED": "failed"
   },
   "STUDENT_SOURCCE": {
-    "PRANIC": "PranicPurification_"
+    "PRANIC": "PranicPurification_",
+    "PRANIC_II": "PranicPurification_II_"
   }
 }

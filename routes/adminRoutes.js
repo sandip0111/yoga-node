@@ -189,8 +189,16 @@ router.post(
   adminController.checkoutRazorpayForPranicPurification,
 );
 router.post(
+  "/checkoutRazorpayForPranicPurificationII",
+  adminController.checkoutRazorpayForPranicPurificationII,
+);
+router.post(
   "/getRazorPaymentResultPranicPurification",
   adminController.getRazorPaymentResultPranicPurification,
+);
+router.post(
+  "/getRazorPaymentResultPranicPurificationII",
+  adminController.getRazorPaymentResultPranicPurificationII,
 );
 
 router.post(
@@ -210,11 +218,19 @@ router.post(
   "/checkoutStripeForPranicPurification",
   adminController.checkoutStripeForPranicPurification,
 );
+router.post(
+  "/checkoutStripeForPranicPurificationII",
+  adminController.checkoutStripeForPranicPurificationII,
+);
 router.post("/getPaymentResponse", adminController.getPaymentResult);
 router.post("/getPaymentResponseV2", adminController.getPaymentResultV2);
 router.post(
   "/getPaymentResultPranicPurification",
   adminController.getPaymentResultPranicPurification,
+);
+router.post(
+  "/getPaymentResultPranicPurificationII",
+  adminController.getPaymentResultPranicPurificationII,
 );
 router.post(
   "/registerSwarSadhanaWebinarUser",

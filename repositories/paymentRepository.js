@@ -8,11 +8,22 @@ const webinerUserModel = require("../models/webinarRegiserUserModel");
 const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 const baliStudentModel = require("../models/baliStudent");
 const constant = require("../helpers/constants.json");
+const pranicPurificationUsersIIModel = require("../models/pranicPurificationUserIIModel");
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
     try {
       const data = await pranicPurificationUsers.create(userData);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function createPranicIIUserData(userData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await pranicPurificationUsersIIModel.create(userData);
       return resolve(data);
     } catch (error) {
       return reject(error);
@@ -34,6 +45,31 @@ function updatePranicUserData(id, paymentId, isPaid) {
         );
       } else {
         await pranicPurificationUsers.findOneAndUpdate(
+          { _id: id },
+          { paymentStatus: constant.PAYMENT_STATUS.PENDING }
+        );
+      }
+      return resolve(user);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updatePranicIIUserData(id, paymentId, isPaid) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user;
+      if (isPaid) {
+        user = await pranicPurificationUsersIIModel.findOneAndUpdate(
+          { _id: id },
+          {
+            paymentId: paymentId,
+            paymentStatus: "paid",
+          },
+          { new: true }
+        );
+      } else {
+        await pranicPurificationUsersIIModel.findOneAndUpdate(
           { _id: id },
           { paymentStatus: constant.PAYMENT_STATUS.PENDING }
         );
@@ -366,10 +402,42 @@ function updatePranicPurificationStatusForcefully(startDate, endDate) {
     }
   });
 }
+function updatePranicPurificationIIStatusForcefully(startDate, endDate) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await pranicPurificationUsersIIModel
+        .find({
+          created: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          paymentStatus: { $ne: "paid" },
+          isPaymentCheck: false,
+        })
+        .lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 function pranicPurificationUpdateById(id, data) {
   return new Promise(async (resolve, reject) => {
     try {
       const pay = await pranicPurificationUsers.findOneAndUpdate(
+        { _id: id },
+        data
+      );
+      return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function pranicPurificationIIUpdateById(id, data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pay = await pranicPurificationUsersIIModel.findOneAndUpdate(
         { _id: id },
         data
       );
@@ -519,4 +587,8 @@ module.exports = {
   updateBaliStudentData,
   updateBaliStatusForcefully,
   getOneFromLiveCourse,
+  createPranicIIUserData,
+  pranicPurificationIIUpdateById,
+  updatePranicIIUserData,
+  updatePranicPurificationIIStatusForcefully
 };
