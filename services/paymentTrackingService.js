@@ -10,7 +10,7 @@ class PaymentTrackingService {
   async trackRazorpayPurchase(paymentData, userData) {
     try {
       const courseData = await this.getCourseData(paymentData.courseId);
-      
+
       const purchaseData = {
         transactionId: paymentData.razorpayPaymentId || paymentData.paymentId,
         paymentId: paymentData.razorpayPaymentId || paymentData.paymentId,
@@ -41,7 +41,7 @@ class PaymentTrackingService {
   async trackStripePurchase(paymentData, userData) {
     try {
       const courseData = await this.getCourseData(paymentData.courseId);
-      
+
       const purchaseData = {
         transactionId: paymentData.stripePaymentIntent || paymentData.paymentId,
         paymentId: paymentData.stripePaymentIntent || paymentData.paymentId,
@@ -98,7 +98,35 @@ class PaymentTrackingService {
       console.error("PaymentTrackingService: Error tracking Pranic Purification purchase", error);
     }
   }
+  async trackPranicPurificationIIPurchase(paymentData, userData) {
+    try {
+      const courseData = {
+        courseId: "pranic_purification_II",
+        courseName: "Pranic Purification II - Best online pranayama sadhana",
+        courseType: "pranic_purification_II"
+      };
 
+      const purchaseData = {
+        transactionId: paymentData.paymentId,
+        paymentId: paymentData.paymentId,
+        eventId: "pranic_purification_II",
+        amount: userData.price,
+        currency: userData.currency,
+        clientIp: paymentData.clientIp,
+        userAgent: paymentData.userAgent
+      };
+
+      const userInfo = {
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        firstName: userData.name
+      };
+
+      await metaConversionsService.trackPurchase(purchaseData, userInfo, courseData);
+    } catch (error) {
+      console.error("PaymentTrackingService: Error tracking Pranic Purification II purchase", error);
+    }
+  }
   /**
    * Track purchase event for 200 TTC courses
    */
@@ -138,7 +166,7 @@ class PaymentTrackingService {
    * Track purchase event for Rishikesh courses
    */
   async trackRishikeshPurchase(paymentData, userData) {
-    try {     
+    try {
 
       const courseData = {
         courseId: 'rishikesh_ttc',
@@ -155,7 +183,7 @@ class PaymentTrackingService {
         amount: userData.price,
         currency: userData.currency,
         clientIp: paymentData.clientIp,
-        userAgent: paymentData.userAgent        
+        userAgent: paymentData.userAgent
       };
 
       const userInfo = {
@@ -269,7 +297,7 @@ class PaymentTrackingService {
 
   determineCourseType(courseTitle) {
     const title = courseTitle.toLowerCase();
-    
+
     if (title.includes("ttc") || title.includes("teacher training")) {
       return "teacher_training";
     } else if (title.includes("pranayama") || title.includes("pranic")) {

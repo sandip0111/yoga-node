@@ -46,9 +46,8 @@ function formatTime(date) {
 
   hours = hours % 12 || 12; // Convert 24-hour to 12-hour format
 
-  return `${hours}${
-    minutes ? ":" + String(minutes).padStart(2, "0") : ""
-  } ${suffix}`;
+  return `${hours}${minutes ? ":" + String(minutes).padStart(2, "0") : ""
+    } ${suffix}`;
 }
 let sendRegistrationEmailV2 = async function (id) {
   const student = await studentRepo.getStudentById(id);
@@ -285,6 +284,22 @@ let completePranicPurificationAutomationEmail = async function (
   };
   sendMail.createContent(mailData);
 };
+let completePranicPurificationIIAutomationEmail = async function (
+  user,
+  password,
+) {
+  const mailData = {
+    replacements: {
+      NAME: user.name,
+      USER: user.email,
+      PASS: password,
+    },
+    mailTo: user.email,
+    contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION_II,
+    subject: "Welcome to Pranic Purification II",
+  };
+  sendMail.createContent(mailData);
+};
 let sendFreeWebinarConfirmationEmail = async function (data) {
   try {
     const mailData = {
@@ -388,6 +403,17 @@ let completePranicPurificationEmail = async function (student) {
     },
     mailTo: student.email,
     contentPath: constants.EMAIL_TEMPLATE.COMPLETE_PRANIC_PURIFICATION,
+    subject: "Complete your journey with Yoga Vidya School",
+  };
+  sendMail.createContent(mailData);
+};
+let completePranicPurificationIIEmail = async function (student) {
+  const mailData = {
+    replacements: {
+      NAME: student.name,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_PRANIC_PURIFICATION_II,
     subject: "Complete your journey with Yoga Vidya School",
   };
   sendMail.createContent(mailData);
@@ -607,4 +633,6 @@ module.exports = {
   adminOnlineSadhanaClassSendMail,
   sendMailForcefully,
   send200TTCInstalmentEmail,
+  completePranicPurificationIIAutomationEmail,
+  completePranicPurificationIIEmail
 };

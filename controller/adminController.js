@@ -1950,10 +1950,31 @@ module.exports = {
     }
   },
 
+  checkoutStripeForPranicPurificationII: async function (req, res) {
+    try {
+      let result = await paymentService.checkoutStripeForPranicPurificationII(
+        req.body,
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+
   getPaymentResultPranicPurification: async function (req, res) {
     try {
       const returnData =
         await paymentService.getPaymentResultPranicPurification(req.body, req);
+      res.status(returnData.status).json(returnData.data);
+    } catch (error) {
+      res.status(500).json("Internal server error");
+    }
+  },
+
+  getPaymentResultPranicPurificationII: async function (req, res) {
+    try {
+      const returnData =
+        await paymentService.getPaymentResultPranicPurificationII(req.body, req);
       res.status(returnData.status).json(returnData.data);
     } catch (error) {
       res.status(500).json("Internal server error");
@@ -1971,7 +1992,6 @@ module.exports = {
       res.status(500).json({ error: "Payment initialization failed" });
     }
   },
-
   getRazorPaymentResultPranicPurification: async function (req, res) {
     try {
       const {
@@ -1998,12 +2018,49 @@ module.exports = {
     }
   },
 
+  checkoutRazorpayForPranicPurificationII: async function (req, res) {
+    try {
+      let result = await paymentService.checkoutRazorpayForPranicPurificationII(
+        req.body,
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Error in Razorpay checkout:", error);
+      res.status(500).json({ error: "Payment initialization failed" });
+    }
+  },
+  getRazorPaymentResultPranicPurificationII: async function (req, res) {
+    try {
+      const {
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        payDbId,
+        password,
+      } = req.body;
+      let result = await paymentService.getRazorPaymentResultPranicPurificationII(
+        {
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature,
+          payDbId,
+          password,
+          req,
+        },
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Error verifying Razorpay payment:", error);
+      res.status(500).json("Internal server error");
+    }
+  },
+
   // checkoutStripeNewPranaarabha: async function (req, res) {
   //   try {
   //     let paymentData = {
   //       courseId: req.body.courseId,
   //       studentId: req.body.studentId,
-  //       paymentStatus: req.body.paymentStatus,
+  //       paymentStatus: req.body.paymentStatus,~~
   //       paymentBy: req.body.paymentBy,
   //     };
   //     const pay = await paymentModel.create(paymentData);
