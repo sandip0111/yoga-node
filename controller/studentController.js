@@ -1,4 +1,5 @@
 const Student = require("../models/StudentModel");
+const WebinarRegisterUser = require("../models/webinarRegiserUserModel");
 const fs = require("fs");
 const path = require("path");
 const handlebars = require("handlebars");
@@ -277,7 +278,14 @@ module.exports = {
     try {
       const { studentId, newPassword, oldPassword } = req.body;
 
-      const student = await Student.findById({ _id: studentId });
+      let ModelType = Student;
+      let student = await Student.findById({ _id: studentId });
+      
+      if (!student) {
+        student = await WebinarRegisterUser.findById({ _id: studentId });
+        ModelType = WebinarRegisterUser;
+      }
+
       if (!student) {
         res.status(404).json({ status: "404", msg: `No User Found` });
         return;
@@ -289,12 +297,17 @@ module.exports = {
         return;
       }
 
-      const samePasswordCheck = await Student.findOne({
+      const samePasswordCheckStudent = await Student.findOne({
         email: student.email,
         password: newPassword,
       });
 
-      if (samePasswordCheck) {
+      const samePasswordCheckWebinar = await WebinarRegisterUser.findOne({
+        email: student.email,
+        password: newPassword,
+      });
+
+      if (samePasswordCheckStudent || samePasswordCheckWebinar) {
         return res.status(400).json({
           status: "400",
           msg: "You cannot use the same password again. Please choose a different password.",

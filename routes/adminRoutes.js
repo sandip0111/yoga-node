@@ -10,9 +10,9 @@ const multerS3 = require("multer-s3");
 const path = require("path");
 const fs = require("fs");
 const { S3, GetObjectCommand } = require("@aws-sdk/client-s3");
-const AWS_ACCESS_KEY_ID = "AKIAWGOLULIWBNKET5SM";
-const AWS_SECRET_ACCESS_KEY = "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";
-const AWS_REGION = "us-east-1";
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+const AWS_REGION = process.env.AWS_REGION;
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const onlineVideoModel = require("../models/onlineVideoModel");
 const { sendMailForcefully } = require("../helpers/helper");
@@ -636,6 +636,10 @@ router.post("/sendMailForcefully", sendMailForcefully);
 router.post(
   "/sendMailToSubscribersForcefully",
   adminController.sendMailToSubscribersForcefully,
+);
+router.post(
+  "/sendPranicGuidanceWebinarForcefully",
+  adminController.sendPranicGuidanceWebinarForcefully,
 );
 
 module.exports = router;
