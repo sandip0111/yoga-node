@@ -2697,7 +2697,8 @@ module.exports = {
   sendPranicGuidanceWebinarForcefully: async function (req, res) {
     try {
       const users = await pranicPurificationUsersModel.find({
-        paymentStatus: "paid"
+        paymentStatus: "paid",
+        // email: "srividyaraju28@gmail.com"
       });
       console.log(
         `Found ${users.length} students to send Pranic Guidance Webinar email`,
