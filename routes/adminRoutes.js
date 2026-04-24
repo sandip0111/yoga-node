@@ -10,6 +10,8 @@ const multerS3 = require("multer-s3");
 const path = require("path");
 const fs = require("fs");
 const { S3, GetObjectCommand } = require("@aws-sdk/client-s3");
+const AWS_ACCESS_KEY_ID = "AKIAWGOLULIWBNKET5SM";
+const AWS_SECRET_ACCESS_KEY = "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";
 const AWS_REGION = "us-east-1";
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const onlineVideoModel = require("../models/onlineVideoModel");
@@ -17,6 +19,10 @@ const { sendMailForcefully } = require("../helpers/helper");
 
 const s3 = new S3({
   region: AWS_REGION,
+  credentials: {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  },
 });
 
 //Student Routes

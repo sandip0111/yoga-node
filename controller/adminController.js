@@ -2723,7 +2723,7 @@ module.exports = {
             replacements: {},
             mailTo: user.email,
             contentPath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
-            subject: "Join the Webinar: PRANIC GUIDANCE",
+            subject: "Tomorrow: Your Pranic Sadhana continues",
           };
 
           let attempts = 0;
