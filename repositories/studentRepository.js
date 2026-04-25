@@ -13,7 +13,7 @@ const rishikeshStudentModel = require("../models/rishikeshStudent");
 const baliStudentModel = require("../models/baliStudent");
 const constant = require("../helpers/constants.json");
 const onlinepaymentModel = require("../models/onlinePaymentModel");
-
+const pranicPurificationUsersIIModel = require("../models/pranicPurificationUserIIModel");
 module.exports = {
   getStudentCountFilter: function (pipeline) {
     return new Promise(async (resolve, reject) => {
@@ -214,6 +214,16 @@ module.exports = {
       }
     });
   },
+  getPranicPurificationIIData: function (pipeline) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = await pranicPurificationUsersIIModel.aggregate(pipeline);
+        return resolve(result);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
   getStudentVideoByCourse: function (courseId) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -383,7 +393,7 @@ module.exports = {
           },
           { $unset: "paymentDetails" },
         ];
-        
+
         if (paymentFilter) {
           pipeline.push({
             $match: {
@@ -391,7 +401,7 @@ module.exports = {
             },
           });
         }
-        
+
         pipeline.push({
           $facet: {
             metadata: [{ $count: "total" }],
@@ -474,8 +484,8 @@ let getTotalStudent = async function (
           {
             $match: paymentStatus
               ? {
-                  paymentStatus: { $regex: paymentStatus, $options: "i" },
-                }
+                paymentStatus: { $regex: paymentStatus, $options: "i" },
+              }
               : {},
           },
         ],
@@ -515,8 +525,8 @@ let getTotalStudentCount = async function (
           {
             $match: paymentStatus
               ? {
-                  paymentStatus: { $regex: paymentStatus, $options: "i" },
-                }
+                paymentStatus: { $regex: paymentStatus, $options: "i" },
+              }
               : {},
           },
         ],

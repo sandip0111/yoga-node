@@ -70,13 +70,13 @@ module.exports = {
       // Global Search Filter (Regex for partial matching)
       const searchFilter = search
         ? {
-            $or: [
-              { firstName: { $regex: search, $options: "i" } },
-              { lastName: { $regex: search, $options: "i" } },
-              { city: { $regex: search, $options: "i" } },
-              { phoneNumber: { $regex: search, $options: "i" } },
-            ],
-          }
+          $or: [
+            { firstName: { $regex: search, $options: "i" } },
+            { lastName: { $regex: search, $options: "i" } },
+            { city: { $regex: search, $options: "i" } },
+            { phoneNumber: { $regex: search, $options: "i" } },
+          ],
+        }
         : {};
 
       const studentData = await Student.aggregate([
@@ -280,7 +280,7 @@ module.exports = {
 
       let ModelType = Student;
       let student = await Student.findById({ _id: studentId });
-      
+
       if (!student) {
         student = await WebinarRegisterUser.findById({ _id: studentId });
         ModelType = WebinarRegisterUser;
@@ -509,6 +509,18 @@ module.exports = {
   getAllPranicPurificationStudent: async function (req, res) {
     try {
       const result = await studentService.getAllPranicPurificationStudent(
+        req.body,
+      );
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.studentTotal });
+    } catch (err) {
+      res.status(404).json({ status: "error", msg: err.message });
+    }
+  },
+  getAllPranicPurificationIIStudent: async function (req, res) {
+    try {
+      const result = await studentService.getAllPranicPurificationIIStudent(
         req.body,
       );
       res

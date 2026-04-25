@@ -574,6 +574,10 @@ router.post(
   "/getAllPranicPurificationStudent",
   studentController.getAllPranicPurificationStudent,
 );
+router.post(
+  "/getAllPranicPurificationIIStudent",
+  studentController.getAllPranicPurificationIIStudent,
+);
 router.post("/getTabVideo", studentController.getTabVideo);
 router.post("/get200ttcData", studentController.get200ttcData);
 router.post("/getPaymentDetailsById", paymentController.getPaymentDetailsById);

@@ -390,8 +390,8 @@ module.exports = {
           }),
           ...(startDate &&
             endDate && {
-              created: { $gte: startDate, $lte: endDate },
-            }),
+            created: { $gte: startDate, $lte: endDate },
+          }),
         };
         const paymentStatus = reqBody.paymentStatus;
 
@@ -532,6 +532,114 @@ module.exports = {
           },
         ];
         let allData = await studentRepo.getPranicPurificationData(pipeLine);
+        return resolve({
+          studentList: allData[0].data,
+          studentTotal:
+            allData[0].metadata && allData[0].metadata.length == 1
+              ? allData[0].metadata[0].total
+              : 0,
+        });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+
+  getAllPranicPurificationIIStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let size = reqBody.size || 10;
+        let pageNo = reqBody.pageNo || 1;
+        const skip = Number(size * (pageNo - 1));
+        const limit = Number(size) || 0;
+        const searchText = reqBody.searchText;
+        const andConditions = [];
+
+        if (reqBody.paymentStatus) {
+          andConditions.push({ paymentStatus: reqBody.paymentStatus });
+        }
+        if (reqBody.month) {
+          andConditions.push({ month: reqBody.month });
+        }
+        const filterCondition = {
+          ...(searchText && {
+            $or: [
+              { name: { $regex: searchText, $options: "i" } },
+              { email: { $regex: searchText, $options: "i" } },
+              { phoneNumber: { $regex: searchText, $options: "i" } },
+              { address: { $regex: searchText, $options: "i" } },
+              { couponcode: { $regex: searchText, $options: "i" } },
+            ],
+          }),
+          ...(andConditions.length > 0 && { $and: andConditions }),
+        };
+
+        let pipeLine = [
+          { $match: filterCondition },
+          {
+            $lookup: {
+              from: "couponcodes",
+              localField: "_id",
+              foreignField: "studentId",
+              as: "couponData",
+            },
+          },
+          {
+            $unwind: {
+              path: "$couponData",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $addFields: {
+              sourcePattern: {
+                $concat: ["PranicPurification_II_", { $toString: "$_id" }],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "students",
+              localField: "sourcePattern",
+              foreignField: "source",
+              as: "studentData",
+            },
+          },
+          {
+            $unwind: {
+              path: "$studentData",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1,
+              phoneNumber: 1,
+              address: 1,
+              currency: 1,
+              price: 1,
+              paymentStatus: 1,
+              created: 1,
+              couponcode: "$couponData.code",
+              couponUsed: "$couponData.isUsed",
+              paymentType: 1,
+              month: 1,
+              password: "$studentData.password",
+            },
+          },
+          { $sort: { created: -1 } },
+          {
+            $facet: {
+              metadata: [{ $count: "total" }],
+              data: reqBody.isGetAll
+                ? []
+                : [{ $skip: skip }, { $limit: limit }],
+            },
+          },
+        ];
+        let allData = await studentRepo.getPranicPurificationIIData(pipeLine);
         return resolve({
           studentList: allData[0].data,
           studentTotal:
