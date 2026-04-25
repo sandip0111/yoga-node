@@ -593,7 +593,7 @@ module.exports = {
           {
             $addFields: {
               sourcePattern: {
-                $concat: ["PranicPurification_II_", { $toString: "$_id" }],
+                $concat: ["PranicPurification_II_", { $toString: "$_id" }, "_May, 2026"],
               },
             },
           },

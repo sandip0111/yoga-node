@@ -1851,7 +1851,7 @@ function createPranicPurificationIIStudent(user, password) {
         password: password,
         phoneNumber: user.phoneNumber,
         course: [constants.COURSE.PRANIC_PURIFICATION_II],
-        source: constants.STUDENT_SOURCCE.PRANIC_II + user._id,
+        source: `${constants.STUDENT_SOURCCE.PRANIC_II}${user._id}_${user.month}`,
         paymentCourseId: constants.COURSE.PRANIC_PURIFICATION_II,
       };
       let responseStudent = await studentRepo.createStudent(studentData);

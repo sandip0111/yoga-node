@@ -288,6 +288,17 @@ module.exports = {
       }
     });
   },
+  registerPranicPurificationIIStudentByAdmin: function (savedData) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const newUser = new pranicPurificationUsersIIModel(savedData);
+        const savedUser = await newUser.save();
+        return resolve(savedUser);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
   register200TTCStudentByAdmin: function (savedData) {
     return new Promise(async (resolve, reject) => {
       try {

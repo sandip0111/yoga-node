@@ -240,6 +240,10 @@ router.post(
   "/registerPranicPurificationUser",
   adminController.registerPranicPurificationUser,
 );
+router.post(
+  "/registerPranicPurificationIIUser",
+  adminController.registerPranicPurificationIIUser,
+);
 router.post("/register200TTCUser", adminController.register200TTCUser);
 router.post(
   "/checkoutSwarSadhanaStripe",

@@ -838,6 +838,18 @@ module.exports = {
       }
     }
   },
+  registerPranicPurificationIIUser: async function (req, res) {
+    try {
+      let result = await adminService.registerPranicPurificationIIUser(req.body);
+      res.status(result.status).json(result.data);
+    } catch (error) {
+      if (error.code === 11000) {
+        res.status(400).json({ message: "Email already registered." });
+      } else {
+        res.status(500).json({ message: "Server error", error });
+      }
+    }
+  },
   register200TTCUser: async function (req, res) {
     try {
       let result = await adminService.register200TTCUser(req.body);

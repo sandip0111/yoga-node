@@ -108,6 +108,35 @@ function registerPranicPurificationUser(reqBody) {
     }
   });
 }
+function registerPranicPurificationIIUser(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const savedUser =
+        await studentRepo.registerPranicPurificationIIStudentByAdmin({
+          name: reqBody.name,
+          email: reqBody.email,
+          paymentStatus: constant.PAYMENT_STATUS.PAID,
+          paymentType: "paypal",
+        });
+      const password = helper.genratePass(6);
+      await paymentService.createPranicPurificationIIStudent(savedUser, password);
+      await helper.completePranicPurificationIIAutomationEmail(
+        savedUser,
+        password,
+      );
+      return resolve({
+        data: {
+          status: "ok",
+          message: "User registered successfully!",
+          userId: savedUser._id,
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 function register200TTCUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -1027,6 +1056,7 @@ function createBaliCustomer(reqBody) {
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
+  registerPranicPurificationIIUser,
   register200TTCUser,
   createLiveCourseCustomer,
   createRishikeshCustomer,
