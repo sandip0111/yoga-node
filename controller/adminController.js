@@ -2766,8 +2766,7 @@ module.exports = {
   sendPranicGuidanceWebinarForcefully: async function (req, res) {
     try {
       const users = await pranicPurificationUsersModel.find({
-        paymentStatus: "paid",
-        // email: "srividyaraju28@gmail.com"
+        paymentStatus: "paid"
       });
       console.log(
         `Found ${users.length} students to send Pranic Guidance Webinar email`,
@@ -2785,7 +2784,7 @@ module.exports = {
         let successCount = 0;
         let failedCount = 0;
         const MAX_RETRIES = 3;
-        const DELAY_BETWEEN_EMAILS = 2000; // 2 second delay avoids SMTP rate-limiting
+        const DELAY_BETWEEN_EMAILS = 5000; // 5 second delay avoids SMTP rate-limiting
 
         for (let i = 0; i < users.length; i++) {
           const user = users[i];
@@ -2793,7 +2792,7 @@ module.exports = {
             replacements: {},
             mailTo: user.email,
             contentPath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
-            subject: "Tomorrow: Your Pranic Sadhana continues",
+            subject: "Join Us Today: Your Pranic Sadhana Guidance Webinar at 6:30 PM",
           };
 
           let attempts = 0;
