@@ -22,8 +22,8 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 
 const username = "yogavidyaschooldb";
 const password = "yogavidya4321qwerty";
-const host = "44.211.96.198";
-const port = "27014";
+const host = "65.2.4.69";
+const port = "27017";
 const dbName = "yogavidyaschool";
 
 mongoose
