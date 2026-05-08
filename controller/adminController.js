@@ -840,7 +840,9 @@ module.exports = {
   },
   registerPranicPurificationIIUser: async function (req, res) {
     try {
-      let result = await adminService.registerPranicPurificationIIUser(req.body);
+      let result = await adminService.registerPranicPurificationIIUser(
+        req.body,
+      );
       res.status(result.status).json(result.data);
     } catch (error) {
       if (error.code === 11000) {
@@ -1986,7 +1988,10 @@ module.exports = {
   getPaymentResultPranicPurificationII: async function (req, res) {
     try {
       const returnData =
-        await paymentService.getPaymentResultPranicPurificationII(req.body, req);
+        await paymentService.getPaymentResultPranicPurificationII(
+          req.body,
+          req,
+        );
       res.status(returnData.status).json(returnData.data);
     } catch (error) {
       res.status(500).json("Internal server error");
@@ -2050,16 +2055,15 @@ module.exports = {
         payDbId,
         password,
       } = req.body;
-      let result = await paymentService.getRazorPaymentResultPranicPurificationII(
-        {
+      let result =
+        await paymentService.getRazorPaymentResultPranicPurificationII({
           razorpay_order_id,
           razorpay_payment_id,
           razorpay_signature,
           payDbId,
           password,
           req,
-        },
-      );
+        });
       res.status(200).json(result);
     } catch (error) {
       console.error("Error verifying Razorpay payment:", error);
@@ -2766,7 +2770,7 @@ module.exports = {
   sendPranicGuidanceWebinarForcefully: async function (req, res) {
     try {
       const users = await pranicPurificationUsersModel.find({
-        paymentStatus: "paid"
+        paymentStatus: "paid",
       });
       console.log(
         `Found ${users.length} students to send Pranic Guidance Webinar email`,
@@ -2789,10 +2793,12 @@ module.exports = {
         for (let i = 0; i < users.length; i++) {
           const user = users[i];
           const mailData = {
-            replacements: {},
+            replacements: {
+              name: user.name,
+            },
             mailTo: user.email,
             contentPath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
-            subject: "REPLAY: Access the Pranic Guidance Workshop Recording",
+            subject: "Exclusive Invitation: Pranic Purification II",
           };
 
           let attempts = 0;
