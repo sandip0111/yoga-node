@@ -26,7 +26,7 @@ const appName = "yogavidya";
 
 mongoose
   .connect(
-    `mongodb://${username}:${password}@ac-un8jerx-shard-00-00.oqcuqk9.mongodb.net:27017,ac-un8jerx-shard-00-01.oqcuqk9.mongodb.net:27017,ac-un8jerx-shard-00-02.oqcuqk9.mongodb.net:27017/?ssl=true&replicaSet=atlas-pfm564-shard-0&authSource=admin&appName=${appName}`,
+    `mongodb://${username}:${password}@ac-un8jerx-shard-00-00.oqcuqk9.mongodb.net:27017,ac-un8jerx-shard-00-01.oqcuqk9.mongodb.net:27017,ac-un8jerx-shard-00-02.oqcuqk9.mongodb.net:27017/yogavidya_db?ssl=true&replicaSet=atlas-pfm564-shard-0&authSource=admin&appName=${appName}`,
   )
   .then((result) => {
     console.log("Database connected");
