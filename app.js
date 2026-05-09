@@ -20,17 +20,14 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-const username = "yogavidyaschooldb";
-const password = "yogavidya4321qwerty";
-const host = "65.2.4.69";
-const port = "27017";
-const dbName = "yogavidyaschool";
+const username = "yogavidyauser";
+const password = "l8eqBG0xIWFDUhD9";
+const appName = "yogavidya";
 
 mongoose
-  .connect(`mongodb://${username}:${password}@${host}:${port}/${dbName}`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    `mongodb://${username}:${password}@ac-un8jerx-shard-00-00.oqcuqk9.mongodb.net:27017,ac-un8jerx-shard-00-01.oqcuqk9.mongodb.net:27017,ac-un8jerx-shard-00-02.oqcuqk9.mongodb.net:27017/?ssl=true&replicaSet=atlas-pfm564-shard-0&authSource=admin&appName=${appName}`,
+  )
   .then((result) => {
     console.log("Database connected");
     app.listen(3000);
