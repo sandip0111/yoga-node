@@ -209,7 +209,7 @@ function getRazorPaymentResultPranicPurificationII({
         };
         await paymentRepo.createCouponCodeData(couponcodeData);
         createPranicPurificationIIStudent(user, password);
-        helper.completePranicPurificationIIAutomationEmail(user, password);
+        await helper.completePranicPurificationIIAutomationEmail(user, password);
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.trackPranicPurificationIIPurchase(
           {

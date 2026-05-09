@@ -298,7 +298,7 @@ let completePranicPurificationIIAutomationEmail = async function (
     contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION_II,
     subject: "Welcome to Pranic Purification II",
   };
-  sendMail.createContent(mailData);
+  await sendMail.createContent(mailData);
 };
 let sendFreeWebinarConfirmationEmail = async function (data) {
   try {

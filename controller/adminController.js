@@ -410,7 +410,7 @@ module.exports = {
         "63c4e7e72bce43a907211c78",
         "63c4eea32bce43a907211c7a",
         "644f9dfc499ffcfb45df35cd",
-        "63fc3fdc6d203300eae38625",
+        "69ff6a520cd7ed2296fbbddb",
       ];
       const course = await courseModel.find(
         { isActive: true, _id: { $in: documentIds } },
