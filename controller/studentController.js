@@ -63,9 +63,9 @@ module.exports = {
       let search = req.body.searchText;
       const limit = Number(size) || 0;
       const courseMapping = {
-        "644f9dfc499ffcfb45df35cd": "Pranayama",
-        "63c3f26c461e531f3c3452e1": "Breath Detox",
-        "63c4de4a2bce43a907211c74": "Foundation Of Spirituality",
+        "6a00abfc9a6ce5ba990f5e6f": "Pranayama",
+        "6a00ae5a73d17e5a08d3f6ce": "Breath Detox",
+        "6a00b0e4f994cf05f7c07786": "Foundation Of Spirituality",
       };
       // Global Search Filter (Regex for partial matching)
       const searchFilter = search
@@ -344,12 +344,12 @@ module.exports = {
       const student = await Student.findOne({ _id: req.body.studentId });
       if (student.course) {
         if (student.course.length > 0) {
-          coursebody = [...student.course, "644f9dfc499ffcfb45df35cd"];
+          coursebody = [...student.course, "6a00abfc9a6ce5ba990f5e6f"];
         } else {
-          coursebody = ["644f9dfc499ffcfb45df35cd"];
+          coursebody = ["6a00abfc9a6ce5ba990f5e6f"];
         }
       } else {
-        coursebody = ["644f9dfc499ffcfb45df35cd"];
+        coursebody = ["6a00abfc9a6ce5ba990f5e6f"];
       }
       let uniqueArray = coursebody.filter((value, index, self) => {
         return self.indexOf(value) === index;
@@ -373,12 +373,12 @@ module.exports = {
       const student = await Student.findOne({ _id: req.body.studentId });
       if (student.course) {
         if (student.course.length > 0) {
-          coursebody = [...student.course, "63c4de4a2bce43a907211c74"];
+          coursebody = [...student.course, "6a00b0e4f994cf05f7c07786"];
         } else {
-          coursebody = ["63c4de4a2bce43a907211c74"];
+          coursebody = ["6a00b0e4f994cf05f7c07786"];
         }
       } else {
-        coursebody = ["63c4de4a2bce43a907211c74"];
+        coursebody = ["6a00b0e4f994cf05f7c07786"];
       }
       let uniqueArray = coursebody.filter((value, index, self) => {
         return self.indexOf(value) === index;
@@ -402,12 +402,12 @@ module.exports = {
       const student = await Student.findOne({ _id: req.body.studentId });
       if (student.course) {
         if (student.course.length > 0) {
-          coursebody = [...student.course, "63c3f26c461e531f3c3452e1"];
+          coursebody = [...student.course, "6a00ae5a73d17e5a08d3f6ce"];
         } else {
-          coursebody = ["63c3f26c461e531f3c3452e1"];
+          coursebody = ["6a00ae5a73d17e5a08d3f6ce"];
         }
       } else {
-        coursebody = ["63c3f26c461e531f3c3452e1"];
+        coursebody = ["6a00ae5a73d17e5a08d3f6ce"];
       }
       let uniqueArray = coursebody.filter((value, index, self) => {
         return self.indexOf(value) === index;
@@ -442,7 +442,7 @@ module.exports = {
       //           { _id: user._id },
       //           { source: "PranaArabha-Landing-page" }
       //         );
-      //         let checkCourse = await Student.countDocuments({_id:user._id,course:{$in:"644f9dfc499ffcfb45df35cd"}});
+      //         let checkCourse = await Student.countDocuments({_id:user._id,course:{$in:"6a00abfc9a6ce5ba990f5e6f"}});
 
       //         if(checkCourse > 0){
       //             res.status(200).json({ status: "error",msg:"Already Purchased!!"});
@@ -575,7 +575,7 @@ module.exports = {
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });
-  let course = await courseModel.findOne({ _id: "644f9dfc499ffcfb45df35cd" });
+  let course = await courseModel.findOne({ _id: "6a00abfc9a6ce5ba990f5e6f" });
   let mailOptions;
   const filePath = path.join(__dirname, "/emailTemplate/prana.html");
   const source = fs.readFileSync(filePath, "utf-8").toString();
@@ -609,7 +609,7 @@ let sendRegistrationEmail = async function (id) {
 
 let sendRegistrationEmailV3 = async function (id) {
   const student = await Student.findOne({ _id: id });
-  let course = await courseModel.findOne({ _id: "63c4de4a2bce43a907211c74" });
+  let course = await courseModel.findOne({ _id: "6a00b0e4f994cf05f7c07786" });
   let mailOptions;
   const filePath = path.join(__dirname, "/emailTemplate/prana.html");
   const source = fs.readFileSync(filePath, "utf-8").toString();
@@ -644,7 +644,7 @@ let sendRegistrationEmailV3 = async function (id) {
 
 let sendRegistrationEmailV4 = async function (id) {
   const student = await Student.findOne({ _id: id });
-  let course = await courseModel.findOne({ _id: "63c3f26c461e531f3c3452e1" });
+  let course = await courseModel.findOne({ _id: "6a00ae5a73d17e5a08d3f6ce" });
   // const student = await Student.findOne({_id:id});
   //    console.log(student.courseId,'----------------------------',course);
   // let courseTitleArray = []
@@ -690,7 +690,7 @@ let sendRegistrationEmailV4 = async function (id) {
 
 let sendRegistrationEmailV5 = async function (id) {
   const student = await Student.findOne({ _id: id });
-  let course = await courseModel.findOne({ _id: "63c3f26c461e531f3c3452e1" });
+  let course = await courseModel.findOne({ _id: "6a00ae5a73d17e5a08d3f6ce" });
   // const student = await Student.findOne({_id:id});
   //    console.log(student.courseId,'----------------------------',course);
   // let courseTitleArray = []

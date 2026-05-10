@@ -404,12 +404,12 @@ module.exports = {
   getAllCourseV2: async function (req, res) {
     try {
       let documentIds = [
-        "63c3f26c461e531f3c3452e1",
-        "63c4de4a2bce43a907211c74",
+        "6a00ae5a73d17e5a08d3f6ce",
+        "6a00b0e4f994cf05f7c07786",
         "63c4e12f2bce43a907211c76",
-        "63c4e7e72bce43a907211c78",
+        "6a00b33b220856ac7775c2bf",
         "63c4eea32bce43a907211c7a",
-        "644f9dfc499ffcfb45df35cd",
+        "6a00abfc9a6ce5ba990f5e6f",
         "69ff6a520cd7ed2296fbbddb",
       ];
       const course = await courseModel.find(
