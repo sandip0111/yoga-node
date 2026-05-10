@@ -208,7 +208,7 @@ function getRazorPaymentResultPranicPurificationII({
           studentId: user._id,
         };
         await paymentRepo.createCouponCodeData(couponcodeData);
-        createPranicPurificationIIStudent(user, password);
+        await createPranicPurificationIIStudent(user, password);
         await helper.completePranicPurificationIIAutomationEmail(user, password);
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.trackPranicPurificationIIPurchase(
