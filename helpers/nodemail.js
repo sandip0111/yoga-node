@@ -9,29 +9,29 @@ const axios = require("axios");
 function createContent(mailData) {
   return new Promise(async (resolve, reject) => {
     try {
-      // let mailOptions;
-      // let template;
-      // const filePath = path.join(
-      //   __dirname,
-      //   "..",
-      //   "controller",
-      //   mailData.contentPath
-      // );
-      // const source = fs.readFileSync(filePath, "utf-8").toString();
-      // template = handlebars.compile(source);
-      // const htmlToSend = template(mailData.replacements);
-      // mailOptions = {
-      //   from: constants.EMAIL_DATA.FROM,
-      //   to: mailData.mailTo,
-      //   subject: mailData.subject,
-      //   replyTo: constants.EMAIL_DATA.REPLY_TO,
-      //   html: htmlToSend,
-      // };
-      // transporter.sendMail(mailOptions, async (err, result) => {
-      //   if (err) {
-      //     return resolve({ status: 400, data: "Opps error occured" });
-      //   }
-      // });
+      let mailOptions;
+      let template;
+      const filePath = path.join(
+        __dirname,
+        "..",
+        "controller",
+        mailData.contentPath
+      );
+      const source = fs.readFileSync(filePath, "utf-8").toString();
+      template = handlebars.compile(source);
+      const htmlToSend = template(mailData.replacements);
+      mailOptions = {
+        from: constants.EMAIL_DATA.FROM,
+        to: mailData.mailTo,
+        subject: mailData.subject,
+        replyTo: constants.EMAIL_DATA.REPLY_TO,
+        html: htmlToSend,
+      };
+      transporter.sendMail(mailOptions, async (err, result) => {
+        if (err) {
+          return resolve({ status: 400, data: "Opps error occured" });
+        }
+      });
       return resolve(1);
     } catch (error) {
       return reject(error);
