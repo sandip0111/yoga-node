@@ -15,9 +15,9 @@ const studentService = require("./services/studentService");
 const emailSchedulerService = require("./services/emailSchedulerService");
 
 //middleware
-app.use(express.json());
+app.use(express.json({ limit: "1000mb" }));
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ limit: "1000mb", extended: true }));
 app.use("/public", express.static(path.join(__dirname, "public")));
 
 const username = "yogavidyauser";
@@ -30,7 +30,8 @@ mongoose
   )
   .then((result) => {
     console.log("Database connected");
-    app.listen(3000);
+    const server = app.listen(3000);
+    server.timeout = 600000; // 10 minutes timeout for large video uploads
   })
   .catch((error) => {
     console.log(error);
