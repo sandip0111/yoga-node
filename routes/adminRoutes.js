@@ -311,8 +311,8 @@ router.post("/getWebinarVideosByName", async (req, res) => {
       req.body.name = "SWAR SADHANA";
     }
     const params = {
-      Bucket: "yogacourses",
-      Prefix: `upCourses/${req.body.name}/`,
+      Bucket: "yogavidya-bucket",
+      Prefix: `videos/upCourses/${req.body.name}/`,
       Delimiter: "/",
     };
     let allObjects = [];
@@ -350,10 +350,10 @@ router.post("/getWebinarVideosByName", async (req, res) => {
             key.lastIndexOf("/") + 1,
             key.lastIndexOf("."),
           );
-          const url = await getPresignedUrl("yogacourses", key);
+          const url = await getPresignedUrl("yogavidya-bucket", key);
           const newUrl = url.replace(
-            "yogacourses.s3.us-east-1.amazonaws.com",
-            "d3mzqk1fxuwngx.cloudfront.net",
+            "yogavidya-bucket.s3.ap-south-1.amazonaws.com",
+            "d29rwrqvux6m5p.cloudfront.net",
           );
 
           //  console.log(getObj,'filte rdata');
@@ -484,8 +484,8 @@ router.post(
     // Read the video file from disk
     const videoFile = fs.readFileSync(path);
     // Set the S3 bucket and object key
-    const s3Bucket = "yogacourses";
-    const s3ObjectKey = `course/${req.body.courseId}/${req.body.videoName}`;
+    const s3Bucket = "yogavidya-bucket";
+    const s3ObjectKey = `videos/course/${req.body.courseId}/${req.body.videoName}`;
     // Upload the video file to S3 and assign it the specified object ID
     const result = await s3.putObject({
       Bucket: s3Bucket,
@@ -520,8 +520,8 @@ router.post("/uploadReview", videoUpload.single("video"), async (req, res) => {
 
   console.log(file, filePath, "--------");
 
-  const s3Bucket = "yogacourses";
-  const s3ObjectKey = `reviews/${file.filename}`;
+  const s3Bucket = "yogavidya-bucket";
+  const s3ObjectKey = `videos/reviews/${file.filename}`;
 
   // Upload the video file to S3 and assign it the specified object ID
   const result = await s3.putObject({

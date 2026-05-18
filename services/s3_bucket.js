@@ -53,10 +53,10 @@ async function uploadVideoToS3(fileBuffer, fileName, courseId, contentType) {
   const timestamp = Date.now();
   const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
   const fileName1 = `${timestamp}-${sanitizedFileName}`;
-  const key = `upCourses/${courseId}/${fileName1}`;
+  const key = `videos/upCourses/${courseId}/${fileName1}`;
 
   const params = {
-    Bucket: "yogacourses",
+    Bucket: "yogavidya-bucket",
     Key: key,
     Body: fileBuffer,
     ContentType: contentType,
@@ -74,7 +74,7 @@ async function uploadVideoToS3(fileBuffer, fileName, courseId, contentType) {
       key: key,
       location: result.Location,
       etag: result.ETag,
-      bucket: "yogacourses",
+      bucket: "yogavidya-bucket",
       fileName: fileName1,
     };
   } catch (error) {
