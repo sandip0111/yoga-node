@@ -21,6 +21,7 @@ const onlinepaymentModel = require("../models/onlinePaymentModel");
 const onlineVideoModel = require("../models/onlineVideoModel");
 const analyticsModel = require("../models/analyticsModel");
 const pranicPurificationUsersModel = require("../models/pranicPurificationUsersModel");
+const pranicPurificationUsersIIModel = require("../models/pranicPurificationUserIIModel");
 const subscribeModel = require("../models/subscribeModel");
 const webinarUser = require("../models/webinarRegiserUserModel");
 const fs = require("fs");
@@ -2769,8 +2770,8 @@ module.exports = {
   },
   sendPranicGuidanceWebinarForcefully: async function (req, res) {
     try {
-      const users = await pranicPurificationUsersModel.find({
-        paymentStatus: "paid",
+      const users = await pranicPurificationUsersIIModel.find({
+        paymentStatus: "paid"
       });
       console.log(
         `Found ${users.length} students to send Pranic Guidance Webinar email`,
@@ -2798,7 +2799,7 @@ module.exports = {
             },
             mailTo: user.email,
             contentPath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
-            subject: "Exclusive Invitation: Pranic Purification II",
+            subject: "Pranic Purification II — Everything You Need to Begin"
           };
 
           let attempts = 0;

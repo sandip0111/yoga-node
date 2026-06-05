@@ -680,11 +680,11 @@ module.exports = {
   getTabVideo: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {
-        let key = `upCourses/${constants.S3_BUCKET.PRANAYAM_SADHANA_FOLDER}/${reqBody.fileName}.mp4`;
-        const url = await s3Bucket.getPresignedUrl("yogacourses", key);
+        let key = `videos/upCourses/${constants.S3_BUCKET.PRANAYAM_SADHANA_FOLDER}/${reqBody.fileName}.mp4`;
+        const url = await s3Bucket.getPresignedUrl("yogavidya-bucket", key);
         const newUrl = url.replace(
-          "yogacourses.s3.us-east-1.amazonaws.com",
-          "d3mzqk1fxuwngx.cloudfront.net",
+          "yogavidya-bucket.s3.ap-south-1.amazonaws.com",
+          "d29rwrqvux6m5p.cloudfront.net",
         );
         return resolve(newUrl);
       } catch (err) {
@@ -972,8 +972,8 @@ let allCourseVideo = function (getVideoData, reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
       var params = {
-        Bucket: "yogacourses",
-        Prefix: `upCourses/${reqBody.courseId}/`,
+        Bucket: "yogavidya-bucket",
+        Prefix: `videos/upCourses/${reqBody.courseId}/`,
         Delimiter: "/",
       };
       let continuationToken = null;
@@ -1005,10 +1005,10 @@ let allCourseVideo = function (getVideoData, reqBody) {
               key.lastIndexOf("/") + 1,
               key.lastIndexOf("."),
             );
-            const url = await s3Bucket.getPresignedUrl("yogacourses", key);
+            const url = await s3Bucket.getPresignedUrl("yogavidya-bucket", key);
             const newUrl = url.replace(
-              "yogacourses.s3.us-east-1.amazonaws.com",
-              "d3mzqk1fxuwngx.cloudfront.net",
+              "yogavidya-bucket.s3.ap-south-1.amazonaws.com",
+              "d29rwrqvux6m5p.cloudfront.net",
             );
             const getObj = getVideoData.find((e) => e.videoName == id);
             if (getObj) {
