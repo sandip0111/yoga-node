@@ -39,6 +39,10 @@ const studentSchema = new mongoose.Schema({
     },
   },
   paymentCourseId: String,
+  isDeleted: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const Student = mongoose.model("student", studentSchema);

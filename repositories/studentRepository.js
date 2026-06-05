@@ -467,6 +467,19 @@ module.exports = {
       }
     });
   },
+  updateSwaraSadhana: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await webinarUser.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let getStudentData = async function (pipeline) {
   const studentList = await studentModel.aggregate(pipeline);

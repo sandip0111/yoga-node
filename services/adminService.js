@@ -470,6 +470,7 @@ let getPranaArmbhAllData = async function (
             {
               $match: {
                 paymentCourseId: courseId,
+                isDeleted: false
               },
             },
           ],

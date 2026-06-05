@@ -649,5 +649,7 @@ router.post(
   "/sendPranicGuidanceWebinarForcefully",
   adminController.sendPranicGuidanceWebinarForcefully,
 );
+router.post("/removePranaArambhData", studentController.removePranaArambhData);
+router.post("/removeSwaraSadhanaData", studentController.removeSwaraSadhanaData);
 
 module.exports = router;

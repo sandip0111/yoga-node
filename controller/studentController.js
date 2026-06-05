@@ -70,13 +70,13 @@ module.exports = {
       // Global Search Filter (Regex for partial matching)
       const searchFilter = search
         ? {
-          $or: [
-            { firstName: { $regex: search, $options: "i" } },
-            { lastName: { $regex: search, $options: "i" } },
-            { city: { $regex: search, $options: "i" } },
-            { phoneNumber: { $regex: search, $options: "i" } },
-          ],
-        }
+            $or: [
+              { firstName: { $regex: search, $options: "i" } },
+              { lastName: { $regex: search, $options: "i" } },
+              { city: { $regex: search, $options: "i" } },
+              { phoneNumber: { $regex: search, $options: "i" } },
+            ],
+          }
         : {};
 
       const studentData = await Student.aggregate([
@@ -567,6 +567,24 @@ module.exports = {
       res
         .status(200)
         .json({ data: result.studentList, total: result.studentTotal });
+    } catch (err) {
+      console.error("Error fetching Bali data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removePranaArambhData: async function (req, res) {
+    try {
+      await studentService.removePranaArambhData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error fetching Bali data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removeSwaraSadhanaData: async function (req, res) {
+    try {
+      await studentService.removeSwaraSadhanaData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
     } catch (err) {
       console.error("Error fetching Bali data:", err);
       res.status(500).json({ status: "error", msg: err.message });

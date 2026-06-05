@@ -177,7 +177,7 @@ module.exports = {
           endDate.setHours(23, 59, 59, 999);
         }
         let pipeLine = [
-          { $match: { webinar: courseId } },
+          { $match: { webinar: courseId, isDeleted: false } },
           { $sort: { _id: -1 } },
           { $skip: skip },
           { $limit: limit },
@@ -195,7 +195,7 @@ module.exports = {
           },
         ];
         let pipeLineCount = [
-          { $match: { webinar: courseId } },
+          { $match: { webinar: courseId, isDeleted: false } },
           { $count: "total" },
         ];
         if (searchText) {
@@ -382,6 +382,7 @@ module.exports = {
 
         const matchCondition = {
           paymentCourseId: constants.COURSE.FOUNDATION_SPIRITUALITY,
+          isDeleted: false,
           ...(searchText && {
             $or: [
               { firstName: { $regex: searchText, $options: "i" } },
@@ -390,8 +391,8 @@ module.exports = {
           }),
           ...(startDate &&
             endDate && {
-            created: { $gte: startDate, $lte: endDate },
-          }),
+              created: { $gte: startDate, $lte: endDate },
+            }),
         };
         const paymentStatus = reqBody.paymentStatus;
 
@@ -593,7 +594,12 @@ module.exports = {
           {
             $addFields: {
               sourcePattern: {
-                $concat: ["PranicPurification_II_", { $toString: "$_id" }, "_", "$month"],
+                $concat: [
+                  "PranicPurification_II_",
+                  { $toString: "$_id" },
+                  "_",
+                  "$month",
+                ],
               },
             },
           },
@@ -934,6 +940,14 @@ module.exports = {
       throw err;
     }
   },
+  removePranaArambhData: async function (studentId) {
+    await studentRepo.updateStudent({ isDeleted: true, _id: studentId });
+    return 1;
+  },
+  removeSwaraSadhanaData: async function (studentId) {
+    await studentRepo.updateSwaraSadhana({ isDeleted: true, _id: studentId });
+    return 1;
+  },
 };
 let pranaySadhanaCourseVideo = function (getVideoData) {
   return new Promise(async (resolve, reject) => {
@@ -1026,7 +1040,7 @@ let getBrathDtoxAllData = async function (
   toDate,
 ) {
   let studentList;
-  let matchStage = { paymentCourseId: courseId };
+  let matchStage = { paymentCourseId: courseId, isDeleted: false };
 
   if (fromDate && toDate) {
     matchStage.created = {};
@@ -1046,11 +1060,6 @@ let getBrathDtoxAllData = async function (
         as: "paymentDetails",
       },
     },
-    // {
-    //   $match: {
-    //     "paymentDetails.0": { $exists: true },
-    //   },
-    // },
   ];
   if (searchText) {
     pipeline.splice(1, 0, {
@@ -1090,6 +1099,7 @@ let getBrathDtoxCount = async function (
 ) {
   let filterCondition = {
     paymentCourseId: courseId,
+    isDeleted: false,
   };
 
   if (fromDate && toDate) {
