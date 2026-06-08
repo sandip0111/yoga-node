@@ -784,6 +784,125 @@ module.exports = {
       }
     });
   },
+  getPranayamaCertificationData: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let size = reqBody.size || 10;
+        let pageNo = reqBody.pageNo || 1;
+        const skip = Number(size * (pageNo - 1));
+        const limit = Number(size) || 0;
+        const searchText = reqBody.searchText;
+        let pipeLine = [
+          {
+            $addFields: {
+              sourcePattern: {
+                $concat: [
+                  "PranayamaCertification_",
+                  { $toString: "$_id" },
+                  "_",
+                  { $ifNull: ["$month", "February, 2027"] },
+                ],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "students",
+              localField: "sourcePattern",
+              foreignField: "source",
+              as: "studentData",
+            },
+          },
+          {
+            $unwind: {
+              path: "$studentData",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1,
+              phoneNumber: 1,
+              price: 1,
+              currency: 1,
+              dueAmount: 1,
+              paymentStatus: 1,
+              paymentType: 1,
+              created: 1,
+              month: 1,
+              password: "$studentData.password",
+            },
+          },
+        ];
+        let pipeLineCount = [{ $count: "total" }];
+        if (searchText) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } },
+                { phoneNumber: { $regex: searchText, $options: "i" } },
+              ],
+            },
+          });
+          pipeLineCount.unshift({
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } },
+                { phoneNumber: { $regex: searchText, $options: "i" } },
+              ],
+            },
+          });
+        }
+        if (reqBody.paymentType) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+          pipeLineCount.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+        }
+        if (reqBody.paymentStatus) {
+          const payStatusMatch = { paymentStatus: reqBody.paymentStatus };
+          pipeLine.splice(1, 0, { $match: payStatusMatch });
+          pipeLineCount.splice(1, 0, { $match: payStatusMatch });
+        }
+        if (reqBody.month) {
+          const monthMatch = { month: reqBody.month };
+          pipeLine.splice(1, 0, { $match: monthMatch });
+          pipeLineCount.splice(1, 0, { $match: monthMatch });
+        }
+        pipeLine.push({ $sort: { created: -1 } });
+        pipeLine.push({
+          $facet: {
+            metadata: [{ $count: "total" }],
+            data: [{ $skip: skip }, { $limit: limit }],
+          },
+        });
+        let allData = await studentRepo.getPranayamaCertificationData(pipeLine);
+        return resolve({
+          studentList: allData[0].data,
+          studentTotal:
+            allData[0].metadata[0] && allData[0].metadata.length > 0
+              ? allData[0].metadata[0].total
+              : 0,
+        });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
   sendMailToPrashantJi: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {

@@ -2441,6 +2441,186 @@ function verifyStripePaymentOnlineSadhana(reqBody, clientIpReq, userAgentReq) {
     }
   });
 }
+
+function checkoutRazorpayForPranayamaCertification(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let pay;
+      if (reqBody.id) {
+        let data = await paymentRepo.getPranayamaCertificationPaymentDetailsById(reqBody.id);
+        await paymentRepo.updatePranayamaCertificationPayment({ price: +data.price + reqBody.price, dueAmount: 0 }, reqBody.id);
+        pay = await paymentRepo.getPranayamaCertificationPaymentDetailsById(reqBody.id);
+      } else {
+        let userData = {
+          name: reqBody.name,
+          email: reqBody.email,
+          phoneNumber: reqBody.phoneNumber,
+          currency: reqBody.currency,
+          price: reqBody.price,
+          paymentType: "razorpay",
+          dueAmount: reqBody.dueAmount || 0,
+          month: reqBody.month || "February, 2027",
+        };
+        pay = await paymentRepo.createPranayamaCertificationData(userData);
+      }
+      const amountInSubunits = reqBody.price * 100;
+      const options = {
+        amount: amountInSubunits,
+        currency: reqBody.currency,
+        receipt: `PranCert_${pay._id}`,
+        payment_capture: 1,
+      };
+      const order = await razorpay.orders.create(options);
+      await paymentRepo.updatePranayamaCertificationPayment({ paymentId: order.id }, pay._id);
+      return resolve({
+        orderId: order.id,
+        razorpayKey: process.env.RAZORPAY_KEY_ID,
+        payDbId: pay._id,
+        amount: amountInSubunits,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+function getRazorPaymentResultPranayamaCertification(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const hmac = crypto.createHmac("sha256", razorpay.key_secret);
+      hmac.update(reqBody.razorpayOrderId + "|" + reqBody.razorpayPaymentId);
+      const generatedSignature = hmac.digest("hex");
+      if (generatedSignature === reqBody.razorpaySignature) {
+        const user = await paymentRepo.updatePranayamaCertificationData(
+          reqBody.payDbId,
+          reqBody.razorpayPaymentId,
+          true,
+        );
+        await savePranaArambhOnPranayamaCertification(user, reqBody);
+        await helper.sendPranayamaCertificationEmail(user, reqBody.password);
+        return resolve({
+          amount: +user.price,
+          currency: user.currency,
+        });
+      } else {
+        await paymentRepo.updatePranayamaCertificationData(reqBody.payDbId, null, false);
+        return reject("Payment verification failed");
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+function checkoutStripeForPranayamaCertification(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let pay;
+      if (reqBody.id) {
+        let data = await paymentRepo.getPranayamaCertificationPaymentDetailsById(reqBody.id);
+        await paymentRepo.updatePranayamaCertificationPayment({ price: +data.price + reqBody.price, dueAmount: 0 }, reqBody.id);
+        pay = await paymentRepo.getPranayamaCertificationPaymentDetailsById(reqBody.id);
+      } else {
+        let userData = {
+          name: reqBody.name,
+          email: reqBody.email,
+          phoneNumber: reqBody.phoneNumber,
+          currency: reqBody.currency,
+          price: reqBody.price,
+          paymentType: "stripe",
+          dueAmount: reqBody.dueAmount || 0,
+          month: reqBody.month || "February, 2027",
+        };
+        pay = await paymentRepo.createPranayamaCertificationData(userData);
+      }
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: reqBody.currency,
+              unit_amount: reqBody.price * 100,
+              product_data: {
+                name: "Custom Payment",
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: process.env.STRIP_URL,
+        cancel_url: process.env.STRIP_URL,
+        customer_email: reqBody.email,
+      });
+      await paymentRepo.updatePranayamaCertificationPayment({ paymentId: session.id }, pay._id);
+      return resolve({
+        sessionId: session.id,
+        payDbId: pay._id,
+        url: session.url,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+function getStripePaymentResultPranayamaCertification(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(
+        reqBody.sessionId,
+      );
+      if (session.payment_status == "paid") {
+        const user = await paymentRepo.updatePranayamaCertificationData(
+          reqBody.payDbId,
+          session.payment_intent,
+          true,
+        );
+        await savePranaArambhOnPranayamaCertification(user, reqBody);
+        await helper.sendPranayamaCertificationEmail(user, reqBody.password);
+        return resolve({
+          status: "success",
+          sessionId: reqBody.sessionId,
+          paymtId: session.payment_intent,
+          amount: session.amount_total / 100,
+          currency: session.currency,
+        });
+      } else {
+        await paymentRepo.updatePranayamaCertificationData(reqBody.payDbId, null, false);
+        return resolve({
+          status: "failed",
+          sessionId: reqBody.sessionId,
+        });
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+function savePranaArambhOnPranayamaCertification(user, reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let studentData = {
+        email: user.email,
+        firstName: user.name,
+        isActive: true,
+        password: reqBody.password,
+        course: [constants.COURSE.PRANAYAMA_CERTIFICATION],
+        source: `PranayamaCertification_${user._id}_${user.month || 'February, 2027'}`,
+        paymentCourseId: constants.COURSE.PRANAYAMA_CERTIFICATION,
+      };
+      if (user.phoneNumber && user.phoneNumber !== "N/A") {
+        studentData.phoneNumber = user.phoneNumber;
+      }
+      await studentRepo.createStudent(studentData);
+      return resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
 module.exports = {
   updateabc,
   checkoutRazorpayForPranicPurification,
@@ -2485,5 +2665,10 @@ module.exports = {
   verifyStripePaymentOnlineSadhana,
   savePranaArambhOn200TTC,
   createPranicPurificationIIStudent,
-  updatePranicPurificationIIStatusForcefully
+  updatePranicPurificationIIStatusForcefully,
+  checkoutRazorpayForPranayamaCertification,
+  getRazorPaymentResultPranayamaCertification,
+  checkoutStripeForPranayamaCertification,
+  getStripePaymentResultPranayamaCertification,
+  savePranaArambhOnPranayamaCertification
 };

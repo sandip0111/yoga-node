@@ -1054,6 +1054,34 @@ function createBaliCustomer(reqBody) {
     }
   });
 }
+function registerPranayamaCertificationUser(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const savedUser = await studentRepo.registerPranayamaCertificationStudentByAdmin({
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phone,
+        paymentStatus: constant.PAYMENT_STATUS.PAID,
+        created: new Date(),
+        paymentType: "paypal",
+        dueAmount: 0,
+        month: reqBody.month || "February, 2027",
+      });
+      await paymentService.savePranaArambhOnPranayamaCertification(savedUser, reqBody);
+      await helper.sendPranayamaCertificationEmail(savedUser, reqBody.password);
+      return resolve({
+        data: {
+          status: "ok",
+          message: "User registered successfully!",
+          userId: savedUser._id,
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
@@ -1071,4 +1099,5 @@ module.exports = {
   foundationOfSpiritualitySave,
   getAllLiveClassTeacher,
   createBaliCustomer,
+  registerPranayamaCertificationUser,
 };

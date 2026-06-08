@@ -9,6 +9,7 @@ const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 const baliStudentModel = require("../models/baliStudent");
 const constant = require("../helpers/constants.json");
 const pranicPurificationUsersIIModel = require("../models/pranicPurificationUserIIModel");
+const pranayamaCertificationModel = require("../models/pranayamaCertificationModel");
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
@@ -555,6 +556,61 @@ function getOneFromLiveCourse(id) {
     }
   });
 }
+function createPranayamaCertificationData(userData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await pranayamaCertificationModel.create(userData);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updatePranayamaCertificationData(id, paymentId, isPaid) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user;
+      if (isPaid) {
+        user = await pranayamaCertificationModel.findOneAndUpdate(
+          { _id: id },
+          {
+            paymentId: paymentId,
+            paymentStatus: "paid",
+          },
+          { new: true }
+        );
+      } else {
+        await pranayamaCertificationModel.findOneAndUpdate(
+          { _id: id },
+          { paymentStatus: "failed" }
+        );
+      }
+      return resolve(user);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updatePranayamaCertificationPayment(data, id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await pranayamaCertificationModel.findOneAndUpdate({ _id: id }, data);
+      return resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getPranayamaCertificationPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await pranayamaCertificationModel.findById(id).lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -590,5 +646,9 @@ module.exports = {
   createPranicIIUserData,
   pranicPurificationIIUpdateById,
   updatePranicIIUserData,
-  updatePranicPurificationIIStatusForcefully
+  updatePranicPurificationIIStatusForcefully,
+  createPranayamaCertificationData,
+  updatePranayamaCertificationData,
+  updatePranayamaCertificationPayment,
+  getPranayamaCertificationPaymentDetailsById
 };

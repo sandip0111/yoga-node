@@ -652,4 +652,29 @@ router.post(
 router.post("/removePranaArambhData", studentController.removePranaArambhData);
 router.post("/removeSwaraSadhanaData", studentController.removeSwaraSadhanaData);
 
+router.post(
+  "/checkoutRazorpayForPranayamaCertification",
+  adminController.checkoutRazorpayForPranayamaCertification,
+);
+router.post(
+  "/getRazorPaymentResultPranayamaCertification",
+  adminController.getRazorPaymentResultPranayamaCertification,
+);
+router.post(
+  "/checkoutStripeForPranayamaCertification",
+  adminController.checkoutStripeForPranayamaCertification,
+);
+router.post(
+  "/getStripePaymentResultPranayamaCertification",
+  adminController.getStripePaymentResultPranayamaCertification,
+);
+router.post(
+  "/registerPranayamaCertificationUser",
+  adminController.registerPranayamaCertificationUser,
+);
+router.post(
+  "/getPranayamaCertificationData",
+  studentController.getPranayamaCertificationData,
+);
+
 module.exports = router;
