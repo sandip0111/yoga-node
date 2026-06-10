@@ -6,7 +6,7 @@ const constants = require("../helpers/constants.json");
 // Email sending configuration
 const EMAIL_CONFIG = {
   BATCH_SIZE: 50,
-  DELAY_BETWEEN_EMAILS: 2000, // 2 seconds
+  DELAY_BETWEEN_EMAILS: 5000, // 5 seconds
   MAX_RETRIES: 2,
   RETRY_DELAY: 5000, // 5 seconds
   DEFAULT_SUBJECT:
