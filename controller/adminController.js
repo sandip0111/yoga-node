@@ -2750,7 +2750,7 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "A Gentle Return to Practice – New Batch Starts April 6";
+        "This June 21st, breathe with us — free webinar";
       const limit = parseInt(req.body.limit) || 500;
 
       const result = await subscriberService.sendBulkEmailToSubscribers(
