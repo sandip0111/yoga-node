@@ -2750,7 +2750,7 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "A Gentle Return to Practice – New Batch Starts April 6";
+        "This June 21st, breathe with us — free webinar";
       const limit = parseInt(req.body.limit) || 500;
 
       const result = await subscriberService.sendBulkEmailToSubscribers(
@@ -2850,6 +2850,53 @@ module.exports = {
           error: err.message,
         });
       }
+    }
+  },
+  checkoutRazorpayForPranayamaCertification: async function (req, res) {
+    try {
+      let result = await paymentService.checkoutRazorpayForPranayamaCertification(
+        req.body,
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Payment initialization failed" });
+    }
+  },
+  getRazorPaymentResultPranayamaCertification: async function (req, res) {
+    try {
+      let result = await paymentService.getRazorPaymentResultPranayamaCertification(req.body, req);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Error verifying Razorpay payment:", error);
+      res.status(500).json("Internal server error");
+    }
+  },
+  checkoutStripeForPranayamaCertification: async function (req, res) {
+    try {
+      let result = await paymentService.checkoutStripeForPranayamaCertification(req.body);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
+  getStripePaymentResultPranayamaCertification: async function (req, res) {
+    try {
+      const returnData = await paymentService.getStripePaymentResultPranayamaCertification(
+        req.body,
+        req,
+      );
+      res.status(200).json(returnData);
+    } catch (error) {
+      res.status(500).json("Internal server error");
+    }
+  },
+  registerPranayamaCertificationUser: async function (req, res) {
+    try {
+      const returnData = await adminService.registerPranayamaCertificationUser(req.body);
+      res.status(returnData.status).json(returnData.data);
+    } catch (err) {
+      res.status(400).json({ err });
     }
   },
 };

@@ -14,6 +14,7 @@ const baliStudentModel = require("../models/baliStudent");
 const constant = require("../helpers/constants.json");
 const onlinepaymentModel = require("../models/onlinePaymentModel");
 const pranicPurificationUsersIIModel = require("../models/pranicPurificationUserIIModel");
+const pranayamaCertificationModel = require("../models/pranayamaCertificationModel");
 const subscribeModel = require("../models/subscribeModel");
 
 module.exports = {
@@ -581,6 +582,27 @@ module.exports = {
           reqBody,
         );
         return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  registerPranayamaCertificationStudentByAdmin: function (savedData) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const newUser = new pranayamaCertificationModel(savedData);
+        const savedUser = await newUser.save();
+        return resolve(savedUser);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getPranayamaCertificationData: function (pipeline) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = await pranayamaCertificationModel.aggregate(pipeline);
+        return resolve(result);
       } catch (error) {
         return reject(error);
       }

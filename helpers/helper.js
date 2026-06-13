@@ -602,6 +602,17 @@ let sendMailForcefully = async function (req, res) {
     message: `Emails sent to ${users.length} users`,
   });
 };
+let sendPranayamaCertificationEmail = async function (user, password) {
+  const mailData = {
+    replacements: {
+      NAME: user.name
+    },
+    mailTo: user.email,
+    contentPath: constants.EMAIL_TEMPLATE.PRANAYAMA_CERTIFICATION,
+    subject: "Welcome to your Pranayama Certification",
+  };
+  await sendMail.createContent(mailData);
+};
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -634,5 +645,6 @@ module.exports = {
   sendMailForcefully,
   send200TTCInstalmentEmail,
   completePranicPurificationIIAutomationEmail,
-  completePranicPurificationIIEmail
+  completePranicPurificationIIEmail,
+  sendPranayamaCertificationEmail
 };

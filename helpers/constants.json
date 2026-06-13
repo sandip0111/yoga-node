@@ -10,7 +10,8 @@
     "RISHIKESH_100_HOURS": "6a00b48fcd2d329aa196508d",
     "RISHIKESH_200_HOURS": "6a00b5e5be6d5aa0d803b71f",
     "RISHIKESH_300_HOURS": "6a00b998eefefe86dfedb27e",
-    "PRANIC_PURIFICATION_II": "69ff20a10cd7ed2296fbbdcd"
+    "PRANIC_PURIFICATION_II": "69ff20a10cd7ed2296fbbdcd",
+    "PRANAYAMA_CERTIFICATION": "6a27033690441288acc644a4"
   },
   "EMAIL_TEMPLATE": {
     "PRANIC_PURIFICATION": "/emailTemplate/pranicPurification.html",
@@ -49,11 +50,12 @@
     "SUBSCRIBER_EMAIL_1": "/emailTemplate/subscriberEmail1.html",
     "SUBSCRIBER_EMAIL_2": "/emailTemplate/subscriberEmail2.html",
     "SUBSCRIBER_EMAIL_3": "/emailTemplate/subscriberEmail3.html",
-    "SUBSCRIBER_EMAIL_FORCEFULLY": "/emailTemplate/subscribers/subscriberEmail_20260330.html",
+    "SUBSCRIBER_EMAIL_FORCEFULLY": "/emailTemplate/subscribers/subscriberEmail_20260612.html",
     "OCTOBER_200_HOURS_RISHIKESH": "/emailTemplate/october200HrsRishikesh.html",
     "OCTOBER_300_HOURS_RISHIKESH": "/emailTemplate/october300HrsRishikesh.html",
     "PRANIC_PURIFICATION_II": "/emailTemplate/Pranic_purification_ii.html",
-    "COMPLETE_PRANIC_PURIFICATION_II": "/emailTemplate/completePranicPurificationII.html"
+    "COMPLETE_PRANIC_PURIFICATION_II": "/emailTemplate/completePranicPurificationII.html",
+    "PRANAYAMA_CERTIFICATION": "/emailTemplate/pranayamaCertification.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
@@ -74,7 +76,8 @@
     "RISHIKESH_300_HRS_OCTOBER_CHECKOUT": "https://www.yogavidyaschool.com/checkout/300-hours-yoga-teacher-training-in-rishikesh?month=October,%202026"
   },
   "SLUG": {
-    "PRANA_ARAMBH": "pranayama-course-online-pranarambha"
+    "PRANA_ARAMBH": "pranayama-course-online-pranarambha",
+    "PRANAYAMA_CERTIFICATION": "pranayama-certification"
   },
   "EMAIL_DATA": {
     "FROM": "Yoga Vidya School <info@yogavidyaschool.com>",
