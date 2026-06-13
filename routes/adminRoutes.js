@@ -651,5 +651,13 @@ router.post(
 );
 router.post("/removePranaArambhData", studentController.removePranaArambhData);
 router.post("/removeSwaraSadhanaData", studentController.removeSwaraSadhanaData);
+router.post("/removeFreeWebinarData", studentController.removeFreeWebinarData);
+router.post("/removePranicPurificationData", studentController.removePranicPurificationData);
+router.post("/removePranicPurificationIIData", studentController.removePranicPurificationIIData);
+router.post("/remove200TTCData", studentController.remove200TTCData);
+router.post("/removeOnlineLiveClassData", studentController.removeOnlineLiveClassData);
+router.post("/removeRishikeshData", studentController.removeRishikeshData);
+router.post("/removeBaliData", studentController.removeBaliData);
+router.post("/removeSubscribeData", studentController.removeSubscribeData);
 
 module.exports = router;

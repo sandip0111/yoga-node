@@ -55,7 +55,7 @@ const courseService = require("../services/courseService");
 const courseRepo = require("../repositories/courseRepository");
 const paymentTrackingService = require("../services/paymentTrackingService");
 const subscriberService = require("../services/subscriberService");
-
+const constant = require("../helpers/constants.json");
 const mentors = [
   {
     topic: "August 2025 : Yoga Sadhana With Prashant ji",
@@ -382,7 +382,7 @@ module.exports = {
     let size = req.body.size || 10;
     let pageNo = req.body.pageNo || 1;
     let searchText = req.body.searchText || "";
-    const query = {};
+    const query = { isDeleted: false };
     if (searchText) {
       query.$or = [
         { name: { $regex: searchText, $options: "i" } },
@@ -410,7 +410,7 @@ module.exports = {
         "63c4e12f2bce43a907211c76",
         "6a00b33b220856ac7775c2bf",
         "63c4eea32bce43a907211c7a",
-        "6a00abfc9a6ce5ba990f5e6f",
+        constant.COURSE.PRANA_ARAMBHA,
         "69ff6a520cd7ed2296fbbddb",
       ];
       const course = await courseModel.find(
@@ -2771,7 +2771,7 @@ module.exports = {
   sendPranicGuidanceWebinarForcefully: async function (req, res) {
     try {
       const users = await pranicPurificationUsersIIModel.find({
-        paymentStatus: "paid"
+        paymentStatus: "paid",
       });
       console.log(
         `Found ${users.length} students to send Pranic Guidance Webinar email`,
@@ -2799,7 +2799,7 @@ module.exports = {
             },
             mailTo: user.email,
             contentPath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
-            subject: "Pranic Purification II — Everything You Need to Begin"
+            subject: "Pranic Purification II — Everything You Need to Begin",
           };
 
           let attempts = 0;

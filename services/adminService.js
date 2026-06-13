@@ -269,18 +269,19 @@ function createPranaArambhCustomer(reqBody) {
         firstName: reqBody.name,
         email: reqBody.email,
         password: reqBody.password,
-        course: ["6a00abfc9a6ce5ba990f5e6f"],
+        course: [constant.COURSE.PRANA_ARAMBHA],
         isActive: true,
+        paymentCourseId: constant.COURSE.PRANA_ARAMBHA
       });
       const paymentData = {
-        courseId: "6a00abfc9a6ce5ba990f5e6f",
+        courseId: constant.COURSE.PRANA_ARAMBHA,
         studentId: student._id,
         paymentStatus: "paid",
         paymentBy: "Paypal",
       };
       await paymentModel.create(paymentData);
       let coursetitle = await courseRepo.getCourseById(
-        "6a00abfc9a6ce5ba990f5e6f",
+        constant.COURSE.PRANA_ARAMBHA,
       );
       let date = new Date();
       let replacement = {

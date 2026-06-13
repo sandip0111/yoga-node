@@ -62,11 +62,15 @@ const rishikeshStudentSchema = new mongoose.Schema({
   month: {
     type: String,
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const rishikeshStudentModel = mongoose.model(
   "rishikeshStudentModel",
-  rishikeshStudentSchema
+  rishikeshStudentSchema,
 );
 
 rishikeshStudentModel.MonthEnum = MonthEnum;

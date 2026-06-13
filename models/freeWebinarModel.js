@@ -24,6 +24,10 @@ const freeWebinarSchema = new mongoose.Schema({
     type: String,
     default: () => "June, 2026",
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const freeWebinarModel = mongoose.model("freeWebinar", freeWebinarSchema);

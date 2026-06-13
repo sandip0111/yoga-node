@@ -58,6 +58,7 @@ module.exports = {
         const searchText = reqBody.searchText;
         const month = reqBody.month ? reqBody.month : null;
         const filterCondition = {
+          isDeleted: false,
           "courses.id": +reqBody.teacherId,
           ...(searchText && {
             $or: [
@@ -288,6 +289,7 @@ module.exports = {
         }
 
         let pipeLine = [
+          { $match: { isDeleted: false } },
           { $sort: { _id: -1 } },
           { $skip: skip },
           { $limit: limit },
@@ -301,7 +303,10 @@ module.exports = {
             },
           },
         ];
-        let pipeLineCount = [{ $count: "total" }];
+        let pipeLineCount = [
+          { $match: { isDeleted: false } },
+          { $count: "total" },
+        ];
         if (searchText) {
           pipeLine.splice(0, 0, {
             $match: {
@@ -455,6 +460,7 @@ module.exports = {
           andConditions.push({ month: reqBody.month });
         }
         const filterCondition = {
+          isDeleted: false,
           ...(searchText && {
             $or: [
               { name: { $regex: searchText, $options: "i" } },
@@ -563,6 +569,7 @@ module.exports = {
           andConditions.push({ month: reqBody.month });
         }
         const filterCondition = {
+          isDeleted: false,
           ...(searchText && {
             $or: [
               { name: { $regex: searchText, $options: "i" } },
@@ -701,6 +708,7 @@ module.exports = {
         const limit = Number(size) || 0;
         const searchText = reqBody.searchText;
         let pipeLine = [
+          { $match: { isDeleted: false } },
           {
             $project: {
               _id: 1,
@@ -716,7 +724,10 @@ module.exports = {
             },
           },
         ];
-        let pipeLineCount = [{ $count: "total" }];
+        let pipeLineCount = [
+          { $match: { isDeleted: false } },
+          { $count: "total" },
+        ];
         if (searchText) {
           pipeLine.splice(1, 0, {
             $match: {
@@ -817,7 +828,7 @@ module.exports = {
         const validPageNo = Math.max(1, parseInt(pageNo) || 1);
         const validSize = Math.max(1, parseInt(size) || 10);
         const skip = validSize * (validPageNo - 1);
-        const filter = {};
+        const filter = { isDeleted: false };
         if (searchText && searchText.trim()) {
           filter.$or = [
             { name: { $regex: searchText, $options: "i" } },
@@ -871,7 +882,7 @@ module.exports = {
         const validPageNo = Math.max(1, parseInt(pageNo) || 1);
         const validSize = Math.max(1, parseInt(size) || 10);
         const skip = validSize * (validPageNo - 1);
-        const filter = {};
+        const filter = { isDeleted: false };
         if (searchText && searchText.trim()) {
           filter.$or = [
             { name: { $regex: searchText, $options: "i" } },
@@ -946,6 +957,59 @@ module.exports = {
   },
   removeSwaraSadhanaData: async function (studentId) {
     await studentRepo.updateSwaraSadhana({ isDeleted: true, _id: studentId });
+    return 1;
+  },
+  removeFreeWebinarData: async function (studentId) {
+    await studentRepo.updateFreeWebinar({ isDeleted: true, _id: studentId });
+    return 1;
+  },
+  removePranicPurificationData: async function (studentId) {
+    await studentRepo.updatePranicPurification({
+      isDeleted: true,
+      _id: studentId,
+    });
+    return 1;
+  },
+  removePranicPurificationIIData: async function (studentId) {
+    await studentRepo.updatePranicPurificationII({
+      isDeleted: true,
+      _id: studentId,
+    });
+    return 1;
+  },
+  remove200TTCData: async function (studentId) {
+    await studentRepo.update200TTC({
+      isDeleted: true,
+      _id: studentId,
+    });
+    return 1;
+  },
+  removeOnlineLiveClassData: async function (studentId) {
+    await studentRepo.updateOnlineLiveClass({
+      isDeleted: true,
+      _id: studentId,
+    });
+    return 1;
+  },
+  removeRishikeshData: async function (studentId) {
+    await studentRepo.updateRishikeshStudent({
+      isDeleted: true,
+      _id: studentId,
+    });
+    return 1;
+  },
+  removeBaliData: async function (studentId) {
+    await studentRepo.updateBaliStudent({
+      isDeleted: true,
+      _id: studentId,
+    });
+    return 1;
+  },
+  removeSubscribeData: async function (studentId) {
+    await studentRepo.updateSubscribeStudent({
+      isDeleted: true,
+      _id: studentId,
+    });
     return 1;
   },
 };

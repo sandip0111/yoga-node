@@ -147,7 +147,7 @@ function getAllLiveClassTeacher() {
           {
             _id: constant.COURSE.ONLINE_LIVE_CLASSES,
           },
-          { "teachersData.teacher": 1, "teachersData.id": 1 }
+          { "teachersData.name": 1, "teachersData.id": 1 }
         )
         .sort({ created: -1 });
       return resolve(courseVideo);

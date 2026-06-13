@@ -63,6 +63,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("pranicPurificationUsersModel", userSchema);
