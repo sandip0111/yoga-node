@@ -27,7 +27,7 @@ const webinarUser = require("../models/webinarRegiserUserModel");
 const fs = require("fs");
 const path = require("path");
 const handlebars = require("handlebars");
-const { transporter, createContent } = require("../helpers/nodemail");
+const { transporter, createContent, sendCampaignInBackground } = require("../helpers/nodemail");
 const { getTimeBefore } = require("../helpers/helper");
 const mongoose = require("mongoose");
 const XLSX = require("xlsx");
@@ -55,7 +55,7 @@ const courseService = require("../services/courseService");
 const courseRepo = require("../repositories/courseRepository");
 const paymentTrackingService = require("../services/paymentTrackingService");
 const subscriberService = require("../services/subscriberService");
-
+const constant = require("../helpers/constants.json");
 const mentors = [
   {
     topic: "August 2025 : Yoga Sadhana With Prashant ji",
@@ -382,7 +382,7 @@ module.exports = {
     let size = req.body.size || 10;
     let pageNo = req.body.pageNo || 1;
     let searchText = req.body.searchText || "";
-    const query = {};
+    const query = { isDeleted: false };
     if (searchText) {
       query.$or = [
         { name: { $regex: searchText, $options: "i" } },
@@ -410,7 +410,7 @@ module.exports = {
         "63c4e12f2bce43a907211c76",
         "6a00b33b220856ac7775c2bf",
         "63c4eea32bce43a907211c7a",
-        "6a00abfc9a6ce5ba990f5e6f",
+        constant.COURSE.PRANA_ARAMBHA,
         "69ff6a520cd7ed2296fbbddb",
       ];
       const course = await courseModel.find(
@@ -2750,32 +2750,112 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "A Gentle Return to Practice – New Batch Starts April 6";
+        "This June 21st, breathe with us — free webinar";
       const limit = parseInt(req.body.limit) || 500;
 
-      const result = await subscriberService.sendBulkEmailToSubscribers(
+      const subscriberRepo = require("../repositories/subscriberRepository");
+      const subscribers = await subscriberRepo.getFilteredSubscribers(
         emailSubject,
         limit,
       );
 
-      res.status(200).json(result);
+      if (subscribers.length === 0) {
+        return res.status(200).json({
+          success: true,
+          totalUsers: 0,
+          message: "No eligible subscribers found.",
+        });
+      }
+
+      // Respond immediately
+      res.status(200).json({
+        success: true,
+        totalUsers: subscribers.length,
+        message: `Emails are being sent to ${subscribers.length} subscribers in the background.`,
+      });
+
+      // Start background process
+      subscriberService.sendBulkEmailToSubscribers(
+        emailSubject,
+        limit,
+        subscribers
+      ).catch((err) => {
+        console.error("Error in background sendMailToSubscribersForcefully:", err);
+      });
     } catch (err) {
       console.error("Error in sendMailToSubscribersForcefully:", err);
-      res.status(500).json({
-        status: "error",
-        message: "Internal server error",
-        error: err.message,
+      if (!res.headersSent) {
+        res.status(500).json({
+          status: "error",
+          message: "Internal server error",
+          error: err.message,
+        });
+      }
+    }
+  },
+  sendMailToFreeWebinarForcefully: async function (req, res) {
+    try {
+      const emailSubject =
+        req.body.emailSubject?.trim() ||
+        "You were there in January — come back on June 21st";
+      const limit = parseInt(req.body.limit) || 500;
+
+      const courseRepo = require("../repositories/courseRepository");
+      const customers = await courseRepo.getFilteredFreeWebinarCustomers(
+        emailSubject,
+        limit,
+      );
+
+      if (customers.length === 0) {
+        return res.status(200).json({
+          success: true,
+          totalUsers: 0,
+          message: "No eligible free webinar users found.",
+        });
+      }
+
+      // Respond immediately
+      res.status(200).json({
+        success: true,
+        totalUsers: customers.length,
+        message: `Emails are being sent to ${customers.length} free webinar users in the background.`,
       });
+
+      // Start background send
+      adminService.sendBulkEmailToFreeWebinarUsersForcefully(
+        emailSubject,
+        limit,
+        customers
+      ).catch((err) => {
+        console.error("Error in background sendMailToFreeWebinarForcefully:", err);
+      });
+    } catch (err) {
+      console.error("Error in sendMailToFreeWebinarForcefully:", err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          status: "error",
+          message: "Internal server error",
+          error: err.message,
+        });
+      }
     }
   },
   sendPranicGuidanceWebinarForcefully: async function (req, res) {
     try {
       const users = await pranicPurificationUsersIIModel.find({
-        paymentStatus: "paid"
+        paymentStatus: "paid",
       });
       console.log(
         `Found ${users.length} students to send Pranic Guidance Webinar email`,
       );
+
+      if (users.length === 0) {
+        return res.status(200).json({
+          success: true,
+          totalUsers: 0,
+          message: "No paid users found to send Pranic Guidance Webinar email.",
+        });
+      }
 
       // Respond immediately before starting the long-running email process
       res.status(200).json({
@@ -2784,63 +2864,15 @@ module.exports = {
         message: `Emails are being sent to ${users.length} users in the background to ensure all are delivered safely.`,
       });
 
-      // Run email sending in background
-      (async () => {
-        let successCount = 0;
-        let failedCount = 0;
-        const MAX_RETRIES = 3;
-        const DELAY_BETWEEN_EMAILS = 5000; // 5 second delay avoids SMTP rate-limiting
-
-        for (let i = 0; i < users.length; i++) {
-          const user = users[i];
-          const mailData = {
-            replacements: {
-              name: user.name,
-            },
-            mailTo: user.email,
-            contentPath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
-            subject: "Pranic Purification II — Everything You Need to Begin"
-          };
-
-          let attempts = 0;
-          let success = false;
-
-          while (attempts < MAX_RETRIES && !success) {
-            try {
-              await createContent(mailData);
-              success = true;
-              successCount++;
-              console.log(
-                `[${i + 1}/${users.length}] ✓ Email sent successfully to ${user.name} (${user.email})`,
-              );
-            } catch (emailError) {
-              attempts++;
-              console.error(
-                `[${i + 1}/${users.length}] ✗ Attempt ${attempts} failed for ${user.email} - Retrying...`,
-              );
-              if (attempts < MAX_RETRIES) {
-                await new Promise((r) => setTimeout(r, 2000)); // delay before retry
-              }
-            }
-          }
-
-          if (!success) {
-            failedCount++;
-            console.error(
-              `[${i + 1}/${users.length}] ❌ Final failure for ${user.email} after ${MAX_RETRIES} attempts.`,
-            );
-          }
-
-          // Small delay before next user
-          if (i < users.length - 1) {
-            await new Promise((r) => setTimeout(r, DELAY_BETWEEN_EMAILS));
-          }
+      // Run email sending in background using Brevo SMTP campaign runner
+      sendCampaignInBackground(
+        users,
+        {
+          subject: "Pranic Purification II — Everything You Need to Begin",
+          templatePath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
+          replacementsFn: (user) => ({ name: user.name }),
         }
-
-        console.log(
-          `✅ Bulk email process finished. Success: ${successCount}, Failed: ${failedCount}`,
-        );
-      })();
+      );
     } catch (err) {
       console.error("Error in sendPranicGuidanceWebinarForcefully:", err);
       if (!res.headersSent) {

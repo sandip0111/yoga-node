@@ -8,6 +8,7 @@ const courseModel = require("../models/courseModel");
 const liveCoursesCustomerModel = require("../models/liveCoursesCustomerModel");
 const studentService = require("../services/studentService");
 const paymentService = require("../services/paymentService");
+const constant = require("../helpers/constants.json");
 module.exports = {
   createUpdateStudent: async function (req, res) {
     {
@@ -344,12 +345,12 @@ module.exports = {
       const student = await Student.findOne({ _id: req.body.studentId });
       if (student.course) {
         if (student.course.length > 0) {
-          coursebody = [...student.course, "6a00abfc9a6ce5ba990f5e6f"];
+          coursebody = [...student.course, constant.COURSE.PRANA_ARAMBHA];
         } else {
-          coursebody = ["6a00abfc9a6ce5ba990f5e6f"];
+          coursebody = [constant.COURSE.PRANA_ARAMBHA];
         }
       } else {
-        coursebody = ["6a00abfc9a6ce5ba990f5e6f"];
+        coursebody = [constant.COURSE.PRANA_ARAMBHA];
       }
       let uniqueArray = coursebody.filter((value, index, self) => {
         return self.indexOf(value) === index;
@@ -437,21 +438,6 @@ module.exports = {
     let pass = Math.random().toString(36).slice(2);
 
     try {
-      //   if (checkUser > 0) {
-      //       await Student.findOneAndUpdate(
-      //           { _id: user._id },
-      //           { source: "PranaArabha-Landing-page" }
-      //         );
-      //         let checkCourse = await Student.countDocuments({_id:user._id,course:{$in:"6a00abfc9a6ce5ba990f5e6f"}});
-
-      //         if(checkCourse > 0){
-      //             res.status(200).json({ status: "error",msg:"Already Purchased!!"});
-      //         }
-      //         else{
-      //         sendRegistrationEmailV2(user._id);
-      //         res.status(200).json({ status: "ok",stuId:user._id });
-      //     }
-      //   } else {
       let bg = {
         firstName: req.body.name,
         email: req.body.email.toLowerCase(),
@@ -577,7 +563,7 @@ module.exports = {
       await studentService.removePranaArambhData(req.body.studentId);
       res.status(200).json({ msg: "Data removed successfully" });
     } catch (err) {
-      console.error("Error fetching Bali data:", err);
+      console.error("Error removing prana arambh data:", err);
       res.status(500).json({ status: "error", msg: err.message });
     }
   },
@@ -586,7 +572,79 @@ module.exports = {
       await studentService.removeSwaraSadhanaData(req.body.studentId);
       res.status(200).json({ msg: "Data removed successfully" });
     } catch (err) {
-      console.error("Error fetching Bali data:", err);
+      console.error("Error removing swara sadhana data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removeFreeWebinarData: async function (req, res) {
+    try {
+      await studentService.removeFreeWebinarData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing free webinar data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removePranicPurificationData: async function (req, res) {
+    try {
+      await studentService.removePranicPurificationData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing pranic purification data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removePranicPurificationIIData: async function (req, res) {
+    try {
+      await studentService.removePranicPurificationIIData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing pranic purification II data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  remove200TTCData: async function (req, res) {
+    try {
+      await studentService.remove200TTCData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing 200TTC data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removeOnlineLiveClassData: async function (req, res) {
+    try {
+      await studentService.removeOnlineLiveClassData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing online live class data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removeRishikeshData: async function (req, res) {
+    try {
+      await studentService.removeRishikeshData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing Rishikesh data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removeBaliData: async function (req, res) {
+    try {
+      await studentService.removeBaliData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing Bali data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removeSubscribeData: async function (req, res) {
+    try {
+      await studentService.removeSubscribeData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing Subscribe data:", err);
       res.status(500).json({ status: "error", msg: err.message });
     }
   },
@@ -603,7 +661,7 @@ module.exports = {
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });
-  let course = await courseModel.findOne({ _id: "6a00abfc9a6ce5ba990f5e6f" });
+  let course = await courseModel.findOne({ _id: constant.COURSE.PRANA_ARAMBHA });
   let mailOptions;
   const filePath = path.join(__dirname, "/emailTemplate/prana.html");
   const source = fs.readFileSync(filePath, "utf-8").toString();

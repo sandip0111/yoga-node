@@ -58,9 +58,10 @@ const baliStudentSchema = new mongoose.Schema({
     type: String,
     // default: () => "March, 2026",
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-module.exports = mongoose.model(
-  "baliStudentModel",
-  baliStudentSchema
-);
+module.exports = mongoose.model("baliStudentModel", baliStudentSchema);

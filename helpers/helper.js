@@ -613,6 +613,16 @@ let sendPranayamaCertificationEmail = async function (user, password) {
   };
   await sendMail.createContent(mailData);
 };
+let sendForceFreeWebinerMail = async function (email, subject, templatePath) {
+  const mailData = {
+    replacements: {},
+    mailTo: email,
+    contentPath: templatePath || constants.EMAIL_TEMPLATE.FREEWEBINAR_EMAIL_FORCEFULLY,
+    subject: subject || "You were there in January — come back on June 21st",
+  };
+  await sendMail.createContent(mailData);
+};
+
 module.exports = {
   getTimeBefore,
   sendRegistrationEmailV2,
@@ -646,5 +656,6 @@ module.exports = {
   send200TTCInstalmentEmail,
   completePranicPurificationIIAutomationEmail,
   completePranicPurificationIIEmail,
-  sendPranayamaCertificationEmail
+  sendPranayamaCertificationEmail,
+  sendForceFreeWebinerMail
 };

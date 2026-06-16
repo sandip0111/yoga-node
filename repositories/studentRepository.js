@@ -15,6 +15,8 @@ const constant = require("../helpers/constants.json");
 const onlinepaymentModel = require("../models/onlinePaymentModel");
 const pranicPurificationUsersIIModel = require("../models/pranicPurificationUserIIModel");
 const pranayamaCertificationModel = require("../models/pranayamaCertificationModel");
+const subscribeModel = require("../models/subscribeModel");
+
 module.exports = {
   getStudentCountFilter: function (pipeline) {
     return new Promise(async (resolve, reject) => {
@@ -481,6 +483,110 @@ module.exports = {
       }
     });
   },
+  updateFreeWebinar: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await freeWebinarModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  updatePranicPurification: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await pranicPurificationModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  updatePranicPurificationII: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await pranicPurificationUsersIIModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  update200TTC: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await twoHundredHourTTCModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  updateOnlineLiveClass: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await liveCoursesCustomerModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  updateRishikeshStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await rishikeshStudentModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  updateBaliStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await baliStudentModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  updateSubscribeStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await subscribeModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
   registerPranayamaCertificationStudentByAdmin: function (savedData) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -530,8 +636,8 @@ let getTotalStudent = async function (
           {
             $match: paymentStatus
               ? {
-                paymentStatus: { $regex: paymentStatus, $options: "i" },
-              }
+                  paymentStatus: { $regex: paymentStatus, $options: "i" },
+                }
               : {},
           },
         ],
@@ -571,8 +677,8 @@ let getTotalStudentCount = async function (
           {
             $match: paymentStatus
               ? {
-                paymentStatus: { $regex: paymentStatus, $options: "i" },
-              }
+                  paymentStatus: { $regex: paymentStatus, $options: "i" },
+                }
               : {},
           },
         ],

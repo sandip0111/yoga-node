@@ -46,6 +46,10 @@ const subsSchema = new mongoose.Schema({
     ],
     default: [],
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Subscribe = mongoose.model("subscribe", subsSchema);

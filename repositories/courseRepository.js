@@ -147,10 +147,25 @@ function getAllLiveClassTeacher() {
           {
             _id: constant.COURSE.ONLINE_LIVE_CLASSES,
           },
-          { "teachersData.teacher": 1, "teachersData.id": 1 }
+          { "teachersData.name": 1, "teachersData.id": 1 }
         )
         .sort({ created: -1 });
       return resolve(courseVideo);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+function getFilteredFreeWebinarCustomers(emailSubject, limit = 500) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const customers = await freeWebinarModel
+        .find({})
+        .select("_id name email")
+        .limit(limit);
+
+      return resolve(customers);
     } catch (error) {
       reject(error);
     }
@@ -169,4 +184,5 @@ module.exports = {
   uploadCourseVideo,
   getLastCourseVideo,
   getAllLiveClassTeacher,
+  getFilteredFreeWebinarCustomers
 };

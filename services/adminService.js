@@ -3,6 +3,7 @@ const studentRepo = require("../repositories/studentRepository");
 const courseRepo = require("../repositories/courseRepository");
 const helper = require("../helpers/helper");
 const constant = require("../helpers/constants.json");
+const sendMail = require("../helpers/nodemail");
 const liveCoursesCustomermodel = require("../models/liveCoursesCustomerModel");
 const paymentRepo = require("../repositories/paymentRepository");
 const paymentModel = require("../models/paymentModel");
@@ -269,18 +270,19 @@ function createPranaArambhCustomer(reqBody) {
         firstName: reqBody.name,
         email: reqBody.email,
         password: reqBody.password,
-        course: ["6a00abfc9a6ce5ba990f5e6f"],
+        course: [constant.COURSE.PRANA_ARAMBHA],
         isActive: true,
+        paymentCourseId: constant.COURSE.PRANA_ARAMBHA
       });
       const paymentData = {
-        courseId: "6a00abfc9a6ce5ba990f5e6f",
+        courseId: constant.COURSE.PRANA_ARAMBHA,
         studentId: student._id,
         paymentStatus: "paid",
         paymentBy: "Paypal",
       };
       await paymentModel.create(paymentData);
       let coursetitle = await courseRepo.getCourseById(
-        "6a00abfc9a6ce5ba990f5e6f",
+        constant.COURSE.PRANA_ARAMBHA,
       );
       let date = new Date();
       let replacement = {
@@ -1082,6 +1084,61 @@ function registerPranayamaCertificationUser(reqBody) {
     }
   });
 }
+
+function sendBulkEmailToFreeWebinarUsersForcefully(emailSubject, limit, preFetchedCustomers = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log("=== Starting Forceful Bulk Email Send Process for Free Webinar ===");
+      console.log(`Email Subject: ${emailSubject}`);
+      console.log(`Limit: ${limit} users`);
+
+      // Retrieve eligible webinar users (emailHistory check is removed since we deleted it)
+      const customers = preFetchedCustomers || await courseRepo.getFilteredFreeWebinarCustomers(
+        emailSubject,
+        limit,
+      );
+
+      console.log(`Total eligible free webinar customers found: ${customers.length}`);
+
+      if (customers.length === 0) {
+        return resolve({
+          data: {
+            status: "ok",
+            message: "No eligible free webinar users found",
+            totalUsers: 0,
+            successCount: 0,
+            failedCount: 0,
+            details: [],
+          },
+          status: 200,
+        });
+      }
+
+      // Trigger the background send using Brevo SMTP
+      sendMail.sendCampaignInBackground(
+        customers,
+        {
+          subject: emailSubject,
+          templatePath: constant.EMAIL_TEMPLATE.FREEWEBINAR_EMAIL_FORCEFULLY,
+          replacementsFn: () => ({}),
+        }
+      );
+
+      return resolve({
+        data: {
+          status: "ok",
+          message: "Bulk email process initiated in the background",
+          totalUsers: customers.length,
+        },
+        status: 200,
+      });
+    } catch (error) {
+      console.error("Critical error in webinar bulk email process:", error);
+      reject(error);
+    }
+  });
+}
+
 module.exports = {
   registerSwarSadhanaWebinarUser,
   registerPranicPurificationUser,
@@ -1100,4 +1157,5 @@ module.exports = {
   getAllLiveClassTeacher,
   createBaliCustomer,
   registerPranayamaCertificationUser,
+  sendBulkEmailToFreeWebinarUsersForcefully,
 };
