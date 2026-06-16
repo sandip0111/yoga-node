@@ -2751,7 +2751,6 @@ module.exports = {
       const emailSubject =
         req.body.emailSubject?.trim() ||
         "This June 21st, breathe with us — free webinar";
-        "This June 21st, breathe with us — free webinar";
       const limit = parseInt(req.body.limit) || 500;
 
       const subscriberRepo = require("../repositories/subscriberRepository");
@@ -2844,7 +2843,6 @@ module.exports = {
   sendPranicGuidanceWebinarForcefully: async function (req, res) {
     try {
       const users = await pranicPurificationUsersIIModel.find({
-        paymentStatus: "paid",
         paymentStatus: "paid",
       });
       console.log(
