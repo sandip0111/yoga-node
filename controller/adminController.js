@@ -56,7 +56,6 @@ const courseRepo = require("../repositories/courseRepository");
 const paymentTrackingService = require("../services/paymentTrackingService");
 const subscriberService = require("../services/subscriberService");
 const constant = require("../helpers/constants.json");
-const constant = require("../helpers/constants.json");
 const mentors = [
   {
     topic: "August 2025 : Yoga Sadhana With Prashant ji",
@@ -383,7 +382,6 @@ module.exports = {
     let size = req.body.size || 10;
     let pageNo = req.body.pageNo || 1;
     let searchText = req.body.searchText || "";
-    const query = { isDeleted: false };
     const query = { isDeleted: false };
     if (searchText) {
       query.$or = [
