@@ -7,19 +7,18 @@ const { promisify } = require("util");
 const resolveMx = promisify(dns.resolveMx);
 const lookup = promisify(dns.lookup);
 
-let mxCheckSupported = true;
+let mxCheckSupported = null; // null = probe not yet settled
 
-// Startup probe to check if direct DNS port 53 queries are working.
-// If direct MX lookup fails due to system configuration (e.g. ECONNREFUSED/ETIMEOUT),
-// we disable MX check in the library to prevent false negatives.
-resolveMx("gmail.com")
+// Store the probe as a Promise so callers can await it.
+// This guarantees the flag is set before any validation runs.
+const mxProbeReady = resolveMx("gmail.com")
   .then(() => {
     console.log("[EmailValidator] DNS MX check is working. Enforcing MX verification.");
     mxCheckSupported = true;
   })
   .catch((err) => {
     if (err.code === "ECONNREFUSED" || err.code === "ETIMEOUT") {
-      console.log("[EmailValidator] Outbound port 53 is blocked (connection refused/timeout). Disabling library MX records check to avoid false negatives.");
+      console.log("[EmailValidator] Outbound port 53 is blocked. Disabling library MX records check to avoid false negatives.");
       mxCheckSupported = false;
     } else {
       console.log(`[EmailValidator] MX probe failed with code: ${err.code}. Keeping MX check enabled.`);
@@ -59,6 +58,7 @@ async function checkDomainExists(domain) {
 
 /**
  * Validates syntax, disposable domains, fake domains, typos, and MX records using deep-email-validator
+ * Awaits the startup DNS probe so the mxCheckSupported flag is always settled before use.
  * @param {string} email - Email address to check
  * @returns {Promise<boolean>} True if valid, false otherwise
  */
@@ -66,6 +66,9 @@ async function validateEmail(email) {
   if (!email || typeof email !== "string") {
     return false;
   }
+
+  // Always wait for the probe to finish before reading the flag
+  await mxProbeReady;
 
   const trimmed = email.trim();
   const parts = trimmed.split("@");
