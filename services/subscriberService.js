@@ -29,11 +29,26 @@ async function sendBulkEmailToSubscribers(
       };
     }
 
+    // Filter valid and existing emails to prevent bounces
+    const emailValidator = require("../helpers/emailValidator");
+    console.log("[SubscriberCampaign] Validating email addresses and domain DNS records...");
+    const validSubscribers = await emailValidator.filterValidEmails(subscribers);
+    console.log(`[SubscriberCampaign] Validation complete. Total: ${subscribers.length}, Valid: ${validSubscribers.length}, Filtered out: ${subscribers.length - validSubscribers.length}`);
+
+    if (validSubscribers.length === 0) {
+      console.log("[SubscriberCampaign] No valid subscriber emails remaining after validation.");
+      return {
+        status: "ok",
+        message: "No valid subscribers found after email verification",
+        totalSubscribers: 0,
+      };
+    }
+
     const emailHistoryUpdates = [];
 
     // Trigger the background send
     sendMail.sendCampaignInBackground(
-      subscribers,
+      validSubscribers,
       {
         subject: emailSubject,
         templatePath: sendMail.EMAIL_CONFIG.DEFAULT_TEMPLATE,
@@ -66,7 +81,7 @@ async function sendBulkEmailToSubscribers(
     return {
       status: "ok",
       message: "Bulk email process initiated in the background",
-      totalSubscribers: subscribers.length,
+      totalSubscribers: validSubscribers.length,
     };
   } catch (error) {
     console.error("Error initiating bulk email process:", error);

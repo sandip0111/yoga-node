@@ -2864,15 +2864,32 @@ module.exports = {
         message: `Emails are being sent to ${users.length} users in the background to ensure all are delivered safely.`,
       });
 
-      // Run email sending in background using Brevo SMTP campaign runner
-      sendCampaignInBackground(
-        users,
-        {
-          subject: "Pranic Purification II — Everything You Need to Begin",
-          templatePath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
-          replacementsFn: (user) => ({ name: user.name }),
+      // Run email validation and sending in the background to prevent blocking
+      (async () => {
+        try {
+          const emailValidator = require("../helpers/emailValidator");
+          console.log("[PranicGuidanceCampaign] Validating email addresses and domain DNS records...");
+          const validUsers = await emailValidator.filterValidEmails(users);
+          console.log(`[PranicGuidanceCampaign] Validation complete. Total: ${users.length}, Valid: ${validUsers.length}, Filtered out: ${users.length - validUsers.length}`);
+
+          if (validUsers.length === 0) {
+            console.log("[PranicGuidanceCampaign] No valid emails remaining after validation. Skipping campaign.");
+            return;
+          }
+
+          // Run email sending in background using Brevo SMTP campaign runner
+          sendCampaignInBackground(
+            validUsers,
+            {
+              subject: "Pranic Purification II — Everything You Need to Begin",
+              templatePath: constants.EMAIL_TEMPLATE.PRANIC_GUIDANCE_WEBINAR,
+              replacementsFn: (user) => ({ name: user.name }),
+            }
+          );
+        } catch (bgErr) {
+          console.error("Error in background PranicGuidanceCampaign email process:", bgErr);
         }
-      );
+      })();
     } catch (err) {
       console.error("Error in sendPranicGuidanceWebinarForcefully:", err);
       if (!res.headersSent) {
