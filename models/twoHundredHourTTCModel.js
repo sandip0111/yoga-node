@@ -16,6 +16,9 @@ const twoHundredHourTTCSchema = new mongoose.Schema({
   package: {
     type: String,
   },
+  room: {
+    type: String,
+  },
   currency: {
     type: String,
   },
