@@ -1114,9 +1114,30 @@ function sendBulkEmailToFreeWebinarUsersForcefully(emailSubject, limit, preFetch
         });
       }
 
+      // Filter valid and existing emails to prevent bounces
+      const emailValidator = require("../helpers/emailValidator");
+      console.log("[FreeWebinarCampaign] Validating email addresses and domain DNS records...");
+      const validCustomers = await emailValidator.filterValidEmails(customers);
+      console.log(`[FreeWebinarCampaign] Validation complete. Total: ${customers.length}, Valid: ${validCustomers.length}, Filtered out: ${customers.length - validCustomers.length}`);
+
+      if (validCustomers.length === 0) {
+        console.log("[FreeWebinarCampaign] No valid free webinar emails remaining after validation.");
+        return resolve({
+          data: {
+            status: "ok",
+            message: "No valid free webinar users found after email verification",
+            totalUsers: 0,
+            successCount: 0,
+            failedCount: 0,
+            details: [],
+          },
+          status: 200,
+        });
+      }
+
       // Trigger the background send using Brevo SMTP
       sendMail.sendCampaignInBackground(
-        customers,
+        validCustomers,
         {
           subject: emailSubject,
           templatePath: constant.EMAIL_TEMPLATE.FREEWEBINAR_EMAIL_FORCEFULLY,
@@ -1128,7 +1149,7 @@ function sendBulkEmailToFreeWebinarUsersForcefully(emailSubject, limit, preFetch
         data: {
           status: "ok",
           message: "Bulk email process initiated in the background",
-          totalUsers: customers.length,
+          totalUsers: validCustomers.length,
         },
         status: 200,
       });
