@@ -8,9 +8,9 @@ const axios = require("axios");
 
 const EMAIL_CONFIG = {
   BATCH_SIZE: 50,
-  DELAY_BETWEEN_EMAILS: 5000, // 5 seconds
+  DELAY_BETWEEN_EMAILS: 3000, // 3 seconds
   MAX_RETRIES: 2,
-  RETRY_DELAY: 5000, // 5 seconds
+  RETRY_DELAY: 3000, // 3 seconds
   DEFAULT_SUBJECT:
     "A New Beginning at Yoga Vidya School – A Message from Prashant",
   DEFAULT_LIMIT: 500,
