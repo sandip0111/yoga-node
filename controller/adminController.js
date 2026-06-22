@@ -2759,7 +2759,10 @@ module.exports = {
         limit,
       );
 
-      if (subscribers.length === 0) {
+      // Deduplicate emails to ensure we do not send multiple emails to the same address
+      const uniqueSubscribers = helper.deduplicateByEmail(subscribers);
+
+      if (uniqueSubscribers.length === 0) {
         return res.status(200).json({
           success: true,
           totalUsers: 0,
@@ -2770,15 +2773,15 @@ module.exports = {
       // Respond immediately
       res.status(200).json({
         success: true,
-        totalUsers: subscribers.length,
-        message: `Emails are being sent to ${subscribers.length} subscribers in the background.`,
+        totalUsers: uniqueSubscribers.length,
+        message: `Emails are being sent to ${uniqueSubscribers.length} subscribers in the background.`,
       });
 
       // Start background process
       subscriberService.sendBulkEmailToSubscribers(
         emailSubject,
         limit,
-        subscribers
+        uniqueSubscribers
       ).catch((err) => {
         console.error("Error in background sendMailToSubscribersForcefully:", err);
       });
@@ -2806,7 +2809,10 @@ module.exports = {
         limit,
       );
 
-      if (customers.length === 0) {
+      // Deduplicate emails to ensure we do not send multiple emails to the same address
+      const uniqueCustomers = helper.deduplicateByEmail(customers);
+
+      if (uniqueCustomers.length === 0) {
         return res.status(200).json({
           success: true,
           totalUsers: 0,
@@ -2817,15 +2823,15 @@ module.exports = {
       // Respond immediately
       res.status(200).json({
         success: true,
-        totalUsers: customers.length,
-        message: `Emails are being sent to ${customers.length} free webinar users in the background.`,
+        totalUsers: uniqueCustomers.length,
+        message: `Emails are being sent to ${uniqueCustomers.length} free webinar users in the background.`,
       });
 
       // Start background send
       adminService.sendBulkEmailToFreeWebinarUsersForcefully(
         emailSubject,
         limit,
-        customers
+        uniqueCustomers
       ).catch((err) => {
         console.error("Error in background sendMailToFreeWebinarForcefully:", err);
       });
@@ -2849,7 +2855,13 @@ module.exports = {
         `Found ${users.length} students to send Pranic Guidance Webinar email`,
       );
 
-      if (users.length === 0) {
+      // Deduplicate emails to ensure we do not send multiple emails to the same address
+      const uniqueUsers = helper.deduplicateByEmail(users);
+      console.log(
+        `Found ${uniqueUsers.length} unique students to send Pranic Guidance Webinar email after deduplication`,
+      );
+
+      if (uniqueUsers.length === 0) {
         return res.status(200).json({
           success: true,
           totalUsers: 0,
@@ -2860,8 +2872,8 @@ module.exports = {
       // Respond immediately before starting the long-running email process
       res.status(200).json({
         success: true,
-        totalUsers: users.length,
-        message: `Emails are being sent to ${users.length} users in the background to ensure all are delivered safely.`,
+        totalUsers: uniqueUsers.length,
+        message: `Emails are being sent to ${uniqueUsers.length} users in the background to ensure all are delivered safely.`,
       });
 
       // Run email validation and sending in the background to prevent blocking
@@ -2869,8 +2881,8 @@ module.exports = {
         try {
           const emailValidator = require("../helpers/emailValidator");
           console.log("[PranicGuidanceCampaign] Validating email addresses and domain DNS records...");
-          const validUsers = await emailValidator.filterValidEmails(users);
-          console.log(`[PranicGuidanceCampaign] Validation complete. Total: ${users.length}, Valid: ${validUsers.length}, Filtered out: ${users.length - validUsers.length}`);
+          const validUsers = await emailValidator.filterValidEmails(uniqueUsers);
+          console.log(`[PranicGuidanceCampaign] Validation complete. Total: ${uniqueUsers.length}, Valid: ${validUsers.length}, Filtered out: ${uniqueUsers.length - validUsers.length}`);
 
           if (validUsers.length === 0) {
             console.log("[PranicGuidanceCampaign] No valid emails remaining after validation. Skipping campaign.");

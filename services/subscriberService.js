@@ -1,6 +1,7 @@
 "use strict";
 const subscriberRepo = require("../repositories/subscriberRepository");
 const sendMail = require("../helpers/nodemail");
+const helper = require("../helpers/helper");
 
 /**
  * Send bulk emails to filtered subscribers with robust error handling
@@ -21,7 +22,11 @@ async function sendBulkEmailToSubscribers(
 
     console.log(`Total eligible subscribers found: ${subscribers.length}`);
 
-    if (subscribers.length === 0) {
+    // Deduplicate emails to ensure we do not send multiple emails to the same address
+    const uniqueSubscribers = helper.deduplicateByEmail(subscribers);
+    console.log(`Total unique subscribers to process: ${uniqueSubscribers.length}`);
+
+    if (uniqueSubscribers.length === 0) {
       return {
         status: "ok",
         message: "No eligible subscribers found",
@@ -32,8 +37,8 @@ async function sendBulkEmailToSubscribers(
     // Filter valid and existing emails to prevent bounces
     const emailValidator = require("../helpers/emailValidator");
     console.log("[SubscriberCampaign] Validating email addresses and domain DNS records...");
-    const validSubscribers = await emailValidator.filterValidEmails(subscribers);
-    console.log(`[SubscriberCampaign] Validation complete. Total: ${subscribers.length}, Valid: ${validSubscribers.length}, Filtered out: ${subscribers.length - validSubscribers.length}`);
+    const validSubscribers = await emailValidator.filterValidEmails(uniqueSubscribers);
+    console.log(`[SubscriberCampaign] Validation complete. Total Unique: ${uniqueSubscribers.length}, Valid: ${validSubscribers.length}, Filtered out: ${uniqueSubscribers.length - validSubscribers.length}`);
 
     if (validSubscribers.length === 0) {
       console.log("[SubscriberCampaign] No valid subscriber emails remaining after validation.");

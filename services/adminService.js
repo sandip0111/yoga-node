@@ -1100,7 +1100,11 @@ function sendBulkEmailToFreeWebinarUsersForcefully(emailSubject, limit, preFetch
 
       console.log(`Total eligible free webinar customers found: ${customers.length}`);
 
-      if (customers.length === 0) {
+      // Deduplicate emails to ensure we do not send multiple emails to the same address
+      const uniqueCustomers = helper.deduplicateByEmail(customers);
+      console.log(`Total unique free webinar customers to process: ${uniqueCustomers.length}`);
+
+      if (uniqueCustomers.length === 0) {
         return resolve({
           data: {
             status: "ok",
@@ -1117,8 +1121,8 @@ function sendBulkEmailToFreeWebinarUsersForcefully(emailSubject, limit, preFetch
       // Filter valid and existing emails to prevent bounces
       const emailValidator = require("../helpers/emailValidator");
       console.log("[FreeWebinarCampaign] Validating email addresses and domain DNS records...");
-      const validCustomers = await emailValidator.filterValidEmails(customers);
-      console.log(`[FreeWebinarCampaign] Validation complete. Total: ${customers.length}, Valid: ${validCustomers.length}, Filtered out: ${customers.length - validCustomers.length}`);
+      const validCustomers = await emailValidator.filterValidEmails(uniqueCustomers);
+      console.log(`[FreeWebinarCampaign] Validation complete. Total Unique: ${uniqueCustomers.length}, Valid: ${validCustomers.length}, Filtered out: ${uniqueCustomers.length - validCustomers.length}`);
 
       if (validCustomers.length === 0) {
         console.log("[FreeWebinarCampaign] No valid free webinar emails remaining after validation.");

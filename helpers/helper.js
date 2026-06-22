@@ -622,6 +622,23 @@ let sendForceFreeWebinerMail = async function (email, subject, templatePath) {
   };
   await sendMail.createContent(mailData);
 };
+let deduplicateByEmail = function (items) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  const seen = new Set();
+  return items.filter((item) => {
+    if (!item || !item.email) {
+      return false;
+    }
+    const normalizedEmail = item.email.trim().toLowerCase();
+    if (seen.has(normalizedEmail)) {
+      return false;
+    }
+    seen.add(normalizedEmail);
+    return true;
+  });
+};
 
 module.exports = {
   getTimeBefore,
@@ -657,5 +674,6 @@ module.exports = {
   completePranicPurificationIIAutomationEmail,
   completePranicPurificationIIEmail,
   sendPranayamaCertificationEmail,
-  sendForceFreeWebinerMail
+  sendForceFreeWebinerMail,
+  deduplicateByEmail
 };
