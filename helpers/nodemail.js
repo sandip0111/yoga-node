@@ -8,7 +8,8 @@ const axios = require("axios");
 
 const EMAIL_CONFIG = {
   BATCH_SIZE: 50,
-  DELAY_BETWEEN_EMAILS: 3000, // 3 seconds
+  DELAY_BETWEEN_EMAILS: 0,
+  DELAY_BETWEEN_BATCHES: 1000, // 1 second delay between batches
   MAX_RETRIES: 2,
   RETRY_DELAY: 3000, // 3 seconds
   DEFAULT_SUBJECT:
@@ -30,6 +31,9 @@ const transporter = nodemailer.createTransport({
 });
 
 const brevoTransporter = nodemailer.createTransport({
+  pool: true,
+  maxConnections: 10,
+  maxMessages: 100,
   host: process.env.BREVO_SMTP_HOST || "smtp-relay.brevo.com",
   port: parseInt(process.env.BREVO_SMTP_PORT) || 587,
   secure: false,
@@ -37,8 +41,8 @@ const brevoTransporter = nodemailer.createTransport({
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_PASS,
   },
-  logger: true,
-  debug: true,
+  logger: false,
+  debug: false,
 });
 
 function createContent(mailData) {
@@ -122,8 +126,7 @@ function sendCampaignInBackground(recipients, options) {
       
       console.log(`[Campaign] Processing Batch ${batchNum}/${totalBatches} (${i + 1} to ${Math.min(i + EMAIL_CONFIG.BATCH_SIZE, total)})`);
       
-      for (let j = 0; j < batch.length; j++) {
-        const user = batch[j];
+      const sendPromises = batch.map(async (user, j) => {
         const mailData = {
           replacements: options.replacementsFn ? options.replacementsFn(user) : {},
           mailTo: user.email,
@@ -144,7 +147,6 @@ function sendCampaignInBackground(recipients, options) {
             attempts++;
             lastError = error.message || "Unknown error";
             if (attempts <= EMAIL_CONFIG.MAX_RETRIES) {
-              console.log(`[Campaign] Retry ${attempts}/${EMAIL_CONFIG.MAX_RETRIES} for ${user.email} in ${EMAIL_CONFIG.RETRY_DELAY}ms...`);
               await new Promise(r => setTimeout(r, EMAIL_CONFIG.RETRY_DELAY));
             }
           }
@@ -165,10 +167,13 @@ function sendCampaignInBackground(recipients, options) {
             console.error("[Campaign] Error in onResult hook:", hookError);
           }
         }
-        
-        if (i + j < total - 1) {
-          await new Promise(r => setTimeout(r, EMAIL_CONFIG.DELAY_BETWEEN_EMAILS));
-        }
+      });
+      
+      await Promise.all(sendPromises);
+      
+      if (i + EMAIL_CONFIG.BATCH_SIZE < total) {
+        console.log(`[Campaign] Batch ${batchNum} completed. Waiting ${EMAIL_CONFIG.DELAY_BETWEEN_BATCHES}ms before next batch...`);
+        await new Promise(r => setTimeout(r, EMAIL_CONFIG.DELAY_BETWEEN_BATCHES));
       }
     }
     
