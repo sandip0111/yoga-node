@@ -1095,7 +1095,7 @@ module.exports = {
         .limit(query.limit);
       res.status(200).json({ data: blog, total: totalBlog });
     } else {
-      res.status(200).json({ data: [{}], total: totalBlog });
+      res.status(200).json({ data: [], total: totalBlog });
     }
   },
   getBlogById: async function (req, res) {
