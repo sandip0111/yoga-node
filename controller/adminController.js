@@ -1091,10 +1091,21 @@ module.exports = {
     if (totalBlog > 0) {
       const blog = await blogModel
         .find(baseFilter)
+        .populate("authorId", "name")
         .sort(sort)
         .skip(query.skip)
-        .limit(query.limit);
-      res.status(200).json({ data: blog, total: totalBlog });
+        .limit(query.limit)
+        .lean();
+
+      const blogsWithAuthorName = blog.map(b => {
+        if (b.authorId && typeof b.authorId === 'object') {
+          b.authorName = b.authorId.name;
+          b.authorId = b.authorId._id;
+        }
+        return b;
+      });
+
+      res.status(200).json({ data: blogsWithAuthorName, total: totalBlog });
     } else {
       res.status(200).json({ data: [], total: totalBlog });
     }
@@ -1103,10 +1114,14 @@ module.exports = {
     try {
       const { id: userId } = req.params;
 
-      const user = await blogModel.findOne({ _id: userId });
+      const user = await blogModel.findOne({ _id: userId }).populate("authorId", "name").lean();
 
       if (!user) {
         return res.status(404).json({ msg: `No Blog with Id ${userId}` });
+      }
+      if (user.authorId && typeof user.authorId === 'object') {
+        user.authorName = user.authorId.name;
+        user.authorId = user.authorId._id;
       }
       res.status(200).json({ data: user });
     } catch (err) {
@@ -1117,10 +1132,14 @@ module.exports = {
     try {
       const { id: slug } = req.params;
 
-      const user = await blogModel.findOne({ isActive: true, isDeleted: { $ne: true }, slug: slug });
+      const user = await blogModel.findOne({ isActive: true, isDeleted: { $ne: true }, slug: slug }).populate("authorId", "name").lean();
 
       if (!user) {
         return res.status(200).json({ data: [], msg: `No Blog with Slug` });
+      }
+      if (user.authorId && typeof user.authorId === 'object') {
+        user.authorName = user.authorId.name;
+        user.authorId = user.authorId._id;
       }
 
       res.status(200).json({ data: user });
@@ -1133,9 +1152,20 @@ module.exports = {
     // const blog = await blogModel.aggregate([{ $match: { isActive: true } },{ $sample: { size: limit } },{ $limit: limit }]);
     const blog = await blogModel
       .find({ isActive: true, isDeleted: { $ne: true } })
+      .populate("authorId", "name")
       .sort({ _id: -1 })
-      .limit(limit);
-    res.status(200).json({ data: blog });
+      .limit(limit)
+      .lean();
+
+    const blogsWithAuthorName = blog.map(b => {
+      if (b.authorId && typeof b.authorId === 'object') {
+        b.authorName = b.authorId.name;
+        b.authorId = b.authorId._id;
+      }
+      return b;
+    });
+
+    res.status(200).json({ data: blogsWithAuthorName });
   },
 
   deleteBlog: async function (req, res) {
