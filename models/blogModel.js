@@ -15,6 +15,11 @@ const blogSchema = new mongoose.Schema({
         type:String
     },
     isActive:Boolean,
+    isDeleted:{
+        type:Boolean,
+        default:false
+    },
+
     addedBy:{
         type:String
     },

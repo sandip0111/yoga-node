@@ -1086,10 +1086,11 @@ module.exports = {
     query.skip = Number(size * (pageNo - 1));
     query.limit = Number(size) || 0;
     const sort = { _id: -1 };
-    const totalBlog = await blogModel.count({ isActive: true });
+    const baseFilter = { isDeleted: { $ne: true } };
+    const totalBlog = await blogModel.count(baseFilter);
     if (totalBlog > 0) {
       const blog = await blogModel
-        .find({ isActive: true })
+        .find(baseFilter)
         .sort(sort)
         .skip(query.skip)
         .limit(query.limit);
@@ -1116,7 +1117,7 @@ module.exports = {
     try {
       const { id: slug } = req.params;
 
-      const user = await blogModel.findOne({ isActive: true, slug: slug });
+      const user = await blogModel.findOne({ isActive: true, isDeleted: { $ne: true }, slug: slug });
 
       if (!user) {
         return res.status(200).json({ data: [], msg: `No Blog with Slug` });
@@ -1131,10 +1132,36 @@ module.exports = {
     const limit = Number(req.body.limit);
     // const blog = await blogModel.aggregate([{ $match: { isActive: true } },{ $sample: { size: limit } },{ $limit: limit }]);
     const blog = await blogModel
-      .find({ isActive: true })
+      .find({ isActive: true, isDeleted: { $ne: true } })
       .sort({ _id: -1 })
       .limit(limit);
     res.status(200).json({ data: blog });
+  },
+
+  deleteBlog: async function (req, res) {
+    try {
+      const { _id } = req.body;
+      if (!_id) {
+        return res.status(400).json({ status: "error", msg: "Blog ID is required" });
+      }
+      await blogModel.findByIdAndUpdate(_id, { isDeleted: true });
+      res.status(200).json({ status: "ok", msg: "Blog deleted successfully" });
+    } catch (err) {
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+
+  updateBlogStatus: async function (req, res) {
+    try {
+      const { _id, isActive } = req.body;
+      if (!_id || isActive === undefined) {
+        return res.status(400).json({ status: "error", msg: "Blog ID and isActive are required" });
+      }
+      await blogModel.findByIdAndUpdate(_id, { isActive: isActive });
+      res.status(200).json({ status: "ok", msg: `Blog status updated to ${isActive ? 'Active' : 'Inactive'}` });
+    } catch (err) {
+      res.status(500).json({ status: "error", msg: err.message });
+    }
   },
   getHomeMentors: async function (req, res) {
     const value = Number(req.body.limit);

@@ -102,6 +102,8 @@ router.post("/getAllBlog", adminController.getAllBlog);
 router.get("/getBlogById/:id", adminController.getBlogById);
 router.post("/getHomeBlog", adminController.getAllHomeBlog);
 router.get("/getBlogBySlug/:id", adminController.getBlogBySlug);
+router.post("/deleteBlog", adminController.deleteBlog);
+router.post("/updateBlogStatus", adminController.updateBlogStatus);
 
 //media
 
