@@ -406,9 +406,6 @@ const imageStorages3 = multerS3({
 
 const imageUpload = multer({
   storage: imageStorages3,
-  limits: {
-    fileSize: 1000000, // 1000000 Bytes = 1 MB
-  },
   fileFilter(req, file, cb) {
     if (
       !file.originalname.match(/\.(png|jpg|JPG|jpeg|JPEG|PNG|docx|jfif|xlsx)$/)
