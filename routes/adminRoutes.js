@@ -396,11 +396,11 @@ function extractNumber(str) {
 
 const imageStorages3 = multerS3({
   s3: s3,
-  bucket: "my-s3-images-bucket", // Replace with your bucket name
+  bucket: "yogavidya-bucket", // Replace with your bucket name
   acl: "public-read", // Public access for images
   contentType: multerS3.AUTO_CONTENT_TYPE,
   key: (req, file, cb) => {
-    cb(null, `img/${Date.now().toString()}-${file.originalname}`); // Save to images folder
+    cb(null, `images/${Date.now().toString()}-${file.originalname}`); // Save to images folder
   },
 });
 
