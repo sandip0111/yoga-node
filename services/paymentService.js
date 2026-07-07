@@ -46,6 +46,160 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+const PAYPAL_SUPPORTED_CURRENCIES = new Set(["USD"]);
+function getPayPalBaseUrl() {
+  const explicitBaseUrl = process.env.PAYPAL_BASE_URL;
+  if (explicitBaseUrl) {
+    return explicitBaseUrl.replace(/\/$/, "");
+  }
+
+  const mode = (process.env.PAYPAL_MODE || "sandbox").toLowerCase();
+  const baseUrl =
+    mode === "live" || mode === "production"
+      ? process.env.PAYPAL_LIVE_BASE_URL
+      : process.env.PAYPAL_SANDBOX_BASE_URL;
+
+  if (!baseUrl) {
+    throw new Error("PayPal base URL is not configured");
+  }
+
+  return baseUrl.replace(/\/$/, "");
+}
+
+function getPayPalRedirectUrl(pathName) {
+  const mainUrl = (process.env.MAIN_URL || "").replace(/\/$/, "");
+  if (mainUrl) {
+    return `${mainUrl}${pathName}`;
+  }
+  return process.env.STRIP_URL;
+}
+
+function formatPayPalAmount(amount) {
+  const numericAmount = Number(amount);
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+    throw new Error("Invalid PayPal amount");
+  }
+  return numericAmount.toFixed(2);
+}
+
+function validatePayPalCurrency(currency) {
+  const normalizedCurrency = String(currency || "").toUpperCase();
+  if (!PAYPAL_SUPPORTED_CURRENCIES.has(normalizedCurrency)) {
+    throw new Error(`PayPal does not support ${normalizedCurrency || "blank"} currency`);
+  }
+  return normalizedCurrency;
+}
+
+async function getPayPalAccessToken() {
+  if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {
+    throw new Error("PayPal credentials are not configured");
+  }
+
+  const response = await axios.post(
+    `${getPayPalBaseUrl()}/v1/oauth2/token`,
+    "grant_type=client_credentials",
+    {
+      auth: {
+        username: process.env.PAYPAL_CLIENT_ID,
+        password: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    },
+  );
+  return response.data.access_token;
+}
+
+async function callPayPal(method, resourcePath, data, requestId) {
+  const accessToken = await getPayPalAccessToken();
+  const response = await axios({
+    method,
+    url: `${getPayPalBaseUrl()}${resourcePath}`,
+    data,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      ...(requestId ? { "PayPal-Request-Id": requestId } : {}),
+    },
+  });
+  return response.data;
+}
+
+function getPayPalApproveUrl(order) {
+  return order.links?.find((link) => link.rel === "approve")?.href || "";
+}
+
+function getPayPalCapture(order) {
+  return order.purchase_units?.[0]?.payments?.captures?.[0] || null;
+}
+
+async function capturePayPalOrder(orderId, payDbId) {
+  return callPayPal(
+    "post",
+    `/v2/checkout/orders/${orderId}/capture`,
+    {},
+    `200TTC-capture-${payDbId}-${orderId}`,
+  );
+}
+
+async function getPayPalOrder(orderId) {
+  return callPayPal("get", `/v2/checkout/orders/${orderId}`);
+}
+
+async function completePayPal200TTCPayment(order, reqBody, req) {
+  const capture = getPayPalCapture(order);
+  if (!capture || capture.status !== "COMPLETED") {
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const paymentDetails = await paymentRepo.getPaymentDetailsById(reqBody.payDbId);
+  if (!paymentDetails) {
+    throw new Error("Payment record not found");
+  }
+  const capturedCurrency = String(capture.amount?.currency_code || "").toUpperCase();
+  const expectedCurrency = String(paymentDetails.currency || "").toUpperCase();
+  const capturedAmount = Number(capture.amount?.value || 0);
+  const expectedMaxAmount = Number(paymentDetails.price || 0);
+  if (
+    capturedCurrency !== expectedCurrency ||
+    !Number.isFinite(capturedAmount) ||
+    capturedAmount <= 0 ||
+    capturedAmount > expectedMaxAmount
+  ) {
+    throw new Error("PayPal payment amount verification failed");
+  }
+
+  const user = await paymentRepo.update200TTCata(
+    reqBody.payDbId,
+    capture.id,
+    true,
+    reqBody.installment,
+    reqBody.dueAmnt,
+  );
+  if (reqBody.installment == "2nd") {
+    await savePranaArambhOn200TTC(user, reqBody);
+  }
+  await helper.send200TTCInstalmentEmail(user, reqBody);
+  const clientData = req ? extractClientData(req) : {};
+  paymentTrackingService.track200TTCPurchase(
+    {
+      paymentId: capture.id,
+      ...clientData,
+    },
+    user,
+  );
+
+  return {
+    status: 200,
+    data: {
+      status: "success",
+      paymtId: capture.id,
+      amount: Number(capture.amount?.value || user.price || 0),
+      currency: capture.amount?.currency_code || user.currency,
+    },
+  };
+}
 function checkoutRazorpayForPranicPurification(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -771,6 +925,134 @@ function checkoutStripeFor200TTC(reqBody) {
     }
   });
 }
+function checkoutPaypalFor200TTC(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const currency = validatePayPalCurrency(reqBody.currency);
+      let pay;
+      if (reqBody.id) {
+        pay = await paymentRepo.updateInstallmentPayment200TTCata(
+          reqBody.id,
+          reqBody.price,
+        );
+      } else {
+        let userData = {
+          name: reqBody.name,
+          email: reqBody.email,
+          phoneNumber: reqBody.phoneNumber,
+          package: reqBody.package,
+          room: reqBody.room,
+          dueAmount: reqBody.dueAmount,
+          currency: currency,
+          price: reqBody.price,
+          courseStartDate: reqBody.courseStartDate,
+          courseTimeDuration: reqBody.courseTimeDuration,
+          paymentType: "paypal",
+        };
+        pay = await paymentRepo.create200TTCData(userData);
+      }
+
+      const amount = formatPayPalAmount(reqBody.price);
+      const order = await callPayPal(
+        "post",
+        "/v2/checkout/orders",
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: `200TTC_${pay._id}`,
+              custom_id: String(pay._id),
+              description: "200 Hours Yoga TTC Payment",
+              amount: {
+                currency_code: currency,
+                value: amount,
+              },
+            },
+          ],
+          application_context: {
+            brand_name: "Yoga Vidya School",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: getPayPalRedirectUrl("/confirmation"),
+            cancel_url: getPayPalRedirectUrl(
+              "/checkout/200-hours-yoga-teacher-training-online",
+            ),
+          },
+        },
+        `200TTC-create-${pay._id}`,
+      );
+
+      const approvalUrl = getPayPalApproveUrl(order);
+      if (!order.id || !approvalUrl) {
+        throw new Error("PayPal approval URL was not returned");
+      }
+
+      await paymentRepo.update200ttcPayment({ paymentId: order.id }, pay._id);
+      return resolve({
+        orderId: order.id,
+        payDbId: pay._id,
+        approvalUrl,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+function getPaypalPaymentResult200TTC(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const payDbId = reqBody.payDbId;
+      const paypalOrderId = reqBody.paypalOrderId;
+      const paymentDetails = await paymentRepo.getPaymentDetailsById(payDbId);
+      if (!paymentDetails) {
+        return resolve({
+          status: 404,
+          data: { status: "failed", message: "Payment record not found" },
+        });
+      }
+      if (paymentDetails.paymentStatus === "paid") {
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: paymentDetails.paymentId,
+            amount: Number(paymentDetails.price || 0),
+            currency: paymentDetails.currency,
+          },
+        });
+      }
+      if (paymentDetails.paymentId !== paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "PayPal order mismatch" },
+        });
+      }
+
+      const order = await getPayPalOrder(paypalOrderId);
+      if (order.status === "COMPLETED") {
+        const returnData = await completePayPal200TTCPayment(order, reqBody, req);
+        return resolve(returnData);
+      }
+      if (order.status !== "APPROVED") {
+        return resolve({
+          status: 200,
+          data: { status: "failed", paypalOrderId },
+        });
+      }
+
+      const capturedOrder = await capturePayPalOrder(paypalOrderId, payDbId);
+      const returnData = await completePayPal200TTCPayment(
+        capturedOrder,
+        reqBody,
+        req,
+      );
+      return resolve(returnData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 function getStripePaymentResult200TTC(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -1126,6 +1408,35 @@ function updatePaymentStatusForcefully() {
                 price: obj.price,
                 currency: obj.currency,
               },
+            );
+          } else {
+            await paymentRepo.update200ttcPayment(
+              { isPaymentCheck: true },
+              obj._id,
+            );
+            await helper.complete200TTCEmail(obj);
+          }
+        } else if (obj.paymentType == "paypal") {
+          const reqBody = {
+            payDbId: obj._id,
+            paypalOrderId: obj.paymentId,
+            password: helper.genratePass(6),
+            installment: "2nd",
+            dueAmnt: 0,
+          };
+          const order = await getPayPalOrder(obj.paymentId);
+          if (order.status === "APPROVED") {
+            const capturedOrder = await capturePayPalOrder(obj.paymentId, obj._id);
+            await completePayPal200TTCPayment(capturedOrder, reqBody, null);
+            await paymentRepo.update200ttcPayment(
+              { isPaymentCheck: true },
+              obj._id,
+            );
+          } else if (order.status === "COMPLETED") {
+            await completePayPal200TTCPayment(order, reqBody, null);
+            await paymentRepo.update200ttcPayment(
+              { isPaymentCheck: true },
+              obj._id,
             );
           } else {
             await paymentRepo.update200ttcPayment(
@@ -2641,6 +2952,8 @@ module.exports = {
   checkoutRazorpayFor200TTC,
   getRazorPaymentResult200TTC,
   checkoutStripeFor200TTC,
+  checkoutPaypalFor200TTC,
+  getPaypalPaymentResult200TTC,
   getStripePaymentResult200TTC,
   secondInstallmentPaymentMail,
   getPaymentDetailsById,
