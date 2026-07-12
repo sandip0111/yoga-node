@@ -46,7 +46,7 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
-const PAYPAL_SUPPORTED_CURRENCIES = new Set(["USD"]);
+const PAYPAL_CURRENCY = "USD";
 function getPayPalBaseUrl() {
   const explicitBaseUrl = process.env.PAYPAL_BASE_URL;
   if (explicitBaseUrl) {
@@ -80,14 +80,6 @@ function formatPayPalAmount(amount) {
     throw new Error("Invalid PayPal amount");
   }
   return numericAmount.toFixed(2);
-}
-
-function validatePayPalCurrency(currency) {
-  const normalizedCurrency = String(currency || "").toUpperCase();
-  if (!PAYPAL_SUPPORTED_CURRENCIES.has(normalizedCurrency)) {
-    throw new Error(`PayPal does not support ${normalizedCurrency || "blank"} currency`);
-  }
-  return normalizedCurrency;
 }
 
 async function getPayPalAccessToken() {
@@ -928,12 +920,14 @@ function checkoutStripeFor200TTC(reqBody) {
 function checkoutPaypalFor200TTC(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      const currency = validatePayPalCurrency(reqBody.currency);
+      const currency = PAYPAL_CURRENCY;
+      const amount = formatPayPalAmount(reqBody.price);
       let pay;
       if (reqBody.id) {
         pay = await paymentRepo.updateInstallmentPayment200TTCata(
           reqBody.id,
           reqBody.price,
+          { currency, paymentType: "paypal" },
         );
       } else {
         let userData = {
@@ -944,7 +938,7 @@ function checkoutPaypalFor200TTC(reqBody) {
           room: reqBody.room,
           dueAmount: reqBody.dueAmount,
           currency: currency,
-          price: reqBody.price,
+          price: amount,
           courseStartDate: reqBody.courseStartDate,
           courseTimeDuration: reqBody.courseTimeDuration,
           paymentType: "paypal",
@@ -952,7 +946,6 @@ function checkoutPaypalFor200TTC(reqBody) {
         pay = await paymentRepo.create200TTCData(userData);
       }
 
-      const amount = formatPayPalAmount(reqBody.price);
       const order = await callPayPal(
         "post",
         "/v2/checkout/orders",
