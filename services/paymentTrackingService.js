@@ -325,6 +325,42 @@ class PaymentTrackingService {
     };
     return staticEventIds[courseType] || "yoga_course";
   }
+
+  /**
+   * Track purchase event for Retreate courses
+   */
+  async trackRetreatPurchase(paymentData, userData) {
+    try {
+
+      const courseData = {
+        courseId: 'retreat_mysore',
+        courseName: 'The Essence of Yoga – Mysore Retreat 2026',
+        courseType: 'retreat_mysore'
+      };
+
+      const eventId = 'retreat_mysore';
+
+      const purchaseData = {
+        transactionId: paymentData.paymentId,
+        paymentId: paymentData.paymentId,
+        eventId: eventId,
+        amount: userData.price,
+        currency: userData.currency,
+        clientIp: paymentData.clientIp,
+        userAgent: paymentData.userAgent
+      };
+
+      const userInfo = {
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        firstName: userData.name
+      };
+
+      await metaConversionsService.trackPurchase(purchaseData, userInfo, courseData);
+    } catch (error) {
+      console.error("PaymentTrackingService: Error tracking Retreat purchase", error);
+    }
+  }
 }
 
 module.exports = new PaymentTrackingService();

@@ -10,6 +10,7 @@ const baliStudentModel = require("../models/baliStudent");
 const constant = require("../helpers/constants.json");
 const pranicPurificationUsersIIModel = require("../models/pranicPurificationUserIIModel");
 const pranayamaCertificationModel = require("../models/pranayamaCertificationModel");
+const retreatStudentModel = require("../models/retreatStudentModel");
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
@@ -42,12 +43,12 @@ function updatePranicUserData(id, paymentId, isPaid) {
             paymentId: paymentId,
             paymentStatus: "paid",
           },
-          { new: true }
+          { new: true },
         );
       } else {
         await pranicPurificationUsers.findOneAndUpdate(
           { _id: id },
-          { paymentStatus: constant.PAYMENT_STATUS.PENDING }
+          { paymentStatus: constant.PAYMENT_STATUS.PENDING },
         );
       }
       return resolve(user);
@@ -67,12 +68,12 @@ function updatePranicIIUserData(id, paymentId, isPaid) {
             paymentId: paymentId,
             paymentStatus: "paid",
           },
-          { new: true }
+          { new: true },
         );
       } else {
         await pranicPurificationUsersIIModel.findOneAndUpdate(
           { _id: id },
-          { paymentStatus: constant.PAYMENT_STATUS.PENDING }
+          { paymentStatus: constant.PAYMENT_STATUS.PENDING },
         );
       }
       return resolve(user);
@@ -130,7 +131,7 @@ function disableCouponCode(id) {
         { _id: id },
         {
           isUsed: true,
-        }
+        },
       );
       return resolve(1);
     } catch (error) {
@@ -161,12 +162,12 @@ function update200TTCata(id, paymentId, isPaid, installment, due) {
             installment: installment,
             dueAmount: due,
           },
-          { new: true }
+          { new: true },
         );
       } else {
         await twoHundredHourTTCModel.findOneAndUpdate(
           { _id: id },
-          { paymentStatus: "failed" }
+          { paymentStatus: "failed" },
         );
       }
       return resolve(user);
@@ -232,7 +233,7 @@ function updateInstallmentPayment200TTCata(id, due) {
         {
           price: +data.price + due,
           dueAmount: 0,
-        }
+        },
       );
       return resolve(data);
     } catch (error) {
@@ -261,12 +262,12 @@ function updateRishikeshStudentData(id, paymentId, isPaid) {
             paymentId: paymentId,
             paymentStatus: "paid",
           },
-          { new: true }
+          { new: true },
         );
       } else {
         await rishikeshStudentModel.findOneAndUpdate(
           { _id: id },
-          { paymentStatus: "pending" }
+          { paymentStatus: "pending" },
         );
       }
       return resolve(user);
@@ -338,7 +339,7 @@ function liveCourseUpdateById(id, data) {
     try {
       const pay = await liveCoursesCustomerModel.findOneAndUpdate(
         { _id: id },
-        data
+        data,
       );
       return resolve(pay);
     } catch (error) {
@@ -427,7 +428,7 @@ function pranicPurificationUpdateById(id, data) {
     try {
       const pay = await pranicPurificationUsers.findOneAndUpdate(
         { _id: id },
-        data
+        data,
       );
       return resolve(pay);
     } catch (error) {
@@ -440,7 +441,7 @@ function pranicPurificationIIUpdateById(id, data) {
     try {
       const pay = await pranicPurificationUsersIIModel.findOneAndUpdate(
         { _id: id },
-        data
+        data,
       );
       return resolve(pay);
     } catch (error) {
@@ -453,7 +454,7 @@ function rishikeshUpdateById(id, data) {
     try {
       const pay = await rishikeshStudentModel.findOneAndUpdate(
         { _id: id },
-        data
+        data,
       );
       return resolve(pay);
     } catch (error) {
@@ -511,12 +512,12 @@ function updateBaliStudentData(id, paymentId, isPaid) {
             paymentId: paymentId,
             paymentStatus: "paid",
           },
-          { new: true }
+          { new: true },
         );
       } else {
         await baliStudentModel.findOneAndUpdate(
           { _id: id },
-          { paymentStatus: "pending" }
+          { paymentStatus: "pending" },
         );
       }
       return resolve(user);
@@ -577,12 +578,12 @@ function updatePranayamaCertificationData(id, paymentId, isPaid) {
             paymentId: paymentId,
             paymentStatus: "paid",
           },
-          { new: true }
+          { new: true },
         );
       } else {
         await pranayamaCertificationModel.findOneAndUpdate(
           { _id: id },
-          { paymentStatus: "failed" }
+          { paymentStatus: "failed" },
         );
       }
       return resolve(user);
@@ -606,6 +607,51 @@ function getPranayamaCertificationPaymentDetailsById(id) {
     try {
       const data = await pranayamaCertificationModel.findById(id).lean();
       return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function createRetreatData(userData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await retreatStudentModel.create(userData);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function retreatUpdateById(id, data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pay = await retreatStudentModel.findOneAndUpdate({ _id: id }, data);
+      return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateRetreatePaymentStatusData(id, paymentId, isPaid) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user;
+      if (isPaid) {
+        user = await rishikeshStudentModel.findOneAndUpdate(
+          { _id: id },
+          {
+            paymentId: paymentId,
+            paymentStatus: "paid",
+          },
+          { new: true },
+        );
+      } else {
+        await rishikeshStudentModel.findOneAndUpdate(
+          { _id: id },
+          { paymentStatus: "pending" },
+        );
+      }
+      return resolve(user);
     } catch (error) {
       return reject(error);
     }
@@ -650,5 +696,7 @@ module.exports = {
   createPranayamaCertificationData,
   updatePranayamaCertificationData,
   updatePranayamaCertificationPayment,
-  getPranayamaCertificationPaymentDetailsById
+  getPranayamaCertificationPaymentDetailsById,
+  createRetreatData,
+  updateRetreatePaymentStatusData
 };

@@ -639,6 +639,17 @@ let deduplicateByEmail = function (items) {
     return true;
   });
 };
+let sendRetreatPaymentEmail = async function (user, password) {
+  const mailData = {
+    replacements: {
+      NAME: user.name
+    },
+    mailTo: user.email,
+    contentPath: constants.EMAIL_TEMPLATE.PRANAYAMA_CERTIFICATION,
+    subject: "Welcome to The Essence of Yoga – Mysore Retreat 2026 🙏",
+  };
+  await sendMail.createContent(mailData);
+};
 
 module.exports = {
   getTimeBefore,
@@ -675,5 +686,6 @@ module.exports = {
   completePranicPurificationIIEmail,
   sendPranayamaCertificationEmail,
   sendForceFreeWebinerMail,
-  deduplicateByEmail
+  deduplicateByEmail,
+  sendRetreatPaymentEmail
 };

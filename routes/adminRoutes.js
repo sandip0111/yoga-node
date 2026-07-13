@@ -686,5 +686,13 @@ router.post(
   "/getPranayamaCertificationData",
   studentController.getPranayamaCertificationData,
 );
+router.post(
+  "/checkoutRazorpayRetreat",
+  paymentController.checkoutRazorpayRetreat,
+);
+router.post(
+  "/getRazorPaymentResultRetreat",
+  paymentController.getRazorPaymentResultRetreat,
+);
 
 module.exports = router;

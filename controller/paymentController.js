@@ -23,7 +23,7 @@ async function getRazorPaymentResultRishikesh(req, res) {
     try {
       const result = await paymentService.getRazorPaymentResultRishikesh(
         req.body,
-        req
+        req,
       );
       res.status(200).json(result);
     } catch (err) {
@@ -43,7 +43,7 @@ async function getStripePaymentResultRishikesh(req, res) {
   try {
     let result = await paymentService.getStripePaymentResultRishikesh(
       req.body,
-      req
+      req,
     );
     res.status(200).json(result);
   } catch (error) {
@@ -74,6 +74,29 @@ async function getStripePaymentResultBali(req, res) {
     res.status(500).json(error);
   }
 }
+async function checkoutRazorpayRetreat(req, res) {
+  {
+    try {
+      const result = await paymentService.checkoutRazorpayRetreat(req.body);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(400).json(err);
+    }
+  }
+}
+async function getRazorPaymentResultRetreat(req, res) {
+  {
+    try {
+      const result = await paymentService.getRazorPaymentResultRetreat(
+        req.body,
+        req,
+      );
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(400).json(err);
+    }
+  }
+}
 module.exports = {
   getPaymentDetailsById,
   checkoutStripeForRishikesh,
@@ -83,4 +106,6 @@ module.exports = {
   updatePaymentId200ttc,
   checkoutStripeForBali,
   getStripePaymentResultBali,
+  checkoutRazorpayRetreat,
+  getRazorPaymentResultRetreat,
 };
