@@ -56,7 +56,8 @@
     "OCTOBER_300_HOURS_RISHIKESH": "/emailTemplate/october300HrsRishikesh.html",
     "PRANIC_PURIFICATION_II": "/emailTemplate/Pranic_purification_ii.html",
     "COMPLETE_PRANIC_PURIFICATION_II": "/emailTemplate/completePranicPurificationII.html",
-    "PRANAYAMA_CERTIFICATION": "/emailTemplate/pranayamaCertification.html"
+    "PRANAYAMA_CERTIFICATION": "/emailTemplate/pranayamaCertification.html",
+    "RETREATE_PURCHASE_CONFIRMATION": "/emailTemplate/retreatCoursePurchase.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",

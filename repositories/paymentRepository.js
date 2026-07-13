@@ -698,5 +698,6 @@ module.exports = {
   updatePranayamaCertificationPayment,
   getPranayamaCertificationPaymentDetailsById,
   createRetreatData,
-  updateRetreatePaymentStatusData
+  retreatUpdateById,
+  updateRetreatePaymentStatusData,
 };

@@ -46,8 +46,9 @@ function formatTime(date) {
 
   hours = hours % 12 || 12; // Convert 24-hour to 12-hour format
 
-  return `${hours}${minutes ? ":" + String(minutes).padStart(2, "0") : ""
-    } ${suffix}`;
+  return `${hours}${
+    minutes ? ":" + String(minutes).padStart(2, "0") : ""
+  } ${suffix}`;
 }
 let sendRegistrationEmailV2 = async function (id) {
   const student = await studentRepo.getStudentById(id);
@@ -605,7 +606,7 @@ let sendMailForcefully = async function (req, res) {
 let sendPranayamaCertificationEmail = async function (user, password) {
   const mailData = {
     replacements: {
-      NAME: user.name
+      NAME: user.name,
     },
     mailTo: user.email,
     contentPath: constants.EMAIL_TEMPLATE.PRANAYAMA_CERTIFICATION,
@@ -617,7 +618,8 @@ let sendForceFreeWebinerMail = async function (email, subject, templatePath) {
   const mailData = {
     replacements: {},
     mailTo: email,
-    contentPath: templatePath || constants.EMAIL_TEMPLATE.FREEWEBINAR_EMAIL_FORCEFULLY,
+    contentPath:
+      templatePath || constants.EMAIL_TEMPLATE.FREEWEBINAR_EMAIL_FORCEFULLY,
     subject: subject || "You were there in January — come back on June 21st",
   };
   await sendMail.createContent(mailData);
@@ -642,10 +644,10 @@ let deduplicateByEmail = function (items) {
 let sendRetreatPaymentEmail = async function (user, password) {
   const mailData = {
     replacements: {
-      NAME: user.name
+      NAME: user.name,
     },
     mailTo: user.email,
-    contentPath: constants.EMAIL_TEMPLATE.PRANAYAMA_CERTIFICATION,
+    contentPath: constants.EMAIL_TEMPLATE.RETREATE_PURCHASE_CONFIRMATION,
     subject: "Welcome to The Essence of Yoga – Mysore Retreat 2026 🙏",
   };
   await sendMail.createContent(mailData);
@@ -687,5 +689,5 @@ module.exports = {
   sendPranayamaCertificationEmail,
   sendForceFreeWebinerMail,
   deduplicateByEmail,
-  sendRetreatPaymentEmail
+  sendRetreatPaymentEmail,
 };
