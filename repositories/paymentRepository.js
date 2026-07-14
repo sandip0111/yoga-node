@@ -637,7 +637,7 @@ function updateRetreatePaymentStatusData(id, paymentId, isPaid) {
     try {
       let user;
       if (isPaid) {
-        user = await rishikeshStudentModel.findOneAndUpdate(
+        user = await retreatStudentModel.findOneAndUpdate(
           { _id: id },
           {
             paymentId: paymentId,
@@ -646,7 +646,7 @@ function updateRetreatePaymentStatusData(id, paymentId, isPaid) {
           { new: true },
         );
       } else {
-        await rishikeshStudentModel.findOneAndUpdate(
+        await retreatStudentModel.findOneAndUpdate(
           { _id: id },
           { paymentStatus: "pending" },
         );
