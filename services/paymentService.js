@@ -2725,6 +2725,92 @@ function getRazorPaymentResultRetreat(reqBody, req = null) {
     }
   });
 }
+function checkoutStripeForRetreat(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      reqBody.paymentType = "stripe";
+      let pay = await paymentRepo.createRetreatData(reqBody);
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: reqBody.currency,
+              unit_amount: reqBody.price * 100,
+              product_data: {
+                name: "Custom Payment",
+              },
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: process.env.STRIP_URL,
+        cancel_url: process.env.STRIP_URL,
+        customer_email: reqBody.email,
+      });
+      await paymentRepo.retreatUpdateById(pay._id, {
+        paymentId: session.id,
+      });
+      return resolve({
+        sessionId: session.id,
+        payDbId: pay._id,
+        url: session.url,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getStripePaymentResultRetreat(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(
+        reqBody.sessionId,
+      );
+      if (session.payment_status == "paid") {
+        const user = await paymentRepo.updateRetreatePaymentStatusData(
+          reqBody.payDbId,
+          session.payment_intent,
+          true,
+        );
+        await helper.sendRetreatPaymentEmail(user);
+        const clientData = req ? extractClientData(req) : {};
+        paymentTrackingService.trackRetreatPurchase(
+          {
+            paymentId: session.payment_intent,
+            ...clientData,
+          },
+          user,
+        );
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: session.payment_intent,
+            amount: session.amount_total / 100,
+            currency: session.currency,
+          },
+        });
+      } else {
+        await paymentRepo.updateRetreatePaymentStatusData(
+          reqBody.payDbId,
+          null,
+          false,
+        );
+        return resolve({
+          status: 200,
+          data: {
+            status: "failed",
+            sessionId: reqBody.sessionId,
+          },
+        });
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 
 module.exports = {
   updateabc,
@@ -2778,4 +2864,6 @@ module.exports = {
   savePranaArambhOnPranayamaCertification,
   checkoutRazorpayRetreat,
   getRazorPaymentResultRetreat,
+  checkoutStripeForRetreat,
+  getStripePaymentResultRetreat,
 };
