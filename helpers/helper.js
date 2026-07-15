@@ -652,6 +652,17 @@ let sendRetreatPaymentEmail = async function (user, password) {
   };
   await sendMail.createContent(mailData);
 };
+let completeRetreatPaymentEmail = async function (name, email) {
+  const mailData = {
+    replacements: {
+      NAME: name,
+    },
+    mailTo: email,
+    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_RETREAT_PAYMENT,
+    subject: "Complete Your Registration – The Essence of Yoga Retreat 2026",
+  };
+  sendMail.createContent(mailData);
+};
 
 module.exports = {
   getTimeBefore,
@@ -690,4 +701,5 @@ module.exports = {
   sendForceFreeWebinerMail,
   deduplicateByEmail,
   sendRetreatPaymentEmail,
+  completeRetreatPaymentEmail,
 };

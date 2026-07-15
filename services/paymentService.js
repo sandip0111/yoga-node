@@ -2451,7 +2451,6 @@ function verifyStripePaymentOnlineSadhana(reqBody, clientIpReq, userAgentReq) {
     }
   });
 }
-
 function checkoutRazorpayForPranayamaCertification(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -2504,7 +2503,6 @@ function checkoutRazorpayForPranayamaCertification(reqBody) {
     }
   });
 }
-
 function getRazorPaymentResultPranayamaCertification(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -2536,7 +2534,6 @@ function getRazorPaymentResultPranayamaCertification(reqBody, req = null) {
     }
   });
 }
-
 function checkoutStripeForPranayamaCertification(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -2599,7 +2596,6 @@ function checkoutStripeForPranayamaCertification(reqBody) {
     }
   });
 }
-
 function getStripePaymentResultPranayamaCertification(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -2637,7 +2633,6 @@ function getStripePaymentResultPranayamaCertification(reqBody, req = null) {
     }
   });
 }
-
 function savePranaArambhOnPranayamaCertification(user, reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -2811,6 +2806,67 @@ function getStripePaymentResultRetreat(reqBody, req = null) {
     }
   });
 }
+function updateRetreatStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const now = new Date();
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
+      const paymentData = await paymentRepo.updateRetreatStatusForcefully(
+        tenMinutesAhead.toISOString(),
+        fiveMinutesAhead.toISOString(),
+      );
+      for (const obj of paymentData) {
+        if (obj.paymentType == "stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId,
+          );
+          if (session.payment_status == "paid") {
+            await paymentRepo.retreatUpdateById(obj._id, {
+              paymentStatus: "paid",
+              isPaymentCheck: true,
+            });
+            helper.sendRetreatPaymentEmail(obj);
+          } else {
+            await paymentRepo.retreatUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeRetreatPaymentEmail(obj.name, obj.email);
+          }
+        } else {
+          const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+          if (payments.items && payments.items.length > 0) {
+            const payment = payments.items.find((p) => p.status == "captured");
+            if (payment.status === "captured") {
+              const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(obj.paymentId + "|" + payment.id)
+                .digest("hex");
+              if (
+                generatedSignature === payment.signature ||
+                !payment.signature
+              ) {
+                await paymentRepo.retreatUpdateById(obj._id, {
+                  paymentStatus: "paid",
+                  isPaymentCheck: true,
+                });
+                await helper.sendRetreatPaymentEmail(obj);
+              }
+            }
+          } else {
+            await paymentRepo.retreatUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeRetreatPaymentEmail(obj.name, obj.email);
+          }
+        }
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 
 module.exports = {
   updateabc,
@@ -2866,4 +2922,5 @@ module.exports = {
   getRazorPaymentResultRetreat,
   checkoutStripeForRetreat,
   getStripePaymentResultRetreat,
+  updateRetreatStatusForcefully,
 };
