@@ -3017,6 +3017,14 @@ module.exports = {
       res.status(400).json({ err });
     }
   },
+  registerRetreatYogaUser: async function (req, res) {
+    try {
+      const returnData = await adminService.registerRetreatYogaUser(req.body);
+      res.status(returnData.status).json(returnData.data);
+    } catch (err) {
+      res.status(400).json({ err });
+    }
+  },
 };
 
 let updatePaymentV2 = async function (data) {

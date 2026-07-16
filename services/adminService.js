@@ -1084,6 +1084,29 @@ function registerPranayamaCertificationUser(reqBody) {
     }
   });
 }
+function registerRetreatYogaUser(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const savedUser = await paymentRepo.createRetreatData({
+        name: reqBody.name,
+        email: reqBody.email,
+        paymentStatus: constant.PAYMENT_STATUS.PAID,
+        paymentType: "paypal",
+      });
+      await helper.sendRetreatPaymentEmail(savedUser);
+      return resolve({
+        data: {
+          status: "ok",
+          message: "User registered successfully!",
+          userId: savedUser._id,
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
 function sendBulkEmailToFreeWebinarUsersForcefully(emailSubject, limit, preFetchedCustomers = null) {
   return new Promise(async (resolve, reject) => {
@@ -1183,4 +1206,5 @@ module.exports = {
   createBaliCustomer,
   registerPranayamaCertificationUser,
   sendBulkEmailToFreeWebinarUsersForcefully,
+  registerRetreatYogaUser
 };

@@ -714,5 +714,9 @@ router.post(
   "/getStripePaymentResultRetreat",
   paymentController.getStripePaymentResultRetreat,
 );
+router.post(
+  "/registerRetreatYogaUser",
+  adminController.registerRetreatYogaUser,
+);
 
 module.exports = router;

@@ -641,7 +641,7 @@ let deduplicateByEmail = function (items) {
     return true;
   });
 };
-let sendRetreatPaymentEmail = async function (user, password) {
+let sendRetreatPaymentEmail = async function (user) {
   const mailData = {
     replacements: {
       NAME: user.name,
