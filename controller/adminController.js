@@ -2638,6 +2638,26 @@ module.exports = {
       res.status(500).json(error);
     }
   },
+  checkoutPaypalFor200TTC: async function (req, res) {
+    try {
+      let result = await paymentService.checkoutPaypalFor200TTC(req.body);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json(error?.response?.data || error.message || error);
+    }
+  },
+  getPaypalPaymentResult200TTC: async function (req, res) {
+    try {
+      const returnData = await paymentService.getPaypalPaymentResult200TTC(
+        req.body,
+        req,
+      );
+      res.status(returnData.status).json(returnData.data);
+    } catch (error) {
+      console.error("Error verifying PayPal payment:", error?.response?.data || error);
+      res.status(500).json("Internal server error");
+    }
+  },
   getStripePaymentResult200TTC: async function (req, res) {
     try {
       const returnData = await paymentService.getStripePaymentResult200TTC(

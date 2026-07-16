@@ -224,15 +224,16 @@ function getPaymentDetailsById(id) {
     }
   });
 }
-function updateInstallmentPayment200TTCata(id, due) {
+function updateInstallmentPayment200TTCata(id, due, updates = {}) {
   return new Promise(async (resolve, reject) => {
     try {
       let data = await twoHundredHourTTCModel.findById(id);
       await twoHundredHourTTCModel.findOneAndUpdate(
         { _id: id },
         {
-          price: +data.price + due,
+          price: Number(data.price || 0) + Number(due || 0),
           dueAmount: 0,
+          ...updates,
         },
       );
       return resolve(data);

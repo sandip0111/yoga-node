@@ -569,6 +569,14 @@ router.post(
   adminController.checkoutStripeFor200TTC,
 );
 router.post(
+  "/checkoutPaypalFor200TTC",
+  adminController.checkoutPaypalFor200TTC,
+);
+router.post(
+  "/getPaypalPaymentResult200TTC",
+  adminController.getPaypalPaymentResult200TTC,
+);
+router.post(
   "/getStripePaymentResult200TTC",
   adminController.getStripePaymentResult200TTC,
 );
