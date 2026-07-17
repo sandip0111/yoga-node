@@ -726,5 +726,10 @@ router.post(
   "/registerRetreatYogaUser",
   adminController.registerRetreatYogaUser,
 );
+router.post(
+  "/getRetreatData",
+  studentController.getRetreatData,
+);
+router.post("/removeRetreatData", studentController.removeRetreatData);
 
 module.exports = router;

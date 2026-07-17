@@ -650,7 +650,9 @@ module.exports = {
   },
   getPranayamaCertificationData: async function (req, res) {
     try {
-      const result = await studentService.getPranayamaCertificationData(req.body);
+      const result = await studentService.getPranayamaCertificationData(
+        req.body,
+      );
       res
         .status(200)
         .json({ data: result.studentList, total: result.studentTotal });
@@ -658,10 +660,31 @@ module.exports = {
       res.status(404).json({ status: "error", msg: err.message });
     }
   },
+  getRetreatData: async function (req, res) {
+    try {
+      const result = await studentService.getRetreatData(req.body);
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.studentTotal });
+    } catch (err) {
+      res.status(404).json({ status: "error", msg: err.message });
+    }
+  },
+  removeRetreatData: async function (req, res) {
+    try {
+      await studentService.removeRetreatData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing Subscribe data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });
-  let course = await courseModel.findOne({ _id: constant.COURSE.PRANA_ARAMBHA });
+  let course = await courseModel.findOne({
+    _id: constant.COURSE.PRANA_ARAMBHA,
+  });
   let mailOptions;
   const filePath = path.join(__dirname, "/emailTemplate/prana.html");
   const source = fs.readFileSync(filePath, "utf-8").toString();

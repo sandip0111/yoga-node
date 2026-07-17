@@ -16,6 +16,7 @@ const onlinepaymentModel = require("../models/onlinePaymentModel");
 const pranicPurificationUsersIIModel = require("../models/pranicPurificationUserIIModel");
 const pranayamaCertificationModel = require("../models/pranayamaCertificationModel");
 const subscribeModel = require("../models/subscribeModel");
+const retreatStudentModel = require("../models/retreatStudentModel");
 
 module.exports = {
   getStudentCountFilter: function (pipeline) {
@@ -602,6 +603,16 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       try {
         const result = await pranayamaCertificationModel.aggregate(pipeline);
+        return resolve(result);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getRetreatData: function (pipeline) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = await retreatStudentModel.aggregate(pipeline);
         return resolve(result);
       } catch (error) {
         return reject(error);

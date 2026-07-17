@@ -1131,6 +1131,91 @@ module.exports = {
     });
     return 1;
   },
+  getRetreatData: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let size = reqBody.size || 10;
+        let pageNo = reqBody.pageNo || 1;
+        const skip = Number(size * (pageNo - 1));
+        const limit = Number(size) || 0;
+        const searchText = reqBody.searchText;
+        let pipeLine = [{ $match: { isDeleted: false } }];
+        let pipeLineCount = [
+          { $match: { isDeleted: false } },
+          { $count: "total" },
+        ];
+        if (searchText) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } },
+                { phoneNumber: { $regex: searchText, $options: "i" } },
+              ],
+            },
+          });
+          pipeLineCount.unshift({
+            $match: {
+              $or: [
+                { name: { $regex: searchText, $options: "i" } },
+                { email: { $regex: searchText, $options: "i" } },
+                { phoneNumber: { $regex: searchText, $options: "i" } },
+              ],
+            },
+          });
+        }
+        if (reqBody.paymentType) {
+          pipeLine.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+          pipeLineCount.splice(1, 0, {
+            $match: {
+              $or: [
+                { paymentType: { $regex: reqBody.paymentType, $options: "i" } },
+              ],
+            },
+          });
+        }
+        if (reqBody.paymentStatus) {
+          const payStatusMatch = { paymentStatus: reqBody.paymentStatus };
+          pipeLine.splice(1, 0, { $match: payStatusMatch });
+          pipeLineCount.splice(1, 0, { $match: payStatusMatch });
+        }
+        if (reqBody.month) {
+          const monthMatch = { month: reqBody.month };
+          pipeLine.splice(1, 0, { $match: monthMatch });
+          pipeLineCount.splice(1, 0, { $match: monthMatch });
+        }
+        pipeLine.push({ $sort: { created: -1 } });
+        pipeLine.push({
+          $facet: {
+            metadata: [{ $count: "total" }],
+            data: [{ $skip: skip }, { $limit: limit }],
+          },
+        });
+        let allData = await studentRepo.getRetreatData(pipeLine);
+        return resolve({
+          studentList: allData[0].data,
+          studentTotal:
+            allData[0].metadata[0] && allData[0].metadata.length > 0
+              ? allData[0].metadata[0].total
+              : 0,
+        });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  removeRetreatData: async function (studentId) {
+    await paymentRepo.retreatUpdateById(studentId, {
+      isDeleted: true,
+    });
+    return 1;
+  },
 };
 let pranaySadhanaCourseVideo = function (getVideoData) {
   return new Promise(async (resolve, reject) => {
