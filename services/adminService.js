@@ -1091,7 +1091,7 @@ function registerRetreatYogaUser(reqBody) {
         name: reqBody.name,
         email: reqBody.email,
         paymentStatus: constant.PAYMENT_STATUS.PAID,
-        paymentType: "paypal",
+        paymentType: "admin",
       });
       await helper.sendRetreatPaymentEmail(savedUser);
       return resolve({
