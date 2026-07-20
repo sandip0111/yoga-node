@@ -41,11 +41,11 @@ const liveCoursesCustomerSchema = new mongoose.Schema({
   },
   month: {
     type: String,
-    default: () => "July, 2026",
+    default: () => "August, 2026",
   },
   paymentType: {
     type: String,
-    enum: ["razorpay", "stripe", "paypal"],
+    enum: ["razorpay", "stripe", "paypal", "admin"],
     required: false,
     default: null,
   },

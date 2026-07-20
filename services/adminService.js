@@ -172,7 +172,7 @@ function createLiveCourseCustomer(reqBody) {
         email: reqBody.email,
         paymentStatus: "paid",
         courses: reqBody.course,
-        paymentType: "paypal",
+        paymentType: "admin",
         month: reqBody.courseList[0].month,
       };
       const onlineData = await liveCoursesCustomermodel.create(paymentData);
