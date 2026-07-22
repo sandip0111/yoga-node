@@ -677,6 +677,16 @@ function updateRetreatStatusForcefully(startDate, endDate) {
     }
   });
 }
+function getRetreatPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await retreatStudentModel.findById(id).lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -720,5 +730,6 @@ module.exports = {
   createRetreatData,
   retreatUpdateById,
   updateRetreatePaymentStatusData,
-  updateRetreatStatusForcefully
+  updateRetreatStatusForcefully,
+  getRetreatPaymentDetailsById,
 };

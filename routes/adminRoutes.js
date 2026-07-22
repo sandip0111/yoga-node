@@ -723,6 +723,14 @@ router.post(
   paymentController.getStripePaymentResultRetreat,
 );
 router.post(
+  "/checkoutPaypalForRetreat",
+  paymentController.checkoutPaypalForRetreat,
+);
+router.post(
+  "/getPaypalPaymentResultRetreat",
+  paymentController.getPaypalPaymentResultRetreat,
+);
+router.post(
   "/registerRetreatYogaUser",
   adminController.registerRetreatYogaUser,
 );

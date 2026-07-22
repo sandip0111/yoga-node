@@ -3110,6 +3110,145 @@ function getStripePaymentResultRetreat(reqBody, req = null) {
     }
   });
 }
+function checkoutPaypalForRetreat(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const currency = PAYPAL_CURRENCY;
+      const amount = formatPayPalAmount(reqBody.price);
+      reqBody.paymentType = "paypal";
+      reqBody.currency = currency;
+      reqBody.price = amount;
+
+      let pay = await paymentRepo.createRetreatData(reqBody);
+
+      const order = await callPayPal(
+        "post",
+        "/v2/checkout/orders",
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: `Retreat_${pay._id}`,
+              custom_id: String(pay._id),
+              description: "The Essence of Yoga – Mysore Retreat Payment",
+              amount: {
+                currency_code: currency,
+                value: amount,
+              },
+            },
+          ],
+          application_context: {
+            brand_name: "Yoga Vidya School",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: getPayPalRedirectUrl("/confirmation"),
+            cancel_url: getPayPalRedirectUrl("/checkout/mysore-retreat"),
+          },
+        },
+        `Retreat-create-${pay._id}`,
+      );
+
+      const approvalUrl = getPayPalApproveUrl(order);
+      if (!order.id || !approvalUrl) {
+        throw new Error("PayPal approval URL was not returned");
+      }
+
+      await paymentRepo.retreatUpdateById(pay._id, { paymentId: order.id });
+      return resolve({
+        orderId: order.id,
+        payDbId: pay._id,
+        approvalUrl,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+async function completePayPalRetreatPayment(order, reqBody, req) {
+  const capture = getPayPalCapture(order);
+  if (!capture || capture.status !== "COMPLETED") {
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const user = await paymentRepo.updateRetreatePaymentStatusData(
+    reqBody.payDbId,
+    capture.id,
+    true,
+  );
+  await helper.sendRetreatPaymentEmail(user);
+  const clientData = req ? extractClientData(req) : {};
+  paymentTrackingService.trackRetreatPurchase(
+    {
+      paymentId: capture.id,
+      ...clientData,
+    },
+    user,
+  );
+
+  return {
+    status: 200,
+    data: {
+      status: "success",
+      paymtId: capture.id,
+      amount: Number(capture.amount?.value || user.price || 0),
+      currency: capture.amount?.currency_code || user.currency,
+    },
+  };
+}
+function getPaypalPaymentResultRetreat(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const payDbId = reqBody.payDbId;
+      const paypalOrderId = reqBody.paypalOrderId;
+      const paymentDetails = await paymentRepo.getRetreatPaymentDetailsById(payDbId);
+      if (!paymentDetails) {
+        return resolve({
+          status: 404,
+          data: { status: "failed", message: "Payment record not found" },
+        });
+      }
+      if (paymentDetails.paymentStatus === "paid") {
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: paymentDetails.paymentId,
+            amount: Number(paymentDetails.price || 0),
+            currency: paymentDetails.currency,
+          },
+        });
+      }
+      if (paymentDetails.paymentId !== paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "PayPal order mismatch" },
+        });
+      }
+
+      const order = await getPayPalOrder(paypalOrderId);
+      if (order.status === "COMPLETED") {
+        const returnData = await completePayPalRetreatPayment(order, reqBody, req);
+        return resolve(returnData);
+      }
+      if (order.status !== "APPROVED") {
+        return resolve({
+          status: 200,
+          data: { status: "failed", paypalOrderId },
+        });
+      }
+
+      const capturedOrder = await capturePayPalOrder(paypalOrderId, payDbId);
+      const returnData = await completePayPalRetreatPayment(
+        capturedOrder,
+        reqBody,
+        req,
+      );
+      return resolve(returnData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 function updateRetreatStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
@@ -3228,5 +3367,7 @@ module.exports = {
   getRazorPaymentResultRetreat,
   checkoutStripeForRetreat,
   getStripePaymentResultRetreat,
+  checkoutPaypalForRetreat,
+  getPaypalPaymentResultRetreat,
   updateRetreatStatusForcefully,
 };
