@@ -135,6 +135,25 @@ async function getPaypalPaymentResultRetreat(req, res) {
     res.status(500).json(error);
   }
 }
+async function checkoutPaypalForRishikesh(req, res) {
+  try {
+    let result = await paymentService.checkoutPaypalForRishikesh(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getPaypalPaymentResultRishikesh(req, res) {
+  try {
+    let result = await paymentService.getPaypalPaymentResultRishikesh(
+      req.body,
+      req,
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
 module.exports = {
   getPaymentDetailsById,
   checkoutStripeForRishikesh,
@@ -150,4 +169,6 @@ module.exports = {
   getStripePaymentResultRetreat,
   checkoutPaypalForRetreat,
   getPaypalPaymentResultRetreat,
+  checkoutPaypalForRishikesh,
+  getPaypalPaymentResultRishikesh,
 };
