@@ -739,6 +739,14 @@ router.post(
   paymentController.getPaypalPaymentResultRishikesh,
 );
 router.post(
+  "/checkoutPaypalForBali",
+  paymentController.checkoutPaypalForBali,
+);
+router.post(
+  "/getPaypalPaymentResultBali",
+  paymentController.getPaypalPaymentResultBali,
+);
+router.post(
   "/registerRetreatYogaUser",
   adminController.registerRetreatYogaUser,
 );

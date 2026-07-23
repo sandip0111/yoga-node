@@ -697,6 +697,16 @@ function getRishikeshPaymentDetailsById(id) {
     }
   });
 }
+function getBaliPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await baliStudentModel.findById(id).lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -743,4 +753,5 @@ module.exports = {
   updateRetreatStatusForcefully,
   getRetreatPaymentDetailsById,
   getRishikeshPaymentDetailsById,
+  getBaliPaymentDetailsById,
 };
