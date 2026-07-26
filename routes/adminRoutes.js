@@ -747,6 +747,14 @@ router.post(
   paymentController.getPaypalPaymentResultBali,
 );
 router.post(
+  "/checkoutPaypalForLiveClasses",
+  paymentController.checkoutPaypalForLiveClasses,
+);
+router.post(
+  "/getPaypalPaymentResultLiveClasses",
+  paymentController.getPaypalPaymentResultLiveClasses,
+);
+router.post(
   "/registerRetreatYogaUser",
   adminController.registerRetreatYogaUser,
 );

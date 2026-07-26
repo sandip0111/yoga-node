@@ -1732,6 +1732,201 @@ function checkoutStripeForLiveClasses(reqBody) {
     }
   });
 }
+
+// ─── Live Classes PayPal ────────────────────────────────────────────────
+
+function checkoutPaypalForLiveClasses(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const currency = PAYPAL_CURRENCY;
+      const amount = formatPayPalAmount(reqBody.price);
+      let paymentData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        paymentStatus: "pending",
+        price: amount,
+        currency: currency,
+        phone: reqBody.phone,
+        courses: reqBody.courses,
+        paymentType: "paypal",
+        month: reqBody.month,
+      };
+      const pay = await studentRepo.createLiveClassData(paymentData);
+      const order = await callPayPal(
+        "post",
+        "/v2/checkout/orders",
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: `LiveClass_${pay._id}`,
+              custom_id: String(pay._id),
+              description: "Live Yoga Classes Payment",
+              amount: {
+                currency_code: currency,
+                value: amount,
+              },
+            },
+          ],
+          application_context: {
+            brand_name: "Yoga Vidya School",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: getPayPalRedirectUrl("/confirmation"),
+            cancel_url: getPayPalRedirectUrl("/proceed-payment"),
+          },
+        },
+        `LiveClass-create-${pay._id}`,
+      );
+
+      const approvalUrl = getPayPalApproveUrl(order);
+      if (!order.id || !approvalUrl) {
+        throw new Error("PayPal approval URL was not returned");
+      }
+
+      await paymentRepo.liveCourseUpdateById(pay._id, {
+        paymentId: order.id,
+      });
+      return resolve({
+        orderId: order.id,
+        payDbId: pay._id,
+        approvalUrl,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+async function completePayPalLiveClassesPayment(order, reqBody, req) {
+  const capture = getPayPalCapture(order);
+  if (!capture || capture.status !== "COMPLETED") {
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const onlineData = await paymentRepo.liveCourseUpdateById(reqBody.payDbId, {
+    paymentId: capture.id,
+    paymentStatus: "paid",
+  });
+
+  const pass = reqBody.password || helper.genratePass(6);
+  await studentRepo.createStudent({
+    firstName: onlineData.name,
+    email: onlineData.email,
+    phoneNumber: onlineData.phone,
+    isActive: true,
+    password: pass,
+    paymentCourseId: constants.COURSE.ONLINE_LIVE_CLASSES,
+    course: onlineData.courses,
+    source: `onlineSadhana_${onlineData._id}_${onlineData.month}`,
+  });
+
+  const { name, email, phone, price, currency, courses } = onlineData;
+  const courseList = (courses || []).map((c) => ({ id: c.id }));
+
+  for (let i = 0; i < courseList.length; i++) {
+    const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
+    const item = mentors.teachersData.find((obj) => courseList[i].id == obj.id);
+    await helper.onlineSadhanaClassSendMail(name, email, item, pass);
+  }
+
+  const replacements = {
+    name: name,
+    phoneNo: phone,
+    email: email,
+    price: price,
+    payId: capture.id,
+    currency: currency,
+    status: "paid",
+    items: courseList,
+  };
+  await helper.adminOnlineSadhanaClassSendMail(replacements);
+
+  const clientData = req ? extractClientData(req) : {};
+  await paymentTrackingService.trackLiveClassPurchase(
+    {
+      paymentId: capture.id,
+      ...clientData,
+    },
+    {
+      email,
+      phone,
+      name,
+      price,
+      currency,
+    },
+  );
+
+  return {
+    status: 200,
+    data: {
+      status: "success",
+      paymtId: capture.id,
+      amount: Number(capture.amount?.value || onlineData.price || 0),
+      currency: capture.amount?.currency_code || onlineData.currency,
+    },
+  };
+}
+
+function getPaypalPaymentResultLiveClasses(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const payDbId = reqBody.payDbId;
+      const paypalOrderId = reqBody.paypalOrderId;
+      const paymentDetails = await paymentRepo.getOneFromLiveCourse(payDbId);
+      if (!paymentDetails) {
+        return resolve({
+          status: 404,
+          data: { status: "failed", message: "Payment record not found" },
+        });
+      }
+      if (paymentDetails.paymentStatus === "paid") {
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: paymentDetails.paymentId,
+            amount: Number(paymentDetails.price || 0),
+            currency: paymentDetails.currency,
+          },
+        });
+      }
+      if (paymentDetails.paymentId !== paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "PayPal order mismatch" },
+        });
+      }
+
+      const order = await getPayPalOrder(paypalOrderId);
+      if (order.status === "COMPLETED") {
+        const returnData = await completePayPalLiveClassesPayment(
+          order,
+          reqBody,
+          req,
+        );
+        return resolve(returnData);
+      }
+      if (order.status !== "APPROVED") {
+        return resolve({
+          status: 200,
+          data: { status: "failed", paypalOrderId },
+        });
+      }
+
+      const capturedOrder = await capturePayPalOrder(paypalOrderId, payDbId);
+      const returnData = await completePayPalLiveClassesPayment(
+        capturedOrder,
+        reqBody,
+        req,
+      );
+      return resolve(returnData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
 function updateOnlineSadhanaPaymentStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
@@ -3691,4 +3886,6 @@ module.exports = {
   getPaypalPaymentResultRishikesh,
   checkoutPaypalForBali,
   getPaypalPaymentResultBali,
+  checkoutPaypalForLiveClasses,
+  getPaypalPaymentResultLiveClasses,
 };
