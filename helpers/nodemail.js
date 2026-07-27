@@ -13,7 +13,7 @@ const EMAIL_CONFIG = {
   MAX_RETRIES: 2,
   RETRY_DELAY: 3000, // 3 seconds
   DEFAULT_SUBJECT:
-    "A New Beginning at Yoga Vidya School – A Message from Prashant",
+    "The Essence of Yoga — Mysore Retreat 2026 | September 15–20",
   DEFAULT_LIMIT: 500,
   DEFAULT_TEMPLATE: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_FORCEFULLY,
 };
