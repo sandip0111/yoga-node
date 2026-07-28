@@ -679,6 +679,15 @@ module.exports = {
       res.status(500).json({ status: "error", msg: err.message });
     }
   },
+  getAllBookedSlotPg: async function (req, res) {
+    try {
+      let data = await studentService.getAllBookedSlotPg(req.body.studentId);
+      res.status(200).json(data);
+    } catch (err) {
+      console.error("Error removing Subscribe data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });

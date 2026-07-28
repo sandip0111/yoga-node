@@ -738,10 +738,7 @@ router.post(
   "/getPaypalPaymentResultRishikesh",
   paymentController.getPaypalPaymentResultRishikesh,
 );
-router.post(
-  "/checkoutPaypalForBali",
-  paymentController.checkoutPaypalForBali,
-);
+router.post("/checkoutPaypalForBali", paymentController.checkoutPaypalForBali);
 router.post(
   "/getPaypalPaymentResultBali",
   paymentController.getPaypalPaymentResultBali,
@@ -758,18 +755,13 @@ router.post(
   "/registerRetreatYogaUser",
   adminController.registerRetreatYogaUser,
 );
-router.post(
-  "/getRetreatData",
-  studentController.getRetreatData,
-);
+router.post("/getRetreatData", studentController.getRetreatData);
 router.post("/removeRetreatData", studentController.removeRetreatData);
-router.post(
-  "/checkoutRazorpayPg",
-  paymentController.checkoutRazorpayPg,
-);
+router.post("/checkoutRazorpayPg", paymentController.checkoutRazorpayPg);
 router.post(
   "/getRazorPaymentResultPg",
   paymentController.getRazorPaymentResultPg,
 );
+router.get("/getAllBookedSlotPg", studentController.getAllBookedSlotPg);
 
 module.exports = router;

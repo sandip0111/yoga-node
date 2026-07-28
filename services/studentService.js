@@ -1216,6 +1216,16 @@ module.exports = {
     });
     return 1;
   },
+  getAllBookedSlotPg() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let data = await studentRepo.getAllBookedSlotPg();
+        return resolve(data);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
 };
 let pranaySadhanaCourseVideo = function (getVideoData) {
   return new Promise(async (resolve, reject) => {
