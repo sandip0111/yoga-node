@@ -731,6 +731,31 @@ function pgUpdateById(id, data) {
     }
   });
 }
+function updatePgPaymentStatusData(id, paymentId, isPaid) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user;
+      if (isPaid) {
+        user = await personalGuidanceStudentModel.findOneAndUpdate(
+          { _id: id },
+          {
+            paymentId: paymentId,
+            paymentStatus: "paid",
+          },
+          { new: true },
+        );
+      } else {
+        await personalGuidanceStudentModel.findOneAndUpdate(
+          { _id: id },
+          { paymentStatus: "pending" },
+        );
+      }
+      return resolve(user);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -780,4 +805,5 @@ module.exports = {
   getBaliPaymentDetailsById,
   createPgData,
   pgUpdateById,
+  updatePgPaymentStatusData,
 };

@@ -361,6 +361,42 @@ class PaymentTrackingService {
       console.error("PaymentTrackingService: Error tracking Retreat purchase", error);
     }
   }
+
+  /**
+   * Track purchase event for personal guidance courses
+   */
+  async trackPgPurchase(paymentData, userData) {
+    try {
+
+      const courseData = {
+        courseId: 'personal_guidance',
+        courseName: 'Personal Guidance',
+        courseType: 'personal_guidance'
+      };
+
+      const eventId = 'personal_guidance';
+
+      const purchaseData = {
+        transactionId: paymentData.paymentId,
+        paymentId: paymentData.paymentId,
+        eventId: eventId,
+        amount: userData.price,
+        currency: userData.currency,
+        clientIp: paymentData.clientIp,
+        userAgent: paymentData.userAgent
+      };
+
+      const userInfo = {
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        firstName: userData.name
+      };
+
+      await metaConversionsService.trackPurchase(purchaseData, userInfo, courseData);
+    } catch (error) {
+      console.error("PaymentTrackingService: Error tracking Retreat purchase", error);
+    }
+  }
 }
 
 module.exports = new PaymentTrackingService();

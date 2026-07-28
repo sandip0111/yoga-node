@@ -3869,6 +3869,44 @@ function checkoutRazorpayPg(reqBody) {
     }
   });
 }
+function getRazorPaymentResultPg(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const hmac = crypto.createHmac("sha256", razorpay.key_secret);
+      hmac.update(reqBody.razorpayOrderId + "|" + reqBody.razorpayPaymentId);
+      const generatedSignature = hmac.digest("hex");
+      if (generatedSignature === reqBody.razorpaySignature) {
+        const user = await paymentRepo.updatePgPaymentStatusData(
+          reqBody.payDbId,
+          reqBody.razorpayPaymentId,
+          true,
+        );
+        // await helper.sendRetreatPaymentEmail(user);
+        const clientData = req ? extractClientData(req) : {};
+        paymentTrackingService.trackPgPurchase(
+          {
+            paymentId: reqBody.razorpayPaymentId,
+            ...clientData,
+          },
+          user,
+        );
+        return resolve({
+          amount: +user.price,
+          currency: user.currency,
+        });
+      } else {
+        await paymentRepo.updatePgPaymentStatusData(
+          reqBody.payDbId,
+          null,
+          false,
+        );
+        return reject("Payment verification failed");
+      }
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 
 module.exports = {
   updateabc,
@@ -3936,4 +3974,5 @@ module.exports = {
   checkoutPaypalForLiveClasses,
   getPaypalPaymentResultLiveClasses,
   checkoutRazorpayPg,
+  getRazorPaymentResultPg,
 };

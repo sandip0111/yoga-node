@@ -767,5 +767,9 @@ router.post(
   "/checkoutRazorpayPg",
   paymentController.checkoutRazorpayPg,
 );
+router.post(
+  "/getRazorPaymentResultPg",
+  paymentController.getRazorPaymentResultPg,
+);
 
 module.exports = router;

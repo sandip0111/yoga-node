@@ -199,6 +199,19 @@ async function checkoutRazorpayPg(req, res) {
     }
   }
 }
+async function getRazorPaymentResultPg(req, res) {
+  {
+    try {
+      const result = await paymentService.getRazorPaymentResultPg(
+        req.body,
+        req,
+      );
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(400).json(err);
+    }
+  }
+}
 module.exports = {
   getPaymentDetailsById,
   checkoutStripeForRishikesh,
@@ -221,4 +234,5 @@ module.exports = {
   checkoutPaypalForLiveClasses,
   getPaypalPaymentResultLiveClasses,
   checkoutRazorpayPg,
+  getRazorPaymentResultPg,
 };
