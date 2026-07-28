@@ -145,11 +145,15 @@ async function completePayPal200TTCPayment(order, reqBody, req) {
     throw new Error("PayPal payment was not completed");
   }
 
-  const paymentDetails = await paymentRepo.getPaymentDetailsById(reqBody.payDbId);
+  const paymentDetails = await paymentRepo.getPaymentDetailsById(
+    reqBody.payDbId,
+  );
   if (!paymentDetails) {
     throw new Error("Payment record not found");
   }
-  const capturedCurrency = String(capture.amount?.currency_code || "").toUpperCase();
+  const capturedCurrency = String(
+    capture.amount?.currency_code || "",
+  ).toUpperCase();
   const expectedCurrency = String(paymentDetails.currency || "").toUpperCase();
   const capturedAmount = Number(capture.amount?.value || 0);
   const expectedMaxAmount = Number(paymentDetails.price || 0);
@@ -1027,7 +1031,11 @@ function getPaypalPaymentResult200TTC(reqBody, req = null) {
 
       const order = await getPayPalOrder(paypalOrderId);
       if (order.status === "COMPLETED") {
-        const returnData = await completePayPal200TTCPayment(order, reqBody, req);
+        const returnData = await completePayPal200TTCPayment(
+          order,
+          reqBody,
+          req,
+        );
         return resolve(returnData);
       }
       if (order.status !== "APPROVED") {
@@ -1422,7 +1430,10 @@ function updatePaymentStatusForcefully() {
           };
           const order = await getPayPalOrder(obj.paymentId);
           if (order.status === "APPROVED") {
-            const capturedOrder = await capturePayPalOrder(obj.paymentId, obj._id);
+            const capturedOrder = await capturePayPalOrder(
+              obj.paymentId,
+              obj._id,
+            );
             await completePayPal200TTCPayment(capturedOrder, reqBody, null);
             await paymentRepo.update200ttcPayment(
               { isPaymentCheck: true },
@@ -2751,8 +2762,8 @@ function checkoutPaypalForBali(reqBody) {
         reqBody.hour === 100
           ? "/checkout/100-hour-yoga-teacher-training-in-bali"
           : reqBody.hour === 300
-          ? "/checkout/300-hour-yoga-teacher-training-in-bali"
-          : "/checkout/200-hour-yoga-teacher-training-in-bali";
+            ? "/checkout/300-hour-yoga-teacher-training-in-bali"
+            : "/checkout/200-hour-yoga-teacher-training-in-bali";
 
       const order = await callPayPal(
         "post",
@@ -2862,11 +2873,7 @@ function getPaypalPaymentResultBali(reqBody, req = null) {
 
       const order = await getPayPalOrder(paypalOrderId);
       if (order.status === "COMPLETED") {
-        const returnData = await completePayPalBaliPayment(
-          order,
-          reqBody,
-          req,
-        );
+        const returnData = await completePayPalBaliPayment(order, reqBody, req);
         return resolve(returnData);
       }
       if (order.status !== "APPROVED") {
@@ -3553,7 +3560,8 @@ function getPaypalPaymentResultRetreat(reqBody, req = null) {
     try {
       const payDbId = reqBody.payDbId;
       const paypalOrderId = reqBody.paypalOrderId;
-      const paymentDetails = await paymentRepo.getRetreatPaymentDetailsById(payDbId);
+      const paymentDetails =
+        await paymentRepo.getRetreatPaymentDetailsById(payDbId);
       if (!paymentDetails) {
         return resolve({
           status: 404,
@@ -3580,7 +3588,11 @@ function getPaypalPaymentResultRetreat(reqBody, req = null) {
 
       const order = await getPayPalOrder(paypalOrderId);
       if (order.status === "COMPLETED") {
-        const returnData = await completePayPalRetreatPayment(order, reqBody, req);
+        const returnData = await completePayPalRetreatPayment(
+          order,
+          reqBody,
+          req,
+        );
         return resolve(returnData);
       }
       if (order.status !== "APPROVED") {
@@ -3602,9 +3614,7 @@ function getPaypalPaymentResultRetreat(reqBody, req = null) {
     }
   });
 }
-
 // ─── Rishikesh PayPal ──────────────────────────────────────────────────
-
 function checkoutPaypalForRishikesh(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -3622,8 +3632,8 @@ function checkoutPaypalForRishikesh(reqBody) {
         reqBody.hour === 100
           ? "/checkout/100-hours-yoga-teacher-training-in-rishikesh"
           : reqBody.hour === 300
-          ? "/checkout/300-hours-yoga-teacher-training-in-rishikesh"
-          : "/checkout/200-hours-yoga-teacher-training-in-rishikesh";
+            ? "/checkout/300-hours-yoga-teacher-training-in-rishikesh"
+            : "/checkout/200-hours-yoga-teacher-training-in-rishikesh";
 
       const order = await callPayPal(
         "post",
@@ -3668,7 +3678,6 @@ function checkoutPaypalForRishikesh(reqBody) {
     }
   });
 }
-
 async function completePayPalRishikeshPayment(order, reqBody, req) {
   const capture = getPayPalCapture(order);
   if (!capture || capture.status !== "COMPLETED") {
@@ -3700,7 +3709,6 @@ async function completePayPalRishikeshPayment(order, reqBody, req) {
     },
   };
 }
-
 function getPaypalPaymentResultRishikesh(reqBody, req = null) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -3760,7 +3768,6 @@ function getPaypalPaymentResultRishikesh(reqBody, req = null) {
     }
   });
 }
-
 function updateRetreatStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
@@ -3817,6 +3824,33 @@ function updateRetreatStatusForcefully() {
         }
       }
       resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function checkoutRazorpayPg(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      reqBody.paymentType = "razorpay";
+      let pay = await paymentRepo.createPgData(reqBody);
+      const amountInSubunits = reqBody.price * 100;
+      const options = {
+        amount: amountInSubunits,
+        currency: reqBody.currency,
+        receipt: `pg_${pay._id}`,
+        payment_capture: 1,
+      };
+      const order = await razorpay.orders.create(options);
+      await paymentRepo.retreatUpdateById(pay._id, {
+        paymentId: order.id,
+      });
+      return resolve({
+        orderId: order.id,
+        razorpayKey: process.env.RAZORPAY_KEY_ID,
+        payDbId: pay._id,
+        amount: amountInSubunits,
+      });
     } catch (error) {
       return reject(error);
     }
@@ -3888,4 +3922,5 @@ module.exports = {
   getPaypalPaymentResultBali,
   checkoutPaypalForLiveClasses,
   getPaypalPaymentResultLiveClasses,
+  checkoutRazorpayPg,
 };

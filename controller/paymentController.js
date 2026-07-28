@@ -164,10 +164,7 @@ async function checkoutPaypalForBali(req, res) {
 }
 async function getPaypalPaymentResultBali(req, res) {
   try {
-    let result = await paymentService.getPaypalPaymentResultBali(
-      req.body,
-      req,
-    );
+    let result = await paymentService.getPaypalPaymentResultBali(req.body, req);
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json(error);
@@ -192,6 +189,16 @@ async function getPaypalPaymentResultLiveClasses(req, res) {
     res.status(500).json(error);
   }
 }
+async function checkoutRazorpayPg(req, res) {
+  {
+    try {
+      const result = await paymentService.checkoutRazorpayPg(req.body);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(400).json(err);
+    }
+  }
+}
 module.exports = {
   getPaymentDetailsById,
   checkoutStripeForRishikesh,
@@ -213,4 +220,5 @@ module.exports = {
   getPaypalPaymentResultBali,
   checkoutPaypalForLiveClasses,
   getPaypalPaymentResultLiveClasses,
+  checkoutRazorpayPg,
 };

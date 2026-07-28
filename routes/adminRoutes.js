@@ -763,5 +763,9 @@ router.post(
   studentController.getRetreatData,
 );
 router.post("/removeRetreatData", studentController.removeRetreatData);
+router.post(
+  "/checkoutRazorpayPg",
+  paymentController.checkoutRazorpayPg,
+);
 
 module.exports = router;

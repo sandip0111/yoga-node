@@ -11,6 +11,7 @@ const constant = require("../helpers/constants.json");
 const pranicPurificationUsersIIModel = require("../models/pranicPurificationUserIIModel");
 const pranayamaCertificationModel = require("../models/pranayamaCertificationModel");
 const retreatStudentModel = require("../models/retreatStudentModel");
+const personalGuidanceStudentModel = require("../models/personalGuidanceStudentModel");
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
@@ -707,6 +708,29 @@ function getBaliPaymentDetailsById(id) {
     }
   });
 }
+function createPgData(userData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await personalGuidanceStudentModel.create(userData);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function pgUpdateById(id, data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pay = await personalGuidanceStudentModel.findOneAndUpdate(
+        { _id: id },
+        data,
+      );
+      return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -754,4 +778,6 @@ module.exports = {
   getRetreatPaymentDetailsById,
   getRishikeshPaymentDetailsById,
   getBaliPaymentDetailsById,
+  createPgData,
+  pgUpdateById,
 };
