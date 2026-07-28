@@ -3832,25 +3832,38 @@ function updateRetreatStatusForcefully() {
 function checkoutRazorpayPg(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      reqBody.paymentType = "razorpay";
-      let pay = await paymentRepo.createPgData(reqBody);
-      const amountInSubunits = reqBody.price * 100;
-      const options = {
-        amount: amountInSubunits,
-        currency: reqBody.currency,
-        receipt: `pg_${pay._id}`,
-        payment_capture: 1,
-      };
-      const order = await razorpay.orders.create(options);
-      await paymentRepo.retreatUpdateById(pay._id, {
-        paymentId: order.id,
-      });
-      return resolve({
-        orderId: order.id,
-        razorpayKey: process.env.RAZORPAY_KEY_ID,
-        payDbId: pay._id,
-        amount: amountInSubunits,
-      });
+      const selectedDate = new Date(reqBody.selectedDate);
+      let todayDate = new Date();
+      todayDate = new Date(
+        todayDate.getFullYear(),
+        todayDate.getMonth(),
+        todayDate.getDate(),
+      );
+      if (selectedDate >= todayDate) {
+        reqBody.paymentType = "razorpay";
+        let pay = await paymentRepo.createPgData(reqBody);
+        const amountInSubunits = reqBody.price * 100;
+        const options = {
+          amount: amountInSubunits,
+          currency: reqBody.currency,
+          receipt: `pg_${pay._id}`,
+          payment_capture: 1,
+        };
+        const order = await razorpay.orders.create(options);
+        await paymentRepo.retreatUpdateById(pay._id, {
+          paymentId: order.id,
+        });
+        return resolve({
+          orderId: order.id,
+          razorpayKey: process.env.RAZORPAY_KEY_ID,
+          payDbId: pay._id,
+          amount: amountInSubunits,
+        });
+      } else {
+        return reject({
+          message: "Date is not correct",
+        });
+      }
     } catch (error) {
       return reject(error);
     }
