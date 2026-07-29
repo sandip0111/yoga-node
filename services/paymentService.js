@@ -3881,7 +3881,7 @@ function getRazorPaymentResultPg(reqBody, req = null) {
           reqBody.razorpayPaymentId,
           true,
         );
-        // await helper.sendRetreatPaymentEmail(user);
+        await helper.sendPgPaymentEmail(user);
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.trackPgPurchase(
           {
@@ -3956,7 +3956,7 @@ function getStripePaymentResultPg(reqBody, req = null) {
           session.payment_intent,
           true,
         );
-        // await helper.sendRetreatPaymentEmail(user);
+        await helper.sendPgPaymentEmail(user);
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.trackPgPurchase(
           {

@@ -663,6 +663,19 @@ let completeRetreatPaymentEmail = async function (name, email) {
   };
   sendMail.createContent(mailData);
 };
+let sendPgPaymentEmail = async function (user) {
+  const mailData = {
+    replacements: {
+      NAME: user.name,
+      DATE: user.selectedDate,
+      TIME: user.selectedSlot,
+    },
+    mailTo: user.email,
+    contentPath: constants.EMAIL_TEMPLATE.PERSONAL_GUIDANCE_COURSE_PURCHASE,
+    subject: "Your Session with Prashant Jakhmola is Confirmed",
+  };
+  await sendMail.createContent(mailData);
+};
 
 module.exports = {
   getTimeBefore,
@@ -702,4 +715,5 @@ module.exports = {
   deduplicateByEmail,
   sendRetreatPaymentEmail,
   completeRetreatPaymentEmail,
+  sendPgPaymentEmail,
 };

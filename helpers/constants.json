@@ -58,7 +58,8 @@
     "COMPLETE_PRANIC_PURIFICATION_II": "/emailTemplate/completePranicPurificationII.html",
     "PRANAYAMA_CERTIFICATION": "/emailTemplate/pranayamaCertification.html",
     "RETREATE_PURCHASE_CONFIRMATION": "/emailTemplate/retreatCoursePurchase.html",
-    "COMPLETE_RETREAT_PAYMENT": "/emailTemplate/completeRetreatPayment.html"
+    "COMPLETE_RETREAT_PAYMENT": "/emailTemplate/completeRetreatPayment.html",
+    "PERSONAL_GUIDANCE_COURSE_PURCHASE": "/emailTemplate/personalGuidanceCoursePurchase.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
