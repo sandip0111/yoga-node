@@ -763,5 +763,13 @@ router.post(
   paymentController.getRazorPaymentResultPg,
 );
 router.get("/getAllBookedSlotPg", studentController.getAllBookedSlotPg);
+router.post(
+  "/checkoutStripeForPg",
+  paymentController.checkoutStripeForPg,
+);
+router.post(
+  "/getStripePaymentResultPg",
+  paymentController.getStripePaymentResultPg,
+);
 
 module.exports = router;
