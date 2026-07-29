@@ -3993,6 +3993,67 @@ function getStripePaymentResultPg(reqBody, req = null) {
     }
   });
 }
+function updatePgStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const now = new Date();
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
+      const paymentData = await paymentRepo.updatePgStatusForcefully(
+        tenMinutesAhead.toISOString(),
+        fiveMinutesAhead.toISOString(),
+      );
+      for (const obj of paymentData) {
+        if (obj.paymentType == "stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId,
+          );
+          if (session.payment_status == "paid") {
+            await paymentRepo.pgUpdateById(obj._id, {
+              paymentStatus: "paid",
+              isPaymentCheck: true,
+            });
+            helper.sendPgPaymentEmail(obj);
+          } else {
+            await paymentRepo.pgUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completePgPaymentEmail(obj);
+          }
+        } else {
+          const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+          if (payments.items && payments.items.length > 0) {
+            const payment = payments.items.find((p) => p.status == "captured");
+            if (payment.status === "captured") {
+              const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(obj.paymentId + "|" + payment.id)
+                .digest("hex");
+              if (
+                generatedSignature === payment.signature ||
+                !payment.signature
+              ) {
+                await paymentRepo.pgUpdateById(obj._id, {
+                  paymentStatus: "paid",
+                  isPaymentCheck: true,
+                });
+                await helper.sendPgPaymentEmail(obj);
+              }
+            }
+          } else {
+            await paymentRepo.pgUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completePgPaymentEmail(obj);
+          }
+        }
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 
 module.exports = {
   updateabc,
@@ -4063,4 +4124,5 @@ module.exports = {
   getRazorPaymentResultPg,
   checkoutStripeForPg,
   getStripePaymentResultPg,
+  updatePgStatusForcefully,
 };

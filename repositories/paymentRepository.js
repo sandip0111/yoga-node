@@ -670,6 +670,7 @@ function updateRetreatStatusForcefully(startDate, endDate) {
           },
           paymentStatus: { $ne: "paid" },
           isPaymentCheck: false,
+          isDeleted: false,
         })
         .lean();
       return resolve(data);
@@ -756,6 +757,26 @@ function updatePgPaymentStatusData(id, paymentId, isPaid) {
     }
   });
 }
+function updatePgStatusForcefully(startDate, endDate) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await personalGuidanceStudentModel
+        .find({
+          created: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          paymentStatus: { $ne: "paid" },
+          isPaymentCheck: false,
+          isDeleted: false,
+        })
+        .lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -806,4 +827,5 @@ module.exports = {
   createPgData,
   pgUpdateById,
   updatePgPaymentStatusData,
+  updatePgStatusForcefully,
 };

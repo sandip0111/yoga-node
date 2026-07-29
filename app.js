@@ -52,6 +52,7 @@ cron.schedule("*/1 * * * *", async function () {
   paymentService.updateRishikeshStatusForcefully();
   paymentService.updateBaliStatusForcefully();
   paymentService.updateRetreatStatusForcefully();
+  paymentService.updatePgStatusForcefully();
 });
 cron.schedule("0 * * * *", async function () {
   emailSchedulerService.startScheduler();

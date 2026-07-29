@@ -676,6 +676,27 @@ let sendPgPaymentEmail = async function (user) {
   };
   await sendMail.createContent(mailData);
 };
+let completePgPaymentEmail = async function (obj) {
+  let link = "";
+  if (obj.courseType == constants.PERSONAL_GUIDANCE.PG1) {
+    link = "https://www.yogavidyaschool.com/checkout/personal-guidance?type=1";
+  } else if (obj.courseType == constants.PERSONAL_GUIDANCE.PG2) {
+    link = "https://www.yogavidyaschool.com/checkout/personal-guidance?type=2";
+  } else if (obj.courseType == constants.PERSONAL_GUIDANCE.PG3) {
+    link = "https://www.yogavidyaschool.com/checkout/personal-guidance?type=3";
+  }
+  const mailData = {
+    replacements: {
+      NAME: obj.name,
+      COURSE: obj.courseType,
+      LINK: link,
+    },
+    mailTo: obj.email,
+    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_PG_PAYMENT,
+    subject: "Complete Your Registration – Personal Guidance with Prashantji",
+  };
+  sendMail.createContent(mailData);
+};
 
 module.exports = {
   getTimeBefore,
@@ -716,4 +737,5 @@ module.exports = {
   sendRetreatPaymentEmail,
   completeRetreatPaymentEmail,
   sendPgPaymentEmail,
+  completePgPaymentEmail,
 };

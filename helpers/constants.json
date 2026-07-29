@@ -59,7 +59,8 @@
     "PRANAYAMA_CERTIFICATION": "/emailTemplate/pranayamaCertification.html",
     "RETREATE_PURCHASE_CONFIRMATION": "/emailTemplate/retreatCoursePurchase.html",
     "COMPLETE_RETREAT_PAYMENT": "/emailTemplate/completeRetreatPayment.html",
-    "PERSONAL_GUIDANCE_COURSE_PURCHASE": "/emailTemplate/personalGuidanceCoursePurchase.html"
+    "PERSONAL_GUIDANCE_COURSE_PURCHASE": "/emailTemplate/personalGuidanceCoursePurchase.html",
+    "COMPLETE_PG_PAYMENT": "/emailTemplate/completePgPayment.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
@@ -98,5 +99,10 @@
   "STUDENT_SOURCCE": {
     "PRANIC": "PranicPurification_",
     "PRANIC_II": "PranicPurification_II_"
+  },
+  "PERSONAL_GUIDANCE": {
+    "PG1": "Yogic Therapy Guidance",
+    "PG2": "Personal Sadhana & Spiritual Guidance",
+    "PG3": "Professional Mentorship for Yoga Teachers & School Owners"
   }
 }
