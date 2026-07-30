@@ -228,6 +228,25 @@ async function getStripePaymentResultPg(req, res) {
     res.status(500).json(error);
   }
 }
+async function checkoutPaypalForPg(req, res) {
+  try {
+    let result = await paymentService.checkoutPaypalForPg(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getPaypalPaymentResultPg(req, res) {
+  try {
+    let result = await paymentService.getPaypalPaymentResultPg(
+      req.body,
+      req,
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
 
 module.exports = {
   getPaymentDetailsById,
@@ -254,4 +273,6 @@ module.exports = {
   getRazorPaymentResultPg,
   checkoutStripeForPg,
   getStripePaymentResultPg,
+  checkoutPaypalForPg,
+  getPaypalPaymentResultPg,
 };

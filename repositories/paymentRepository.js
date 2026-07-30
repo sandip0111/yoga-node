@@ -757,6 +757,16 @@ function updatePgPaymentStatusData(id, paymentId, isPaid) {
     }
   });
 }
+function getPgPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await personalGuidanceStudentModel.findById(id).lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 function updatePgStatusForcefully(startDate, endDate) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -827,5 +837,6 @@ module.exports = {
   createPgData,
   pgUpdateById,
   updatePgPaymentStatusData,
+  getPgPaymentDetailsById,
   updatePgStatusForcefully,
 };

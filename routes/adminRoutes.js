@@ -771,6 +771,14 @@ router.post(
   "/getStripePaymentResultPg",
   paymentController.getStripePaymentResultPg,
 );
+router.post(
+  "/checkoutPaypalForPg",
+  paymentController.checkoutPaypalForPg,
+);
+router.post(
+  "/getPaypalPaymentResultPg",
+  paymentController.getPaypalPaymentResultPg,
+);
 router.post("/getPgData", studentController.getPgData);
 router.post("/removePgData", studentController.removePgData);
 

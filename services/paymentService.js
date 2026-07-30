@@ -3993,6 +3993,200 @@ function getStripePaymentResultPg(reqBody, req = null) {
     }
   });
 }
+async function completePayPalPgPayment(order, reqBody, req) {
+  const capture = getPayPalCapture(order);
+  if (!capture || capture.status !== "COMPLETED") {
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const paymentDetails = await paymentRepo.getPgPaymentDetailsById(reqBody.payDbId);
+  if (!paymentDetails) {
+    throw new Error("Payment record not found");
+  }
+
+  const capturedCurrency = String(
+    capture.amount?.currency_code || "",
+  ).toUpperCase();
+  const expectedCurrency = String(paymentDetails.currency || "").toUpperCase();
+  const capturedAmount = Number(capture.amount?.value || 0);
+  const expectedMaxAmount = Number(paymentDetails.price || 0);
+
+  if (
+    capturedCurrency !== expectedCurrency ||
+    !Number.isFinite(capturedAmount) ||
+    capturedAmount <= 0 ||
+    capturedAmount > expectedMaxAmount
+  ) {
+    throw new Error("PayPal payment amount verification failed");
+  }
+
+  const user = await paymentRepo.updatePgPaymentStatusData(
+    reqBody.payDbId,
+    capture.id,
+    true,
+  );
+
+  await helper.sendPgPaymentEmail(user);
+
+  const clientData = req ? extractClientData(req) : {};
+  paymentTrackingService.trackPgPurchase(
+    {
+      paymentId: capture.id,
+      ...clientData,
+    },
+    user,
+  );
+
+  return {
+    status: 200,
+    data: {
+      status: "success",
+      paymtId: capture.id,
+      amount: Number(capture.amount?.value || user.price || 0),
+      currency: capture.amount?.currency_code || user.currency,
+    },
+  };
+}
+
+function checkoutPaypalForPg(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Validate the selected appointment date is today or in the future
+      const selectedDate = new Date(reqBody.selectedDate);
+      let todayDate = new Date();
+      todayDate = new Date(
+        todayDate.getFullYear(),
+        todayDate.getMonth(),
+        todayDate.getDate(),
+      );
+      if (selectedDate < todayDate) {
+        return reject({ message: "Date is not correct" });
+      }
+
+      const currency = PAYPAL_CURRENCY;
+      const amount = formatPayPalAmount(reqBody.price);
+
+      const userData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phoneNumber,
+        courseType: reqBody.courseType,
+        price: amount,
+        currency: currency,
+        selectedDate: reqBody.selectedDate,
+        selectedSlot: reqBody.selectedSlot,
+        paymentType: "paypal",
+      };
+
+      const pay = await paymentRepo.createPgData(userData);
+
+      const order = await callPayPal(
+        "post",
+        "/v2/checkout/orders",
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: `pg_${pay._id}`,
+              custom_id: String(pay._id),
+              description: `Personal Guidance - ${reqBody.courseType || "Session"}`,
+              amount: {
+                currency_code: currency,
+                value: amount,
+              },
+            },
+          ],
+          application_context: {
+            brand_name: "Yoga Vidya School",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: getPayPalRedirectUrl("/confirmation"),
+            cancel_url: getPayPalRedirectUrl("/checkout/personal-guidance"),
+          },
+        },
+        `pg-create-${pay._id}`,
+      );
+
+      const approvalUrl = getPayPalApproveUrl(order);
+      if (!order.id || !approvalUrl) {
+        throw new Error("PayPal approval URL was not returned");
+      }
+
+      await paymentRepo.pgUpdateById(pay._id, { paymentId: order.id });
+
+      return resolve({
+        orderId: order.id,
+        payDbId: pay._id,
+        approvalUrl,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+function getPaypalPaymentResultPg(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const payDbId = reqBody.payDbId;
+      const paypalOrderId = reqBody.paypalOrderId;
+
+      const paymentDetails = await paymentRepo.getPgPaymentDetailsById(payDbId);
+      if (!paymentDetails) {
+        return resolve({
+          status: 404,
+          data: { status: "failed", message: "Payment record not found" },
+        });
+      }
+
+      // Idempotency: already paid — return success without re-capturing
+      if (paymentDetails.paymentStatus === "paid") {
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: paymentDetails.paymentId,
+            amount: Number(paymentDetails.price || 0),
+            currency: paymentDetails.currency,
+          },
+        });
+      }
+
+      if (paymentDetails.paymentId !== paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "PayPal order mismatch" },
+        });
+      }
+
+      const order = await getPayPalOrder(paypalOrderId);
+
+      if (order.status === "COMPLETED") {
+        const returnData = await completePayPalPgPayment(order, reqBody, req);
+        return resolve(returnData);
+      }
+
+      if (order.status !== "APPROVED") {
+        return resolve({
+          status: 200,
+          data: { status: "failed", paypalOrderId },
+        });
+      }
+
+      const capturedOrder = await callPayPal(
+        "post",
+        `/v2/checkout/orders/${paypalOrderId}/capture`,
+        {},
+        `pg-capture-${payDbId}-${paypalOrderId}`,
+      );
+      const returnData = await completePayPalPgPayment(capturedOrder, reqBody, req);
+      return resolve(returnData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
 function updatePgStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
@@ -4124,5 +4318,7 @@ module.exports = {
   getRazorPaymentResultPg,
   checkoutStripeForPg,
   getStripePaymentResultPg,
+  checkoutPaypalForPg,
+  getPaypalPaymentResultPg,
   updatePgStatusForcefully,
 };
