@@ -771,5 +771,6 @@ router.post(
   "/getStripePaymentResultPg",
   paymentController.getStripePaymentResultPg,
 );
+router.post("/getPgData", studentController.getPgData);
 
 module.exports = router;
