@@ -698,6 +698,15 @@ module.exports = {
       res.status(404).json({ status: "error", msg: err.message });
     }
   },
+  removePgData: async function (req, res) {
+    try {
+      await studentService.removePgData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing Subscribe data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
 };
 let sendRegistrationEmail = async function (id) {
   const student = await Student.findOne({ _id: id });

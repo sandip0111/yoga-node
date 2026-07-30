@@ -1300,6 +1300,12 @@ module.exports = {
       }
     });
   },
+  removePgData: async function (studentId) {
+    await paymentRepo.pgUpdateById(studentId, {
+      isDeleted: true,
+    });
+    return 1;
+  },
 };
 let pranaySadhanaCourseVideo = function (getVideoData) {
   return new Promise(async (resolve, reject) => {

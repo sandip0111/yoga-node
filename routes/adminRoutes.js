@@ -772,5 +772,6 @@ router.post(
   paymentController.getStripePaymentResultPg,
 );
 router.post("/getPgData", studentController.getPgData);
+router.post("/removePgData", studentController.removePgData);
 
 module.exports = router;
