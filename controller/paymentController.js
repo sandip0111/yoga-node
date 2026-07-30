@@ -247,6 +247,25 @@ async function getPaypalPaymentResultPg(req, res) {
     res.status(500).json(error);
   }
 }
+async function checkoutPaypalForPranaArambha(req, res) {
+  try {
+    let result = await paymentService.checkoutPaypalForPranaArambha(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getPaypalPaymentResultPranaArambha(req, res) {
+  try {
+    let result = await paymentService.getPaypalPaymentResultPranaArambha(
+      req.body,
+      req,
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
 
 module.exports = {
   getPaymentDetailsById,
@@ -275,4 +294,6 @@ module.exports = {
   getStripePaymentResultPg,
   checkoutPaypalForPg,
   getPaypalPaymentResultPg,
+  checkoutPaypalForPranaArambha,
+  getPaypalPaymentResultPranaArambha,
 };

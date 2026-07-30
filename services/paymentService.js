@@ -4187,6 +4187,194 @@ function getPaypalPaymentResultPg(reqBody, req = null) {
   });
 }
 
+async function completePayPalPranaArambhaPayment(order, reqBody, req) {
+  const capture = getPayPalCapture(order);
+  if (!capture || capture.status !== "COMPLETED") {
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const paymentDetails = await paymentRepo.getPranaArambhPaymentDetailsById(
+    reqBody.payDbId,
+  );
+  if (!paymentDetails) {
+    throw new Error("Payment record not found");
+  }
+
+  const capturedCurrency = String(
+    capture.amount?.currency_code || "",
+  ).toUpperCase();
+  const capturedAmount = Number(capture.amount?.value || 0);
+
+  await paymentRepo.updatePranaArambhPaymentUserData(reqBody.payDbId, {
+    paymentId: capture.id,
+    amount: capturedAmount,
+    currency: capturedCurrency,
+    paymentStatus: "paid",
+  });
+
+  if (reqBody.couponCodeId) {
+    await paymentRepo.disableCouponCode(reqBody.couponCodeId);
+  }
+
+  const studentId = paymentDetails.studentId;
+  const courseId = paymentDetails.courseId;
+
+  if (studentId && courseId) {
+    const studentDoc = await studentRepo.getStudentById(studentId);
+    if (studentDoc) {
+      let updatedCourses = studentDoc.course.includes(courseId)
+        ? studentDoc.course
+        : [...studentDoc.course, courseId];
+      await studentRepo.updateStudentCourse(studentId, updatedCourses);
+      const coursetitle = await courseRepo.getCourseById(courseId);
+      const date = new Date();
+      await helper.sendPranaArambhEmail({
+        name: studentDoc.firstName,
+        course: coursetitle,
+        email: studentDoc.email,
+        price: `${capturedAmount} ${capturedCurrency}`,
+        date: date.toString(),
+        password: studentDoc.password,
+      });
+    }
+  }
+
+  return {
+    status: 200,
+    data: {
+      status: "success",
+      paymtId: capture.id,
+      amount: capturedAmount,
+      currency: capturedCurrency,
+    },
+  };
+}
+
+function checkoutPaypalForPranaArambha(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const currency = PAYPAL_CURRENCY;
+      const amount = formatPayPalAmount(reqBody.price);
+
+      const paymentData = {
+        courseId: reqBody.courseId,
+        studentId: reqBody.studentId,
+        paymentStatus: reqBody.paymentStatus || "pending",
+        paymentBy: "Paypal",
+      };
+
+      const pay = await paymentRepo.createPaymentDetails(paymentData);
+
+      const order = await callPayPal(
+        "post",
+        "/v2/checkout/orders",
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: `prana_arambha_${pay._id}`,
+              custom_id: String(pay._id),
+              description: "Prana Arambha Payment",
+              amount: {
+                currency_code: currency,
+                value: amount,
+              },
+            },
+          ],
+          application_context: {
+            brand_name: "Yoga Vidya School",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: getPayPalRedirectUrl("/confirmation"),
+            cancel_url: getPayPalRedirectUrl(
+              "/checkout/pranayama-course-online-pranarambha",
+            ),
+          },
+        },
+        `prana-arambha-create-${pay._id}`,
+      );
+
+      const approvalUrl = getPayPalApproveUrl(order);
+      if (!order.id || !approvalUrl) {
+        throw new Error("PayPal approval URL was not returned");
+      }
+
+      await paymentRepo.updatePranaArambhPaymentUserData(pay._id, {
+        paymentId: order.id,
+      });
+
+      return resolve({
+        orderId: order.id,
+        payDbId: pay._id,
+        approvalUrl,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+function getPaypalPaymentResultPranaArambha(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const payDbId = reqBody.payDbId;
+      const paypalOrderId = reqBody.paypalOrderId;
+
+      const paymentDetails = await paymentRepo.getPranaArambhPaymentDetailsById(payDbId);
+      if (!paymentDetails) {
+        return resolve({
+          status: 404,
+          data: { status: "failed", message: "Payment record not found" },
+        });
+      }
+
+      if (paymentDetails.paymentStatus === "paid") {
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: paymentDetails.paymentId,
+            amount: Number(paymentDetails.amount || 0),
+            currency: paymentDetails.currency || "USD",
+          },
+        });
+      }
+
+      if (paymentDetails.paymentId !== paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "PayPal order mismatch" },
+        });
+      }
+
+      const order = await getPayPalOrder(paypalOrderId);
+
+      if (order.status === "COMPLETED") {
+        const returnData = await completePayPalPranaArambhaPayment(order, reqBody, req);
+        return resolve(returnData);
+      }
+
+      if (order.status !== "APPROVED") {
+        return resolve({
+          status: 200,
+          data: { status: "failed", paypalOrderId },
+        });
+      }
+
+      const capturedOrder = await callPayPal(
+        "post",
+        `/v2/checkout/orders/${paypalOrderId}/capture`,
+        {},
+        `prana-arambha-capture-${payDbId}-${paypalOrderId}`,
+      );
+      const returnData = await completePayPalPranaArambhaPayment(capturedOrder, reqBody, req);
+      return resolve(returnData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
 function updatePgStatusForcefully() {
   return new Promise(async (resolve, reject) => {
     try {
@@ -4320,5 +4508,7 @@ module.exports = {
   getStripePaymentResultPg,
   checkoutPaypalForPg,
   getPaypalPaymentResultPg,
+  checkoutPaypalForPranaArambha,
+  getPaypalPaymentResultPranaArambha,
   updatePgStatusForcefully,
 };

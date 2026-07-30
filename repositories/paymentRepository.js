@@ -767,6 +767,16 @@ function getPgPaymentDetailsById(id) {
     }
   });
 }
+function getPranaArambhPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await paymentModel.findById(id).lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 function updatePgStatusForcefully(startDate, endDate) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -838,5 +848,6 @@ module.exports = {
   pgUpdateById,
   updatePgPaymentStatusData,
   getPgPaymentDetailsById,
+  getPranaArambhPaymentDetailsById,
   updatePgStatusForcefully,
 };
