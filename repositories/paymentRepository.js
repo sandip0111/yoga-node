@@ -317,6 +317,16 @@ function webinnerUpdateById(id, data) {
     }
   });
 }
+function getWebinarUserById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pay = await webinerUserModel.findOne({ _id: id });
+      return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 function updateSwaraSadhanaPaymentStatusForcefully(startDate, endDate) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -816,6 +826,7 @@ module.exports = {
   update200ttcPayment,
   updatePaymentStatusForcefully,
   webinnerUpdateById,
+  getWebinarUserById,
   updateSwaraSadhanaPaymentStatusForcefully,
   liveCourseUpdateById,
   updateOnlineSadhanaPaymentStatusForcefully,

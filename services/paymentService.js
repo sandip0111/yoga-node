@@ -4437,6 +4437,208 @@ function updatePgStatusForcefully() {
   });
 }
 
+function checkoutPaypalForSwaraSadhana(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const currency = PAYPAL_CURRENCY;
+      const amount = formatPayPalAmount(reqBody.price);
+      const userId = reqBody.userId;
+
+      await paymentRepo.webinnerUpdateById(userId, {
+        priceId: reqBody.priceId,
+        paymentType: "paypal",
+      });
+
+      const order = await callPayPal(
+        "post",
+        "/v2/checkout/orders",
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: `swara_${userId}`,
+              custom_id: String(userId),
+              description: "Swara Sadhana Webinar Payment",
+              amount: {
+                currency_code: currency,
+                value: amount,
+              },
+            },
+          ],
+          application_context: {
+            brand_name: "Yoga Vidya School",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: getPayPalRedirectUrl("/confirmation"),
+            cancel_url: getPayPalRedirectUrl("/checkout/swara-sadhana"),
+          },
+        },
+        `swara-create-${userId}`,
+      );
+
+      const approvalUrl = getPayPalApproveUrl(order);
+      if (!order.id || !approvalUrl) {
+        throw new Error("PayPal approval URL was not returned");
+      }
+
+      await paymentRepo.webinnerUpdateById(userId, { paymentId: order.id });
+
+      return resolve({
+        orderId: order.id,
+        payDbId: userId,
+        approvalUrl,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+async function completePayPalSwaraSadhanaPayment(order, reqBody, req) {
+  const capture = getPayPalCapture(order);
+  if (!capture || capture.status !== "COMPLETED") {
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const pay = await paymentRepo.webinnerUpdateById(reqBody.payDbId, {
+    paymentStatus: "paid",
+    paymentId: capture.id,
+    refferalCode: "swarayoga@prashantji",
+  });
+
+  const timeSlots = require("../models/TimeSlots");
+  const dbTimeSlot = await timeSlots.findOne({ _id: pay.timeSlot });
+  if (dbTimeSlot) {
+    const { startTime, timeBefore } = helper.getTimeBefore(
+      dbTimeSlot.slotDuration,
+    );
+    const filePath = path.join(
+      __dirname,
+      "/../controller/emailTemplate/swarayoga.html",
+    );
+    if (fs.existsSync(filePath)) {
+      const source = fs.readFileSync(filePath, "utf-8").toString();
+      const template = handlebars.compile(source);
+      const replacements = {
+        name: pay.name,
+        webinar: pay.webinar,
+        whatsappGroupLink: dbTimeSlot.whatsAppGroupLink,
+        webinarDate: dbTimeSlot.webinarDate.toDateString(),
+        zoomLink: dbTimeSlot.zoomLink,
+        slotDuration: startTime,
+        slotStartTenMinBefore: timeBefore,
+        email: pay.email,
+        password: pay.password,
+      };
+      const htmlToSend = template(replacements);
+      const mailOptions = {
+        from: "Yoga Vidya School info@yogavidyaschool.com",
+        to: pay.email,
+        subject: `${pay.webinar} webinar registration confirmation`,
+        replyTo: "info@yogavidyaschool.com",
+        html: htmlToSend,
+      };
+      transporter.sendMail(mailOptions, (err) => {
+        if (err) console.error("Error sending Swara Sadhana PayPal email:", err);
+      });
+    }
+  }
+
+  const clientData = req ? extractClientData(req) : {};
+  if (paymentTrackingService && paymentTrackingService.trackSwaraSadhanaPurchase) {
+    paymentTrackingService.trackSwaraSadhanaPurchase(
+      {
+        paymentId: capture.id,
+        ...clientData,
+      },
+      {
+        ...pay,
+        currency: "USD",
+        amount: Number(capture.amount?.value || 0),
+      },
+    );
+  }
+
+  return {
+    status: 200,
+    data: {
+      status: "success",
+      paymtId: capture.id,
+      amount: Number(capture.amount?.value || 0),
+      currency: "USD",
+    },
+  };
+}
+
+function getPaypalPaymentResultSwaraSadhana(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const payDbId = reqBody.payDbId;
+      const paypalOrderId = reqBody.paypalOrderId;
+
+      const paymentDetails = await paymentRepo.getWebinarUserById(payDbId);
+      if (!paymentDetails) {
+        return resolve({
+          status: 404,
+          data: { status: "failed", message: "Payment record not found" },
+        });
+      }
+
+      if (paymentDetails.paymentStatus === "paid") {
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: paymentDetails.paymentId,
+            amount: Number(paymentDetails.price || 0),
+            currency: "USD",
+          },
+        });
+      }
+
+      if (paymentDetails.paymentId !== paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "PayPal order mismatch" },
+        });
+      }
+
+      const order = await getPayPalOrder(paypalOrderId);
+
+      if (order.status === "COMPLETED") {
+        const returnData = await completePayPalSwaraSadhanaPayment(
+          order,
+          reqBody,
+          req,
+        );
+        return resolve(returnData);
+      }
+
+      if (order.status !== "APPROVED") {
+        return resolve({
+          status: 200,
+          data: { status: "failed", paypalOrderId },
+        });
+      }
+
+      const capturedOrder = await callPayPal(
+        "post",
+        `/v2/checkout/orders/${paypalOrderId}/capture`,
+        {},
+        `swara-capture-${payDbId}-${paypalOrderId}`,
+      );
+      const returnData = await completePayPalSwaraSadhanaPayment(
+        capturedOrder,
+        reqBody,
+        req,
+      );
+      return resolve(returnData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
 module.exports = {
   updateabc,
   checkoutRazorpayForPranicPurification,
@@ -4467,6 +4669,8 @@ module.exports = {
   checkoutRazorpayNewSwarSadhana,
   updateSwaraSadhanaPaymentStatusForcefully,
   checkoutSwarSadhanaStripe,
+  checkoutPaypalForSwaraSadhana,
+  getPaypalPaymentResultSwaraSadhana,
   checkoutRazorpayForLiveClasses,
   checkoutStripeForLiveClasses,
   updateOnlineSadhanaPaymentStatusForcefully,
