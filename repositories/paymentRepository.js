@@ -298,6 +298,7 @@ function updatePaymentStatusForcefully(startDate, endDate) {
             $lte: endDate,
           },
           paymentStatus: { $ne: "paid" },
+          isDeleted: false,
           isPaymentCheck: false,
         })
         .lean();
