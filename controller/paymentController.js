@@ -285,6 +285,27 @@ async function getPaypalPaymentResultSwaraSadhana(req, res) {
     res.status(500).json(error);
   }
 }
+async function checkoutPaypalForPranayamaCertification(req, res) {
+  try {
+    let result =
+      await paymentService.checkoutPaypalForPranayamaCertification(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getPaypalPaymentResultPranayamaCertification(req, res) {
+  try {
+    let result =
+      await paymentService.getPaypalPaymentResultPranayamaCertification(
+        req.body,
+        req,
+      );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
 
 module.exports = {
   getPaymentDetailsById,
@@ -317,4 +338,6 @@ module.exports = {
   getPaypalPaymentResultPranaArambha,
   checkoutPaypalForSwaraSadhana,
   getPaypalPaymentResultSwaraSadhana,
+  checkoutPaypalForPranayamaCertification,
+  getPaypalPaymentResultPranayamaCertification,
 };

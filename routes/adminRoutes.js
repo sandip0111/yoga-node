@@ -795,6 +795,14 @@ router.post(
   "/getPaypalPaymentResultSwaraSadhana",
   paymentController.getPaypalPaymentResultSwaraSadhana,
 );
+router.post(
+  "/checkoutPaypalForPranayamaCertification",
+  paymentController.checkoutPaypalForPranayamaCertification,
+);
+router.post(
+  "/getPaypalPaymentResultPranayamaCertification",
+  paymentController.getPaypalPaymentResultPranayamaCertification,
+);
 router.post("/getPgData", studentController.getPgData);
 router.post("/removePgData", studentController.removePgData);
 

@@ -4636,6 +4636,205 @@ function getPaypalPaymentResultSwaraSadhana(reqBody, req = null) {
   });
 }
 
+function checkoutPaypalForPranayamaCertification(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const currency = PAYPAL_CURRENCY;
+      const amount = formatPayPalAmount(reqBody.price);
+      let pay;
+      if (reqBody.id) {
+        let data =
+          await paymentRepo.getPranayamaCertificationPaymentDetailsById(
+            reqBody.id,
+          );
+        await paymentRepo.updatePranayamaCertificationPayment(
+          { price: +data.price + amount, dueAmount: 0 },
+          reqBody.id,
+        );
+        pay = await paymentRepo.getPranayamaCertificationPaymentDetailsById(
+          reqBody.id,
+        );
+      } else {
+        let userData = {
+          name: reqBody.name,
+          email: reqBody.email,
+          phoneNumber: reqBody.phoneNumber,
+          currency: currency,
+          price: amount,
+          paymentType: "paypal",
+          dueAmount: reqBody.dueAmount || 0,
+          month: reqBody.month || "February, 2027",
+        };
+        pay = await paymentRepo.createPranayamaCertificationData(userData);
+      }
+
+      const order = await callPayPal(
+        "post",
+        "/v2/checkout/orders",
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: `PranayamaCert_${pay._id}`,
+              custom_id: String(pay._id),
+              description: "Pranayama Certification Payment",
+              amount: {
+                currency_code: currency,
+                value: String(amount),
+              },
+            },
+          ],
+          application_context: {
+            brand_name: "Yoga Vidya School",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: getPayPalRedirectUrl("/confirmation"),
+            cancel_url: getPayPalRedirectUrl(
+              "/checkout/pranayama-certification",
+            ),
+          },
+        },
+        `pranayama-cert-create-${pay._id}`,
+      );
+
+      const approvalUrl = getPayPalApproveUrl(order);
+      if (!order.id || !approvalUrl) {
+        throw new Error("PayPal approval URL was not returned");
+      }
+
+      await paymentRepo.updatePranayamaCertificationPayment(
+        { paymentId: order.id },
+        pay._id,
+      );
+
+      return resolve({
+        orderId: order.id,
+        payDbId: pay._id,
+        approvalUrl,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+async function completePayPalPranayamaCertificationPayment(
+  order,
+  reqBody,
+  req,
+) {
+  const capture = getPayPalCapture(order);
+  if (!capture || capture.status !== "COMPLETED") {
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const user = await paymentRepo.updatePranayamaCertificationData(
+    reqBody.payDbId,
+    capture.id,
+    true,
+  );
+  await savePranaArambhOnPranayamaCertification(user, reqBody);
+  await helper.sendPranayamaCertificationEmail(user, reqBody.password);
+
+  const clientData = req ? extractClientData(req) : {};
+  if (
+    paymentTrackingService &&
+    paymentTrackingService.trackPranayamaCertificationPurchase
+  ) {
+    paymentTrackingService.trackPranayamaCertificationPurchase(
+      {
+        paymentId: capture.id,
+        ...clientData,
+      },
+      {
+        ...user,
+        currency: "USD",
+        amount: Number(capture.amount?.value || 0),
+      },
+    );
+  }
+
+  return {
+    status: 200,
+    data: {
+      status: "success",
+      paymtId: capture.id,
+      amount: Number(capture.amount?.value || user.price || 0),
+      currency: user.currency || "USD",
+    },
+  };
+}
+
+function getPaypalPaymentResultPranayamaCertification(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const payDbId = reqBody.payDbId;
+      const paypalOrderId = reqBody.paypalOrderId;
+
+      const paymentDetails =
+        await paymentRepo.getPranayamaCertificationPaymentDetailsById(payDbId);
+      if (!paymentDetails) {
+        return resolve({
+          status: 404,
+          data: { status: "failed", message: "Payment record not found" },
+        });
+      }
+
+      if (paymentDetails.paymentStatus === "paid") {
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: paymentDetails.paymentId,
+            amount: Number(paymentDetails.price || 0),
+            currency: paymentDetails.currency || "USD",
+          },
+        });
+      }
+
+      if (paymentDetails.paymentId !== paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "PayPal order mismatch" },
+        });
+      }
+
+      const order = await getPayPalOrder(paypalOrderId);
+
+      if (order.status === "COMPLETED") {
+        const returnData = await completePayPalPranayamaCertificationPayment(
+          order,
+          reqBody,
+          req,
+        );
+        return resolve(returnData);
+      }
+
+      if (order.status !== "APPROVED") {
+        return resolve({
+          status: 200,
+          data: { status: "failed", paypalOrderId },
+        });
+      }
+
+      const capturedOrder = await callPayPal(
+        "post",
+        `/v2/checkout/orders/${paypalOrderId}/capture`,
+        {},
+        `pranayama-cert-capture-${payDbId}-${paypalOrderId}`,
+      );
+      const returnData = await completePayPalPranayamaCertificationPayment(
+        capturedOrder,
+        reqBody,
+        req,
+      );
+      return resolve(returnData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
 module.exports = {
   updateabc,
   checkoutRazorpayForPranicPurification,
@@ -4689,6 +4888,8 @@ module.exports = {
   getRazorPaymentResultPranayamaCertification,
   checkoutStripeForPranayamaCertification,
   getStripePaymentResultPranayamaCertification,
+  checkoutPaypalForPranayamaCertification,
+  getPaypalPaymentResultPranayamaCertification,
   savePranaArambhOnPranayamaCertification,
   checkoutRazorpayRetreat,
   getRazorPaymentResultRetreat,
