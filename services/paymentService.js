@@ -4214,14 +4214,17 @@ async function completePayPalPranaArambhaPayment(order, reqBody, req) {
   }
 
   const studentId = paymentDetails.studentId;
-  const courseId = paymentDetails.courseId;
+  const courseId = paymentDetails.courseId
+    ? String(paymentDetails.courseId)
+    : null;
 
   if (studentId && courseId) {
     const studentDoc = await studentRepo.getStudentById(studentId);
     if (studentDoc) {
-      let updatedCourses = studentDoc.course.includes(courseId)
+      const existingCourses = (studentDoc.course || []).map((c) => String(c));
+      let updatedCourses = existingCourses.includes(courseId)
         ? studentDoc.course
-        : [...studentDoc.course, courseId];
+        : [...(studentDoc.course || []), courseId];
       await studentRepo.updateStudentCourse(studentId, updatedCourses);
       const coursetitle = await courseRepo.getCourseById(courseId);
       const date = new Date();
