@@ -41,18 +41,18 @@ cron.schedule("0 0 * * *", async function () {
   paymentService.secondInstallmentPaymentMail();
 });
 cron.schedule("*/1 * * * *", async function () {
-  paymentService.updatePaymentStatusForcefully();
-  paymentService.updateSwaraSadhanaPaymentStatusForcefully();
-  paymentService.updateOnlineSadhanaPaymentStatusForcefully();
-  paymentService.updatePranaArambhPaymentStatusForcefully();
-  courseService.changeCourseStatusToOngoing();
-  studentService.get24HoursPranicPurificationMailAfterPayment();
-  paymentService.updatePranicPurificationStatusForcefully();
-  paymentService.updatePranicPurificationIIStatusForcefully();
-  paymentService.updateRishikeshStatusForcefully();
-  paymentService.updateBaliStatusForcefully();
-  paymentService.updateRetreatStatusForcefully();
-  paymentService.updatePgStatusForcefully();
+  // paymentService.updatePaymentStatusForcefully();
+  // paymentService.updateSwaraSadhanaPaymentStatusForcefully();
+  // paymentService.updateOnlineSadhanaPaymentStatusForcefully();
+  // paymentService.updatePranaArambhPaymentStatusForcefully();
+  // courseService.changeCourseStatusToOngoing();
+  // studentService.get24HoursPranicPurificationMailAfterPayment();
+  // paymentService.updatePranicPurificationStatusForcefully();
+  // paymentService.updatePranicPurificationIIStatusForcefully();
+  // paymentService.updateRishikeshStatusForcefully();
+  // paymentService.updateBaliStatusForcefully();
+  // paymentService.updateRetreatStatusForcefully();
+  // paymentService.updatePgStatusForcefully();
 });
 cron.schedule("0 * * * *", async function () {
   emailSchedulerService.startScheduler();

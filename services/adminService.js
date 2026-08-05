@@ -24,6 +24,8 @@ function registerSwarSadhanaWebinarUser(reqBody) {
         password,
         isWebsite,
         paymentType,
+        price,
+        currency,
       } = reqBody;
       let created = new Date();
       if (timeSlot) {
@@ -39,7 +41,7 @@ function registerSwarSadhanaWebinarUser(reqBody) {
       if (isWebsite) {
         paymentStatus = constant.PAYMENT_STATUS.PENDING;
       } else {
-        paymentType = "paypal";
+        paymentType = "admin";
         paymentStatus = constant.PAYMENT_STATUS.PAID;
         isWebsite = false;
       }
@@ -55,6 +57,8 @@ function registerSwarSadhanaWebinarUser(reqBody) {
         created,
         paymentStatus,
         paymentType,
+        price,
+        currency,
       });
       if (!isWebsite) {
         await helper.sendSwaraSadhnaEmail(
@@ -120,7 +124,10 @@ function registerPranicPurificationIIUser(reqBody) {
           paymentType: "paypal",
         });
       const password = helper.genratePass(6);
-      await paymentService.createPranicPurificationIIStudent(savedUser, password);
+      await paymentService.createPranicPurificationIIStudent(
+        savedUser,
+        password,
+      );
       await helper.completePranicPurificationIIAutomationEmail(
         savedUser,
         password,
@@ -272,7 +279,7 @@ function createPranaArambhCustomer(reqBody) {
         password: reqBody.password,
         course: [constant.COURSE.PRANA_ARAMBHA],
         isActive: true,
-        paymentCourseId: constant.COURSE.PRANA_ARAMBHA
+        paymentCourseId: constant.COURSE.PRANA_ARAMBHA,
       });
       const paymentData = {
         courseId: constant.COURSE.PRANA_ARAMBHA,
@@ -472,7 +479,7 @@ let getPranaArmbhAllData = async function (
             {
               $match: {
                 paymentCourseId: courseId,
-                isDeleted: false
+                isDeleted: false,
               },
             },
           ],
@@ -1059,17 +1066,21 @@ function createBaliCustomer(reqBody) {
 function registerPranayamaCertificationUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      const savedUser = await studentRepo.registerPranayamaCertificationStudentByAdmin({
-        name: reqBody.name,
-        email: reqBody.email,
-        phoneNumber: reqBody.phone,
-        paymentStatus: constant.PAYMENT_STATUS.PAID,
-        created: new Date(),
-        paymentType: "paypal",
-        dueAmount: 0,
-        month: reqBody.month || "February, 2027",
-      });
-      await paymentService.savePranaArambhOnPranayamaCertification(savedUser, reqBody);
+      const savedUser =
+        await studentRepo.registerPranayamaCertificationStudentByAdmin({
+          name: reqBody.name,
+          email: reqBody.email,
+          phoneNumber: reqBody.phone,
+          paymentStatus: constant.PAYMENT_STATUS.PAID,
+          created: new Date(),
+          paymentType: "paypal",
+          dueAmount: 0,
+          month: reqBody.month || "February, 2027",
+        });
+      await paymentService.savePranaArambhOnPranayamaCertification(
+        savedUser,
+        reqBody,
+      );
       await helper.sendPranayamaCertificationEmail(savedUser, reqBody.password);
       return resolve({
         data: {
@@ -1108,24 +1119,33 @@ function registerRetreatYogaUser(reqBody) {
   });
 }
 
-function sendBulkEmailToFreeWebinarUsersForcefully(emailSubject, limit, preFetchedCustomers = null) {
+function sendBulkEmailToFreeWebinarUsersForcefully(
+  emailSubject,
+  limit,
+  preFetchedCustomers = null,
+) {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log("=== Starting Forceful Bulk Email Send Process for Free Webinar ===");
+      console.log(
+        "=== Starting Forceful Bulk Email Send Process for Free Webinar ===",
+      );
       console.log(`Email Subject: ${emailSubject}`);
       console.log(`Limit: ${limit} users`);
 
       // Retrieve eligible webinar users (emailHistory check is removed since we deleted it)
-      const customers = preFetchedCustomers || await courseRepo.getFilteredFreeWebinarCustomers(
-        emailSubject,
-        limit,
-      );
+      const customers =
+        preFetchedCustomers ||
+        (await courseRepo.getFilteredFreeWebinarCustomers(emailSubject, limit));
 
-      console.log(`Total eligible free webinar customers found: ${customers.length}`);
+      console.log(
+        `Total eligible free webinar customers found: ${customers.length}`,
+      );
 
       // Deduplicate emails to ensure we do not send multiple emails to the same address
       const uniqueCustomers = helper.deduplicateByEmail(customers);
-      console.log(`Total unique free webinar customers to process: ${uniqueCustomers.length}`);
+      console.log(
+        `Total unique free webinar customers to process: ${uniqueCustomers.length}`,
+      );
 
       if (uniqueCustomers.length === 0) {
         return resolve({
@@ -1143,16 +1163,24 @@ function sendBulkEmailToFreeWebinarUsersForcefully(emailSubject, limit, preFetch
 
       // Filter valid and existing emails to prevent bounces
       const emailValidator = require("../helpers/emailValidator");
-      console.log("[FreeWebinarCampaign] Validating email addresses and domain DNS records...");
-      const validCustomers = await emailValidator.filterValidEmails(uniqueCustomers);
-      console.log(`[FreeWebinarCampaign] Validation complete. Total Unique: ${uniqueCustomers.length}, Valid: ${validCustomers.length}, Filtered out: ${uniqueCustomers.length - validCustomers.length}`);
+      console.log(
+        "[FreeWebinarCampaign] Validating email addresses and domain DNS records...",
+      );
+      const validCustomers =
+        await emailValidator.filterValidEmails(uniqueCustomers);
+      console.log(
+        `[FreeWebinarCampaign] Validation complete. Total Unique: ${uniqueCustomers.length}, Valid: ${validCustomers.length}, Filtered out: ${uniqueCustomers.length - validCustomers.length}`,
+      );
 
       if (validCustomers.length === 0) {
-        console.log("[FreeWebinarCampaign] No valid free webinar emails remaining after validation.");
+        console.log(
+          "[FreeWebinarCampaign] No valid free webinar emails remaining after validation.",
+        );
         return resolve({
           data: {
             status: "ok",
-            message: "No valid free webinar users found after email verification",
+            message:
+              "No valid free webinar users found after email verification",
             totalUsers: 0,
             successCount: 0,
             failedCount: 0,
@@ -1163,14 +1191,11 @@ function sendBulkEmailToFreeWebinarUsersForcefully(emailSubject, limit, preFetch
       }
 
       // Trigger the background send using Brevo SMTP
-      sendMail.sendCampaignInBackground(
-        validCustomers,
-        {
-          subject: emailSubject,
-          templatePath: constant.EMAIL_TEMPLATE.FREEWEBINAR_EMAIL_FORCEFULLY,
-          replacementsFn: () => ({}),
-        }
-      );
+      sendMail.sendCampaignInBackground(validCustomers, {
+        subject: emailSubject,
+        templatePath: constant.EMAIL_TEMPLATE.FREEWEBINAR_EMAIL_FORCEFULLY,
+        replacementsFn: () => ({}),
+      });
 
       return resolve({
         data: {
@@ -1206,5 +1231,5 @@ module.exports = {
   createBaliCustomer,
   registerPranayamaCertificationUser,
   sendBulkEmailToFreeWebinarUsersForcefully,
-  registerRetreatYogaUser
+  registerRetreatYogaUser,
 };

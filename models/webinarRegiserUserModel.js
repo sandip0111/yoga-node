@@ -48,6 +48,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  currency: {
+    type: String,
+  },
+  price: {
+    type: String,
+  },
   paymentStatus: {
     type: String,
     enum: ["pending", "paid", "failed"],
@@ -60,7 +66,7 @@ const userSchema = new mongoose.Schema({
   },
   paymentType: {
     type: String,
-    enum: ["razorpay", "stripe", "paypal"],
+    enum: ["razorpay", "stripe", "paypal", "admin"],
     required: false,
     default: null,
   },
