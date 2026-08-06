@@ -953,6 +953,10 @@ function checkoutPaypalFor200TTC(reqBody) {
         pay = await paymentRepo.create200TTCData(userData);
       }
 
+      const requestId = reqBody.id
+        ? `200TTC-rem-${pay._id}-${Date.now()}`
+        : `200TTC-create-${pay._id}-${Date.now()}`;
+
       const order = await callPayPal(
         "post",
         "/v2/checkout/orders",
@@ -962,7 +966,9 @@ function checkoutPaypalFor200TTC(reqBody) {
             {
               reference_id: `200TTC_${pay._id}`,
               custom_id: String(pay._id),
-              description: "200 Hours Yoga TTC Payment",
+              description: reqBody.id
+                ? "200 Hours Yoga TTC Payment - Remaining Balance"
+                : "200 Hours Yoga TTC Payment",
               amount: {
                 currency_code: currency,
                 value: amount,
@@ -979,11 +985,12 @@ function checkoutPaypalFor200TTC(reqBody) {
             ),
           },
         },
-        `200TTC-create-${pay._id}`,
+        requestId,
       );
 
       const approvalUrl = getPayPalApproveUrl(order);
       if (!order.id || !approvalUrl) {
+        console.error("PayPal Order Response missing approvalUrl:", order);
         throw new Error("PayPal approval URL was not returned");
       }
 
@@ -4839,6 +4846,8 @@ function getPaypalPaymentResultPranayamaCertification(reqBody, req = null) {
 }
 
 module.exports = {
+  callPayPal,
+  getPayPalApproveUrl,
   updateabc,
   checkoutRazorpayForPranicPurification,
   checkoutRazorpayForPranicPurificationII,
