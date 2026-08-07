@@ -225,24 +225,6 @@ function getPaymentDetailsById(id) {
     }
   });
 }
-function updateInstallmentPayment200TTCata(id, due, updates = {}) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let data = await twoHundredHourTTCModel.findById(id);
-      await twoHundredHourTTCModel.findOneAndUpdate(
-        { _id: id },
-        {
-          price: Number(data.price || 0) + Number(due || 0),
-          dueAmount: 0,
-          ...updates,
-        },
-      );
-      return resolve(data);
-    } catch (error) {
-      return reject(error);
-    }
-  });
-}
 function createRishikeshData(userData) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -821,7 +803,6 @@ module.exports = {
   getCoupondataById,
   createPaymentDetails,
   secondInstallmentPaymentMail,
-  updateInstallmentPayment200TTCata,
   createRishikeshData,
   updateRishikeshStudentData,
   update200ttcPayment,

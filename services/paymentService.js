@@ -788,28 +788,20 @@ function disableCouponCode(reqBody) {
 function checkoutRazorpayFor200TTC(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      let pay;
-      if (reqBody.id) {
-        pay = await paymentRepo.updateInstallmentPayment200TTCata(
-          reqBody.id,
-          reqBody.price,
-        );
-      } else {
-        let userData = {
-          name: reqBody.name,
-          email: reqBody.email,
-          phoneNumber: reqBody.phoneNumber,
-          package: reqBody.package,
-          room: reqBody.room,
-          dueAmount: reqBody.dueAmount,
-          currency: reqBody.currency,
-          price: reqBody.price,
-          courseStartDate: reqBody.courseStartDate,
-          courseTimeDuration: reqBody.courseTimeDuration,
-          paymentType: "razorpay",
-        };
-        pay = await paymentRepo.create200TTCData(userData);
-      }
+      let userData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phoneNumber,
+        package: reqBody.package,
+        room: reqBody.room,
+        dueAmount: reqBody.id ? 0 : reqBody.dueAmount,
+        currency: reqBody.currency,
+        price: reqBody.price,
+        courseStartDate: reqBody.courseStartDate,
+        courseTimeDuration: reqBody.courseTimeDuration,
+        paymentType: "razorpay",
+      };
+      let pay = await paymentRepo.create200TTCData(userData);
       const amountInSubunits = reqBody.price * 100;
       const options = {
         amount: amountInSubunits,
@@ -872,28 +864,20 @@ function getRazorPaymentResult200TTC(reqBody, req = null) {
 function checkoutStripeFor200TTC(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
-      let pay;
-      if (reqBody.id) {
-        pay = await paymentRepo.updateInstallmentPayment200TTCata(
-          reqBody.id,
-          reqBody.price,
-        );
-      } else {
-        let userData = {
-          name: reqBody.name,
-          email: reqBody.email,
-          phoneNumber: reqBody.phoneNumber,
-          package: reqBody.package,
-          room: reqBody.room,
-          dueAmount: reqBody.dueAmount,
-          currency: reqBody.currency,
-          price: reqBody.price,
-          courseStartDate: reqBody.courseStartDate,
-          courseTimeDuration: reqBody.courseTimeDuration,
-          paymentType: "stripe",
-        };
-        pay = await paymentRepo.create200TTCData(userData);
-      }
+      let userData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phoneNumber,
+        package: reqBody.package,
+        room: reqBody.room,
+        dueAmount: reqBody.id ? 0 : reqBody.dueAmount,
+        currency: reqBody.currency,
+        price: reqBody.price,
+        courseStartDate: reqBody.courseStartDate,
+        courseTimeDuration: reqBody.courseTimeDuration,
+        paymentType: "stripe",
+      };
+      let pay = await paymentRepo.create200TTCData(userData);
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
@@ -929,29 +913,24 @@ function checkoutPaypalFor200TTC(reqBody) {
     try {
       const currency = PAYPAL_CURRENCY;
       const amount = formatPayPalAmount(reqBody.price);
-      let pay;
-      if (reqBody.id) {
-        pay = await paymentRepo.updateInstallmentPayment200TTCata(
-          reqBody.id,
-          reqBody.price,
-          { currency, paymentType: "paypal" },
-        );
-      } else {
-        let userData = {
-          name: reqBody.name,
-          email: reqBody.email,
-          phoneNumber: reqBody.phoneNumber,
-          package: reqBody.package,
-          room: reqBody.room,
-          dueAmount: reqBody.dueAmount,
-          currency: currency,
-          price: amount,
-          courseStartDate: reqBody.courseStartDate,
-          courseTimeDuration: reqBody.courseTimeDuration,
-          paymentType: "paypal",
-        };
-        pay = await paymentRepo.create200TTCData(userData);
-      }
+      let userData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phoneNumber,
+        package: reqBody.package,
+        room: reqBody.room,
+        dueAmount: reqBody.id ? 0 : reqBody.dueAmount,
+        currency: currency,
+        price: amount,
+        courseStartDate: reqBody.courseStartDate,
+        courseTimeDuration: reqBody.courseTimeDuration,
+        paymentType: "paypal",
+      };
+      let pay = await paymentRepo.create200TTCData(userData);
+
+      const requestId = reqBody.id
+        ? `200TTC-rem-${pay._id}-${Date.now()}`
+        : `200TTC-create-${pay._id}-${Date.now()}`;
 
       const order = await callPayPal(
         "post",
@@ -962,7 +941,9 @@ function checkoutPaypalFor200TTC(reqBody) {
             {
               reference_id: `200TTC_${pay._id}`,
               custom_id: String(pay._id),
-              description: "200 Hours Yoga TTC Payment",
+              description: reqBody.id
+                ? "200 Hours Yoga TTC Payment - Remaining Balance"
+                : "200 Hours Yoga TTC Payment",
               amount: {
                 currency_code: currency,
                 value: amount,
@@ -979,11 +960,12 @@ function checkoutPaypalFor200TTC(reqBody) {
             ),
           },
         },
-        `200TTC-create-${pay._id}`,
+        requestId,
       );
 
       const approvalUrl = getPayPalApproveUrl(order);
       if (!order.id || !approvalUrl) {
+        console.error("PayPal Order Response missing approvalUrl:", order);
         throw new Error("PayPal approval URL was not returned");
       }
 
@@ -4839,6 +4821,8 @@ function getPaypalPaymentResultPranayamaCertification(reqBody, req = null) {
 }
 
 module.exports = {
+  callPayPal,
+  getPayPalApproveUrl,
   updateabc,
   checkoutRazorpayForPranicPurification,
   checkoutRazorpayForPranicPurificationII,
