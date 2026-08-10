@@ -2827,7 +2827,7 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "The Essence of Yoga — Mysore Retreat 2026 | September 15–20";
+        "Live Webinar: Sadhana To Seva (From Practice to Teaching)";
       const limit = parseInt(req.body.limit) || 500;
 
       const subscriberRepo = require("../repositories/subscriberRepository");

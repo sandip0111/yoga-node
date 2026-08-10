@@ -12,8 +12,7 @@ const EMAIL_CONFIG = {
   DELAY_BETWEEN_BATCHES: 1000, // 1 second delay between batches
   MAX_RETRIES: 2,
   RETRY_DELAY: 3000, // 3 seconds
-  DEFAULT_SUBJECT:
-    "The Essence of Yoga — Mysore Retreat 2026 | September 15–20",
+  DEFAULT_SUBJECT: "Live Webinar: Sadhana To Seva (From Practice to Teaching)",
   DEFAULT_LIMIT: 500,
   DEFAULT_TEMPLATE: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_FORCEFULLY,
 };
