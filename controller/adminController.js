@@ -2877,7 +2877,7 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "JOIN TODAY! BREATH OF YOGIS - FREE WEBINAR";
+        "See you Saturday — Sadhana To Seva | What we will explore together";
       const limit = parseInt(req.body.limit) || 500;
 
       const courseRepo = require("../repositories/courseRepository");
