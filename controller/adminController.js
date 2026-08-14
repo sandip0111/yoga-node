@@ -405,13 +405,13 @@ module.exports = {
   getAllCourseV2: async function (req, res) {
     try {
       let documentIds = [
-        "6a00ae5a73d17e5a08d3f6ce",
-        "6a00b0e4f994cf05f7c07786",
+        constant.COURSE.BREATCH_DTOX,
+        constant.COURSE.FOUNDATION_SPIRITUALITY,
         "63c4e12f2bce43a907211c76",
-        "6a00b33b220856ac7775c2bf",
+        constant.COURSE.TWO_THOUSANDS_TTC,
         "63c4eea32bce43a907211c7a",
         constant.COURSE.PRANA_ARAMBHA,
-        "69ff6a520cd7ed2296fbbddb",
+        constant.COURSE.ONLINE_LIVE_CLASSES,
       ];
       const course = await courseModel.find(
         { isActive: true, _id: { $in: documentIds } },
@@ -2381,7 +2381,24 @@ module.exports = {
       }
     }
   },
+  deleteOnlineVideo: async function (req, res) {
+    try {
+      const { _id } = req.body;
+      if (!_id) {
+        return res.status(400).json({ status: "error", msg: "Video ID is required" });
+      }
+      const result = await courseService.deleteCourseVideo(_id);
+      if (result.success) {
+        return res.status(result.status).json({ status: "ok", msg: result.message });
+      } else {
+        return res.status(result.status).json({ status: "error", msg: result.message });
+      }
+    } catch (err) {
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
   getCourseVideoDataById: async function (req, res) {
+
     try {
       const { id: cId } = req.params;
 

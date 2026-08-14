@@ -82,8 +82,40 @@ function uploadCourseVideo(reqFile, reqBody) {
     }
   });
 }
+function deleteCourseVideo(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const video = await courseRepo.getCourseVideoById(id);
+      if (!video) {
+        return resolve({
+          success: false,
+          status: 404,
+          message: "Video not found",
+        });
+      }
+
+      try {
+        await s3Service.deleteVideoFromS3(video.courseId, video.videoName);
+      } catch (s3Error) {
+        console.error("Error deleting video from S3:", s3Error);
+      }
+
+      await courseRepo.deleteCourseVideoById(id);
+
+      return resolve({
+        success: true,
+        status: 200,
+        message: "Video deleted successfully",
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 module.exports = {
   getCourseBySlug,
   changeCourseStatusToOngoing,
   uploadCourseVideo,
+  deleteCourseVideo,
 };
+

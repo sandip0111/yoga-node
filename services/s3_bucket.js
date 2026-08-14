@@ -82,9 +82,40 @@ async function uploadVideoToS3(fileBuffer, fileName, courseId, contentType) {
     throw error;
   }
 }
+async function deleteVideoFromS3(courseId, videoName) {
+  const bucketName = "yogavidya-bucket";
+  const prefixes = [
+    `videos/upCourses/${courseId}/${videoName}`,
+    `videos/course/${courseId}/${videoName}`
+  ];
+
+  for (const prefix of prefixes) {
+    const listParams = {
+      Bucket: bucketName,
+      Prefix: prefix,
+    };
+    try {
+      const listedObjects = await s3.listObjectsV2(listParams);
+      if (listedObjects.Contents && listedObjects.Contents.length > 0) {
+        for (const object of listedObjects.Contents) {
+          await s3.deleteObject({
+            Bucket: bucketName,
+            Key: object.Key,
+          });
+          console.log(`Successfully deleted ${object.Key} from S3 bucket ${bucketName}`);
+        }
+      }
+    } catch (err) {
+      console.error(`Error deleting S3 object with prefix ${prefix}:`, err);
+      throw err;
+    }
+  }
+}
 module.exports = {
   getPresignedUrl,
   getListObject,
   getFileObject,
   uploadVideoToS3,
+  deleteVideoFromS3,
 };
+

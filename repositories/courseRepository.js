@@ -172,6 +172,28 @@ function getFilteredFreeWebinarCustomers(emailSubject, limit = 500) {
   });
 }
 
+function getCourseVideoById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const video = await onlinevideosModel.findById(id);
+      return resolve(video);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+function deleteCourseVideoById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const deleted = await onlinevideosModel.findByIdAndDelete(id);
+      return resolve(deleted);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 module.exports = {
   getCourseBySlug,
   getCourseById,
@@ -184,5 +206,8 @@ module.exports = {
   uploadCourseVideo,
   getLastCourseVideo,
   getAllLiveClassTeacher,
-  getFilteredFreeWebinarCustomers
+  getFilteredFreeWebinarCustomers,
+  getCourseVideoById,
+  deleteCourseVideoById,
 };
+

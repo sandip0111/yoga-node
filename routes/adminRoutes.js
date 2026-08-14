@@ -260,10 +260,12 @@ router.post("/getAllTimeSlot", adminController.getAllTimeSlot);
 //video Aws
 
 router.post("/createVideo", adminController.createOnlineVideo);
+router.post("/deleteVideo", adminController.deleteOnlineVideo);
 router.get(
   "/getCourseVideoDataById/:id",
   adminController.getCourseVideoDataById,
 );
+
 //Dashboard
 
 router.post("/getAllParayanamStudent", adminController.getAllParayanamStudent);
