@@ -2844,7 +2844,7 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "The Essence of Yoga — Mysore Retreat 2026 | September 15–20";
+        "This Saturday — Sadhana To Seva | Free Webinar";
       const limit = parseInt(req.body.limit) || 500;
 
       const subscriberRepo = require("../repositories/subscriberRepository");
@@ -2894,7 +2894,7 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "JOIN TODAY! BREATH OF YOGIS - FREE WEBINAR";
+        "See you Saturday — Sadhana To Seva | What we will explore together";
       const limit = parseInt(req.body.limit) || 500;
 
       const courseRepo = require("../repositories/courseRepository");
