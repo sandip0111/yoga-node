@@ -37,9 +37,9 @@ mongoose
     console.log(error);
   });
 //#region cron jon function
-cron.schedule("0 0 * * *", async function () {
-  paymentService.secondInstallmentPaymentMail();
-});
+// cron.schedule("0 0 * * *", async function () {
+//   paymentService.secondInstallmentPaymentMail();
+// });
 cron.schedule("*/1 * * * *", async function () {
   // paymentService.updatePaymentStatusForcefully();
   // paymentService.updateSwaraSadhanaPaymentStatusForcefully();

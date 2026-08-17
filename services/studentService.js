@@ -1318,6 +1318,7 @@ let pranaySadhanaCourseVideo = function (getVideoData) {
           sortBy: obj.sortBy,
           url: obj.videoName,
           created: obj.created,
+          id: obj._id,
         };
         arr.push(val);
       });
@@ -1379,6 +1380,7 @@ let allCourseVideo = function (getVideoData, reqBody) {
                 month: getObj.month,
                 teacherId: getObj.teacherId,
                 created: getObj.created,
+                id: getObj._id,
               };
               arr.push(val);
             }
