@@ -55,7 +55,7 @@ cron.schedule("*/1 * * * *", async function () {
   // paymentService.updatePgStatusForcefully();
 });
 cron.schedule("0 * * * *", async function () {
-  emailSchedulerService.startScheduler();
+  // emailSchedulerService.startScheduler();
 });
 cron.schedule("10 18 17 * * *", async function () {
   // paymentService.updateabc();
