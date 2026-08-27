@@ -12,7 +12,7 @@ const EMAIL_CONFIG = {
   DELAY_BETWEEN_BATCHES: 1000, // 1 second delay between batches
   MAX_RETRIES: 2,
   RETRY_DELAY: 3000, // 3 seconds
-  DEFAULT_SUBJECT: "Today at 6:30 PM IST — Sadhana To Seva",
+  DEFAULT_SUBJECT: "You Don’t Breathe Through Both Nostrils All the Time. Here’s Why.",
   DEFAULT_LIMIT: 500,
   DEFAULT_TEMPLATE: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_FORCEFULLY,
 };

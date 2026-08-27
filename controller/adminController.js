@@ -2844,7 +2844,7 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "Today at 6:30 PM IST — Sadhana To Seva";
+        "You Don’t Breathe Through Both Nostrils All the Time. Here’s Why.";
       const limit = parseInt(req.body.limit) || 500;
 
       const subscriberRepo = require("../repositories/subscriberRepository");
@@ -2894,7 +2894,7 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "The recording is now available — Sadhana To Seva";
+        "Three paths. One direction. And something free starting September 1.";
       const limit = parseInt(req.body.limit) || 500;
 
       const courseRepo = require("../repositories/courseRepository");
