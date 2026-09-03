@@ -22,7 +22,7 @@ const freeWebinarSchema = new mongoose.Schema({
   },
   month: {
     type: String,
-    default: () => "August, 2026",
+    default: () => "September, 2026",
   },
   isDeleted: {
     type: Boolean,

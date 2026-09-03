@@ -228,8 +228,7 @@ function createFreeWebinarCustomer(reqBody) {
       const savedUser = {
         name: reqBody.name,
         email: reqBody.email,
-        subject:
-          "Your spot is confirmed – “Sadhana to Seva” Webinar Access Inside",
+        subject: "You're Registered! Welcome to our Free Webinar 🙏",
       };
       await helper.sendFreeWebinarConfirmationEmail(savedUser);
       return resolve({
