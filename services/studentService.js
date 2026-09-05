@@ -721,6 +721,8 @@ module.exports = {
               paymentType: 1,
               created: 1,
               month: 1,
+              room: 1,
+              package: 1,
             },
           },
         ];
@@ -773,6 +775,16 @@ module.exports = {
           const monthMatch = { month: reqBody.month };
           pipeLine.splice(1, 0, { $match: monthMatch });
           pipeLineCount.splice(1, 0, { $match: monthMatch });
+        }
+        if (reqBody.roomType) {
+          const roomMatch = {
+            $or: [
+              { room: { $regex: reqBody.roomType, $options: "i" } },
+              { package: { $regex: reqBody.roomType, $options: "i" } },
+            ],
+          };
+          pipeLine.splice(1, 0, { $match: roomMatch });
+          pipeLineCount.splice(1, 0, { $match: roomMatch });
         }
         pipeLine.push({ $sort: { created: -1 } });
         pipeLine.push({
@@ -1001,6 +1013,7 @@ module.exports = {
           paymentStatus = "",
           courseType,
           month,
+          roomType,
         } = reqBody;
         const validPageNo = Math.max(1, parseInt(pageNo) || 1);
         const validSize = Math.max(1, parseInt(size) || 10);
@@ -1030,6 +1043,9 @@ module.exports = {
           } else {
             filter.hour = courseType;
           }
+        }
+        if (roomType && String(roomType).trim() !== "") {
+          filter.room = { $regex: String(roomType).trim(), $options: "i" };
         }
         const result = await studentRepo.getBaliDataWithFilters(
           filter,
