@@ -943,6 +943,7 @@ module.exports = {
           paymentStatus = "",
           courseType,
           month,
+          roomType,
         } = reqBody;
         const validPageNo = Math.max(1, parseInt(pageNo) || 1);
         const validSize = Math.max(1, parseInt(size) || 10);
@@ -972,6 +973,9 @@ module.exports = {
           } else {
             filter.hour = courseType;
           }
+        }
+        if (roomType && String(roomType).trim() !== "") {
+          filter.room = { $regex: String(roomType).trim(), $options: "i" };
         }
         const result = await studentRepo.getRishikeshDataWithFilters(
           filter,
