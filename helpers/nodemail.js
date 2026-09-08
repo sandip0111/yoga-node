@@ -12,7 +12,7 @@ const EMAIL_CONFIG = {
   DELAY_BETWEEN_BATCHES: 1000, // 1 second delay between batches
   MAX_RETRIES: 2,
   RETRY_DELAY: 3000, // 3 seconds
-  DEFAULT_SUBJECT: "Not Every Yoga Pose Uses the Same Breath",
+  DEFAULT_SUBJECT: "5 days of free learning “Into the roots of Yoga”",
   DEFAULT_LIMIT: 500,
   DEFAULT_TEMPLATE: constants.EMAIL_TEMPLATE.SUBSCRIBER_EMAIL_FORCEFULLY,
 };
