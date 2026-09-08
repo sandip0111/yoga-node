@@ -161,7 +161,7 @@ function getFilteredFreeWebinarCustomers(emailSubject, limit = 500) {
   return new Promise(async (resolve, reject) => {
     try {
       const customers = await freeWebinarModel
-        .find({ month: "August, 2026", isDeleted: false })
+        .find({ isDeleted: false })
         .select("_id name email")
         .limit(limit);
 

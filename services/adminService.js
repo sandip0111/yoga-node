@@ -1193,7 +1193,12 @@ function sendBulkEmailToFreeWebinarUsersForcefully(
       sendMail.sendCampaignInBackground(validCustomers, {
         subject: emailSubject,
         templatePath: constant.EMAIL_TEMPLATE.FREEWEBINAR_EMAIL_FORCEFULLY,
-        replacementsFn: () => ({}),
+        replacementsFn: (customer) => {
+          const name = customer && customer.name ? customer.name.trim() : "";
+          return {
+            name: name
+          };
+        },
       });
 
       return resolve({
