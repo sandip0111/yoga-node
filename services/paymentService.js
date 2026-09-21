@@ -4820,6 +4820,381 @@ function getPaypalPaymentResultPranayamaCertification(reqBody, req = null) {
   });
 }
 
+function checkoutPaypalForPranicPurification(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const currency = PAYPAL_CURRENCY;
+      const amount = formatPayPalAmount(reqBody.price);
+      let userData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phoneNumber,
+        address: reqBody.address ?? "",
+        paymentStatus: "pending",
+        price: amount,
+        currency: currency,
+        courseStartDate: reqBody.courseStartDate,
+        courseTimeDuration: reqBody.courseTimeDuration,
+        paymentType: "paypal",
+      };
+      const pay = await paymentRepo.createPranicUserData(userData);
+
+      const order = await callPayPal(
+        "post",
+        "/v2/checkout/orders",
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: `pranic_${pay._id}`,
+              custom_id: String(pay._id),
+              description: "Pranic Purification Payment",
+              amount: {
+                currency_code: currency,
+                value: String(amount),
+              },
+            },
+          ],
+          application_context: {
+            brand_name: "Yoga Vidya School",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: getPayPalRedirectUrl("/confirmation"),
+            cancel_url: getPayPalRedirectUrl(
+              "/checkout/pranic-purification-i",
+            ),
+          },
+        },
+        `pranic-create-${pay._id}`,
+      );
+
+      const approvalUrl = getPayPalApproveUrl(order);
+      if (!order.id || !approvalUrl) {
+        throw new Error("PayPal approval URL was not returned");
+      }
+
+      await paymentRepo.pranicPurificationUpdateById(pay._id, {
+        paymentId: order.id,
+      });
+
+      return resolve({
+        orderId: order.id,
+        payDbId: pay._id,
+        approvalUrl,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+async function completePayPalPranicPurificationPayment(order, reqBody, req) {
+  const capture = getPayPalCapture(order);
+  if (!capture || capture.status !== "COMPLETED") {
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const user = await paymentRepo.updatePranicUserData(
+    reqBody.payDbId,
+    capture.id,
+    true,
+  );
+  const couponCode = generateCouponCode(user.name);
+  const couponcodeData = {
+    code: couponCode,
+    slug: constants.SLUG.PRANA_ARAMBH,
+    email: user.email,
+    studentId: user._id,
+  };
+  await paymentRepo.createCouponCodeData(couponcodeData);
+  const password = reqBody.password || helper.genratePass(6);
+  createPranicPurificationStudent(user, password);
+  helper.completePranicPurificationAutomationEmail(user, password);
+
+  const clientData = req ? extractClientData(req) : {};
+  if (
+    paymentTrackingService &&
+    paymentTrackingService.trackPranicPurificationPurchase
+  ) {
+    paymentTrackingService.trackPranicPurificationPurchase(
+      {
+        paymentId: capture.id,
+        ...clientData,
+      },
+      user,
+    );
+  }
+
+  return {
+    status: 200,
+    data: {
+      status: "success",
+      paymtId: capture.id,
+      amount: Number(capture.amount?.value || 0),
+      currency: "USD",
+    },
+  };
+}
+
+function getPaypalPaymentResultPranicPurification(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const payDbId = reqBody.payDbId;
+      const paypalOrderId = reqBody.paypalOrderId;
+
+      const paymentDetails =
+        await paymentRepo.getPranicPurificationPaymentDetailsById(payDbId);
+      if (!paymentDetails) {
+        return resolve({
+          status: 404,
+          data: { status: "failed", message: "Payment record not found" },
+        });
+      }
+
+      if (paymentDetails.paymentStatus === "paid") {
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: paymentDetails.paymentId,
+            amount: Number(paymentDetails.price || 0),
+            currency: "USD",
+          },
+        });
+      }
+
+      if (paymentDetails.paymentId !== paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "PayPal order mismatch" },
+        });
+      }
+
+      const order = await getPayPalOrder(paypalOrderId);
+
+      if (order.status === "COMPLETED") {
+        const returnData = await completePayPalPranicPurificationPayment(
+          order,
+          reqBody,
+          req,
+        );
+        return resolve(returnData);
+      }
+
+      if (order.status !== "APPROVED") {
+        return resolve({
+          status: 200,
+          data: { status: "failed", paypalOrderId },
+        });
+      }
+
+      const capturedOrder = await callPayPal(
+        "post",
+        `/v2/checkout/orders/${paypalOrderId}/capture`,
+        {},
+        `pranic-capture-${payDbId}-${paypalOrderId}`,
+      );
+      const returnData = await completePayPalPranicPurificationPayment(
+        capturedOrder,
+        reqBody,
+        req,
+      );
+      return resolve(returnData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+function checkoutPaypalForPranicPurificationII(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const currency = PAYPAL_CURRENCY;
+      const amount = formatPayPalAmount(reqBody.price);
+      let userData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phoneNumber,
+        address: reqBody.address ?? "",
+        paymentStatus: "pending",
+        price: amount,
+        currency: currency,
+        courseStartDate: new Date("2026-05-15T00:00:00"),
+        courseTimeDuration: "6.30 PM IST",
+        paymentType: "paypal",
+      };
+      const pay = await paymentRepo.createPranicIIUserData(userData);
+
+      const order = await callPayPal(
+        "post",
+        "/v2/checkout/orders",
+        {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              reference_id: `pranic_II_${pay._id}`,
+              custom_id: String(pay._id),
+              description: "Pranic Purification II Payment",
+              amount: {
+                currency_code: currency,
+                value: String(amount),
+              },
+            },
+          ],
+          application_context: {
+            brand_name: "Yoga Vidya School",
+            shipping_preference: "NO_SHIPPING",
+            user_action: "PAY_NOW",
+            return_url: getPayPalRedirectUrl("/confirmation"),
+            cancel_url: getPayPalRedirectUrl(
+              "/checkout/pranic-purification-ii",
+            ),
+          },
+        },
+        `pranic-II-create-${pay._id}`,
+      );
+
+      const approvalUrl = getPayPalApproveUrl(order);
+      if (!order.id || !approvalUrl) {
+        throw new Error("PayPal approval URL was not returned");
+      }
+
+      await paymentRepo.pranicPurificationIIUpdateById(pay._id, {
+        paymentId: order.id,
+      });
+
+      return resolve({
+        orderId: order.id,
+        payDbId: pay._id,
+        approvalUrl,
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+async function completePayPalPranicPurificationIIPayment(order, reqBody, req) {
+  const capture = getPayPalCapture(order);
+  if (!capture || capture.status !== "COMPLETED") {
+    throw new Error("PayPal payment was not completed");
+  }
+
+  const user = await paymentRepo.updatePranicIIUserData(
+    reqBody.payDbId,
+    capture.id,
+    true,
+  );
+  const couponCode = generateCouponCode(user.name);
+  const couponcodeData = {
+    code: couponCode,
+    slug: constants.SLUG.PRANA_ARAMBH,
+    email: user.email,
+    studentId: user._id,
+  };
+  await paymentRepo.createCouponCodeData(couponcodeData);
+  const password = reqBody.password || helper.genratePass(6);
+  await createPranicPurificationIIStudent(user, password);
+  await helper.completePranicPurificationIIAutomationEmail(
+    user,
+    password,
+  );
+
+  const clientData = req ? extractClientData(req) : {};
+  if (
+    paymentTrackingService &&
+    paymentTrackingService.trackPranicPurificationIIPurchase
+  ) {
+    paymentTrackingService.trackPranicPurificationIIPurchase(
+      {
+        paymentId: capture.id,
+        ...clientData,
+      },
+      user,
+    );
+  }
+
+  return {
+    status: 200,
+    data: {
+      status: "success",
+      paymtId: capture.id,
+      amount: Number(capture.amount?.value || 0),
+      currency: "USD",
+    },
+  };
+}
+
+function getPaypalPaymentResultPranicPurificationII(reqBody, req = null) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const payDbId = reqBody.payDbId;
+      const paypalOrderId = reqBody.paypalOrderId;
+
+      const paymentDetails =
+        await paymentRepo.getPranicPurificationIIPaymentDetailsById(payDbId);
+      if (!paymentDetails) {
+        return resolve({
+          status: 404,
+          data: { status: "failed", message: "Payment record not found" },
+        });
+      }
+
+      if (paymentDetails.paymentStatus === "paid") {
+        return resolve({
+          status: 200,
+          data: {
+            status: "success",
+            paymtId: paymentDetails.paymentId,
+            amount: Number(paymentDetails.price || 0),
+            currency: "USD",
+          },
+        });
+      }
+
+      if (paymentDetails.paymentId !== paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "PayPal order mismatch" },
+        });
+      }
+
+      const order = await getPayPalOrder(paypalOrderId);
+
+      if (order.status === "COMPLETED") {
+        const returnData = await completePayPalPranicPurificationIIPayment(
+          order,
+          reqBody,
+          req,
+        );
+        return resolve(returnData);
+      }
+
+      if (order.status !== "APPROVED") {
+        return resolve({
+          status: 200,
+          data: { status: "failed", paypalOrderId },
+        });
+      }
+
+      const capturedOrder = await callPayPal(
+        "post",
+        `/v2/checkout/orders/${paypalOrderId}/capture`,
+        {},
+        `pranic-II-capture-${payDbId}-${paypalOrderId}`,
+      );
+      const returnData = await completePayPalPranicPurificationIIPayment(
+        capturedOrder,
+        reqBody,
+        req,
+      );
+      return resolve(returnData);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
 module.exports = {
   callPayPal,
   getPayPalApproveUrl,
@@ -4900,4 +5275,8 @@ module.exports = {
   checkoutPaypalForPranaArambha,
   getPaypalPaymentResultPranaArambha,
   updatePgStatusForcefully,
+  checkoutPaypalForPranicPurification,
+  getPaypalPaymentResultPranicPurification,
+  checkoutPaypalForPranicPurificationII,
+  getPaypalPaymentResultPranicPurificationII,
 };

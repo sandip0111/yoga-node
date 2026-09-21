@@ -306,6 +306,48 @@ async function getPaypalPaymentResultPranayamaCertification(req, res) {
     res.status(500).json(error);
   }
 }
+async function checkoutPaypalForPranicPurification(req, res) {
+  try {
+    let result =
+      await paymentService.checkoutPaypalForPranicPurification(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getPaypalPaymentResultPranicPurification(req, res) {
+  try {
+    let result =
+      await paymentService.getPaypalPaymentResultPranicPurification(
+        req.body,
+        req,
+      );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function checkoutPaypalForPranicPurificationII(req, res) {
+  try {
+    let result =
+      await paymentService.checkoutPaypalForPranicPurificationII(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getPaypalPaymentResultPranicPurificationII(req, res) {
+  try {
+    let result =
+      await paymentService.getPaypalPaymentResultPranicPurificationII(
+        req.body,
+        req,
+      );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
 
 module.exports = {
   getPaymentDetailsById,
@@ -340,4 +382,8 @@ module.exports = {
   getPaypalPaymentResultSwaraSadhana,
   checkoutPaypalForPranayamaCertification,
   getPaypalPaymentResultPranayamaCertification,
+  checkoutPaypalForPranicPurification,
+  getPaypalPaymentResultPranicPurification,
+  checkoutPaypalForPranicPurificationII,
+  getPaypalPaymentResultPranicPurificationII,
 };

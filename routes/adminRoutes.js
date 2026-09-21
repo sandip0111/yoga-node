@@ -807,5 +807,21 @@ router.post(
 );
 router.post("/getPgData", studentController.getPgData);
 router.post("/removePgData", studentController.removePgData);
+router.post(
+  "/checkoutPaypalForPranicPurification",
+  paymentController.checkoutPaypalForPranicPurification,
+);
+router.post(
+  "/getPaypalPaymentResultPranicPurification",
+  paymentController.getPaypalPaymentResultPranicPurification,
+);
+router.post(
+  "/checkoutPaypalForPranicPurificationII",
+  paymentController.checkoutPaypalForPranicPurificationII,
+);
+router.post(
+  "/getPaypalPaymentResultPranicPurificationII",
+  paymentController.getPaypalPaymentResultPranicPurificationII,
+);
 
 module.exports = router;

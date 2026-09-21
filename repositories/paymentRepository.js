@@ -790,6 +790,26 @@ function updatePgStatusForcefully(startDate, endDate) {
     }
   });
 }
+function getPranicPurificationPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await pranicPurificationUsers.findById(id).lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getPranicPurificationIIPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await pranicPurificationUsersIIModel.findById(id).lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -843,4 +863,6 @@ module.exports = {
   getPgPaymentDetailsById,
   getPranaArambhPaymentDetailsById,
   updatePgStatusForcefully,
+  getPranicPurificationPaymentDetailsById,
+  getPranicPurificationIIPaymentDetailsById,
 };
