@@ -4942,6 +4942,13 @@ function getPaypalPaymentResultPranicPurification(reqBody, req = null) {
       const payDbId = reqBody.payDbId;
       const paypalOrderId = reqBody.paypalOrderId;
 
+      if (!payDbId || !paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "Missing payDbId or paypalOrderId" },
+        });
+      }
+
       const paymentDetails =
         await paymentRepo.getPranicPurificationPaymentDetailsById(payDbId);
       if (!paymentDetails) {
@@ -5130,6 +5137,13 @@ function getPaypalPaymentResultPranicPurificationII(reqBody, req = null) {
     try {
       const payDbId = reqBody.payDbId;
       const paypalOrderId = reqBody.paypalOrderId;
+
+      if (!payDbId || !paypalOrderId) {
+        return resolve({
+          status: 400,
+          data: { status: "failed", message: "Missing payDbId or paypalOrderId" },
+        });
+      }
 
       const paymentDetails =
         await paymentRepo.getPranicPurificationIIPaymentDetailsById(payDbId);

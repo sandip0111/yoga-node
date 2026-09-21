@@ -345,7 +345,8 @@ async function getPaypalPaymentResultPranicPurificationII(req, res) {
       );
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json(error);
+    console.error('[getPaypalPaymentResultPranicPurificationII] Error:', error);
+    res.status(500).json({ message: error?.message || 'Internal server error', stack: error?.stack });
   }
 }
 
