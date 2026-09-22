@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema({
   courseStartDate: {
     type: Date,
     required: false,
+    default: () => new Date("2027-01-07"),
   },
   courseTimeDuration: {
     type: String,
@@ -47,7 +48,7 @@ const userSchema = new mongoose.Schema({
   },
   month: {
     type: String,
-    default: () => "January, 2026",
+    default: () => "January, 2027",
   },
   paymentType: {
     type: String,

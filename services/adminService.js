@@ -93,6 +93,8 @@ function registerPranicPurificationUser(reqBody) {
           email: reqBody.email,
           paymentStatus: constant.PAYMENT_STATUS.PAID,
           paymentType: "paypal",
+          month: reqBody.month || "January, 2027",
+          courseStartDate: reqBody.courseStartDate || new Date("2027-01-07"),
         });
       const password = helper.genratePass(6);
       await paymentService.createPranicPurificationStudent(savedUser, password);

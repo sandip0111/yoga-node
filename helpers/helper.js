@@ -564,7 +564,7 @@ let sendMailForcefully = async function (req, res) {
   const pipeline = [
     {
       $match: {
-        month: "January, 2026",
+        month: "January, 2027",
         paymentStatus: "paid",
       },
     },

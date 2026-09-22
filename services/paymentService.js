@@ -207,8 +207,9 @@ function checkoutRazorpayForPranicPurification(reqBody) {
         paymentStatus: "pending",
         price: reqBody.price,
         currency: reqBody.currency,
-        courseStartDate: reqBody.courseStartDate,
+        courseStartDate: reqBody.courseStartDate || new Date("2027-01-07"),
         courseTimeDuration: reqBody.courseTimeDuration,
+        month: reqBody.month || "January, 2027",
         paymentType: "razorpay",
       };
       const pay = await paymentRepo.createPranicUserData(userData);
@@ -410,8 +411,9 @@ function checkoutStripeForPranicPurification(reqBody) {
         paymentStatus: "pending",
         price: reqBody.price,
         currency: reqBody.currency,
-        courseStartDate: reqBody.courseStartDate,
+        courseStartDate: reqBody.courseStartDate || new Date("2027-01-07"),
         courseTimeDuration: reqBody.courseTimeDuration,
+        month: reqBody.month || "January, 2027",
         paymentType: "stripe",
       };
       const pay = await paymentRepo.createPranicUserData(userData);
@@ -4833,8 +4835,9 @@ function checkoutPaypalForPranicPurification(reqBody) {
         paymentStatus: "pending",
         price: amount,
         currency: currency,
-        courseStartDate: reqBody.courseStartDate,
+        courseStartDate: reqBody.courseStartDate || new Date("2027-01-07"),
         courseTimeDuration: reqBody.courseTimeDuration,
+        month: reqBody.month || "January, 2027",
         paymentType: "paypal",
       };
       const pay = await paymentRepo.createPranicUserData(userData);
