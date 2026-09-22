@@ -281,7 +281,7 @@ let completePranicPurificationAutomationEmail = async function (
     },
     mailTo: user.email,
     contentPath: constants.EMAIL_TEMPLATE.PRANIC_PURIFICATION,
-    subject: "Welcome to “PRANIC PURIFICATION”  with Prashantji",
+    subject: "Welcome to Pranic Purification I",
   };
   sendMail.createContent(mailData);
 };
