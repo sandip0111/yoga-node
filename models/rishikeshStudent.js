@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const MonthEnum = {
-  March26: "March, 2026",
-  October26: "October, 2026",
+  March26: "March, 2027",
+  October26: "October, 2027",
 };
 
 const rishikeshStudentSchema = new mongoose.Schema({
