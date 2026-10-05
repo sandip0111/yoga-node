@@ -192,6 +192,8 @@ module.exports = {
               created: "$created",
               password: "$password",
               paymentType: "$paymentType",
+              price: "$price",
+              currency: "$currency",
             },
           },
         ];
