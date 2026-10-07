@@ -100,9 +100,8 @@ module.exports = {
             },
           },
           {
-            $unwind: {
-              path: "$studentData",
-              preserveNullAndEmptyArrays: true,
+            $addFields: {
+              studentData: { $arrayElemAt: ["$studentData", 0] },
             },
           },
           {
