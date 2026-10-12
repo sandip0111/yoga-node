@@ -55,6 +55,18 @@ const retreatStudentSchema = new mongoose.Schema({
     type: String,
     default: 'September, 2026',
   },
+  retreatName: {
+    type: String,
+    required: false,
+  },
+  slug: {
+    type: String,
+    required: false,
+  },
+  courseType: {
+    type: String,
+    required: false,
+  },
   isDeleted: {
     type: Boolean,
     default: false,

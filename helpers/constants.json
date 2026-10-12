@@ -59,6 +59,8 @@
     "PRANAYAMA_CERTIFICATION": "/emailTemplate/pranayamaCertification.html",
     "RETREATE_PURCHASE_CONFIRMATION": "/emailTemplate/retreatCoursePurchase.html",
     "COMPLETE_RETREAT_PAYMENT": "/emailTemplate/completeRetreatPayment.html",
+    "RISHIKESH_RETREAT_PURCHASE_CONFIRMATION": "/emailTemplate/rishikeshRetreatCoursePurchase.html",
+    "COMPLETE_RISHIKESH_RETREAT_PAYMENT": "/emailTemplate/completeRishikeshRetreatPayment.html",
     "PERSONAL_GUIDANCE_COURSE_PURCHASE": "/emailTemplate/personalGuidanceCoursePurchase.html",
     "COMPLETE_PG_PAYMENT": "/emailTemplate/completePgPayment.html"
   },

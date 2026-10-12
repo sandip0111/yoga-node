@@ -3306,10 +3306,16 @@ function checkoutRazorpayRetreat(reqBody) {
       reqBody.paymentType = "razorpay";
       let pay = await paymentRepo.createRetreatData(reqBody);
       const amountInSubunits = reqBody.price * 100;
+      const isRishikesh =
+        reqBody.slug === "rishikesh-retreat" ||
+        reqBody.courseType === "rishikesh-retreat" ||
+        (reqBody.month && reqBody.month.includes("2027")) ||
+        (reqBody.retreatName && reqBody.retreatName.toLowerCase().includes("rishikesh"));
+      const receiptPrefix = isRishikesh ? "retreat_rshk_" : "retreat_mysore_";
       const options = {
         amount: amountInSubunits,
         currency: reqBody.currency,
-        receipt: `retreat_mysore_${pay._id}`,
+        receipt: `${receiptPrefix}${pay._id}`,
         payment_capture: 1,
       };
       const order = await razorpay.orders.create(options);
@@ -3462,6 +3468,18 @@ function checkoutPaypalForRetreat(reqBody) {
 
       let pay = await paymentRepo.createRetreatData(reqBody);
 
+      const isRishikesh =
+        reqBody.slug === "rishikesh-retreat" ||
+        reqBody.courseType === "rishikesh-retreat" ||
+        (reqBody.month && reqBody.month.includes("2027")) ||
+        (reqBody.retreatName && reqBody.retreatName.toLowerCase().includes("rishikesh"));
+      const retreatDesc = isRishikesh
+        ? "The Essence of Yoga – Rishikesh Retreat Payment"
+        : "The Essence of Yoga – Mysore Retreat Payment";
+      const cancelPath = isRishikesh
+        ? "/checkout/rishikesh-retreat"
+        : "/checkout/mysore-retreat";
+
       const order = await callPayPal(
         "post",
         "/v2/checkout/orders",
@@ -3471,7 +3489,7 @@ function checkoutPaypalForRetreat(reqBody) {
             {
               reference_id: `Retreat_${pay._id}`,
               custom_id: String(pay._id),
-              description: "The Essence of Yoga – Mysore Retreat Payment",
+              description: retreatDesc,
               amount: {
                 currency_code: currency,
                 value: amount,
@@ -3483,7 +3501,7 @@ function checkoutPaypalForRetreat(reqBody) {
             shipping_preference: "NO_SHIPPING",
             user_action: "PAY_NOW",
             return_url: getPayPalRedirectUrl("/confirmation"),
-            cancel_url: getPayPalRedirectUrl("/checkout/mysore-retreat"),
+            cancel_url: getPayPalRedirectUrl(cancelPath),
           },
         },
         `Retreat-create-${pay._id}`,
@@ -3774,7 +3792,7 @@ function updateRetreatStatusForcefully() {
             await paymentRepo.retreatUpdateById(obj._id, {
               isPaymentCheck: true,
             });
-            await helper.completeRetreatPaymentEmail(obj.name, obj.email);
+            await helper.completeRetreatPaymentEmail(obj);
           }
         } else {
           const payments = await razorpay.orders.fetchPayments(obj.paymentId);
@@ -3800,7 +3818,7 @@ function updateRetreatStatusForcefully() {
             await paymentRepo.retreatUpdateById(obj._id, {
               isPaymentCheck: true,
             });
-            await helper.completeRetreatPaymentEmail(obj.name, obj.email);
+            await helper.completeRetreatPaymentEmail(obj);
           }
         }
       }

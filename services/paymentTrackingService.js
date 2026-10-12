@@ -332,13 +332,25 @@ class PaymentTrackingService {
   async trackRetreatPurchase(paymentData, userData) {
     try {
 
-      const courseData = {
-        courseId: 'retreat_mysore',
-        courseName: 'The Essence of Yoga – Mysore Retreat 2026',
-        courseType: 'retreat_mysore'
-      };
+      const isRishikesh =
+        userData?.slug === "rishikesh-retreat" ||
+        userData?.courseType === "rishikesh-retreat" ||
+        (userData?.month && userData?.month.includes("2027")) ||
+        (userData?.retreatName && userData?.retreatName.toLowerCase().includes("rishikesh"));
 
-      const eventId = 'retreat_mysore';
+      const courseData = isRishikesh
+        ? {
+            courseId: "retreat_rishikesh",
+            courseName: "The Essence of Yoga – Rishikesh Retreat 2027",
+            courseType: "retreat_rishikesh",
+          }
+        : {
+            courseId: "retreat_mysore",
+            courseName: "The Essence of Yoga – Mysore Retreat 2026",
+            courseType: "retreat_mysore",
+          };
+
+      const eventId = isRishikesh ? "retreat_rishikesh" : "retreat_mysore";
 
       const purchaseData = {
         transactionId: paymentData.paymentId,

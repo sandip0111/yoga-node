@@ -642,24 +642,59 @@ let deduplicateByEmail = function (items) {
   });
 };
 let sendRetreatPaymentEmail = async function (user) {
+  const isRishikesh =
+    user?.slug === "rishikesh-retreat" ||
+    user?.courseType === "rishikesh-retreat" ||
+    (user?.month && user.month.includes("2027")) ||
+    (user?.retreatName && user.retreatName.toLowerCase().includes("rishikesh"));
+
   const mailData = {
     replacements: {
       NAME: user.name,
     },
     mailTo: user.email,
-    contentPath: constants.EMAIL_TEMPLATE.RETREATE_PURCHASE_CONFIRMATION,
-    subject: "Welcome to The Essence of Yoga – Mysore Retreat 2026 🙏",
+    contentPath: isRishikesh
+      ? constants.EMAIL_TEMPLATE.RISHIKESH_RETREAT_PURCHASE_CONFIRMATION
+      : constants.EMAIL_TEMPLATE.RETREATE_PURCHASE_CONFIRMATION,
+    subject: isRishikesh
+      ? "Welcome to The Essence of Yoga – Rishikesh Retreat 2027 🙏"
+      : "Welcome to The Essence of Yoga – Mysore Retreat 2026 🙏",
   };
   await sendMail.createContent(mailData);
 };
-let completeRetreatPaymentEmail = async function (name, email) {
+let completeRetreatPaymentEmail = async function (nameOrUser, email, optionalSlug) {
+  let name = nameOrUser;
+  let targetEmail = email;
+  let isRishikesh = false;
+
+  if (typeof nameOrUser === "object" && nameOrUser !== null) {
+    name = nameOrUser.name;
+    targetEmail = nameOrUser.email;
+    isRishikesh =
+      nameOrUser.slug === "rishikesh-retreat" ||
+      nameOrUser.courseType === "rishikesh-retreat" ||
+      (nameOrUser.month && nameOrUser.month.includes("2027")) ||
+      (nameOrUser.retreatName && nameOrUser.retreatName.toLowerCase().includes("rishikesh"));
+  } else {
+    isRishikesh =
+      optionalSlug === "rishikesh-retreat" ||
+      (typeof optionalSlug === "object" &&
+        (optionalSlug?.slug === "rishikesh-retreat" ||
+          optionalSlug?.courseType === "rishikesh-retreat" ||
+          (optionalSlug?.month && optionalSlug.month.includes("2027"))));
+  }
+
   const mailData = {
     replacements: {
       NAME: name,
     },
-    mailTo: email,
-    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_RETREAT_PAYMENT,
-    subject: "Complete Your Registration – The Essence of Yoga Retreat 2026",
+    mailTo: targetEmail,
+    contentPath: isRishikesh
+      ? constants.EMAIL_TEMPLATE.COMPLETE_RISHIKESH_RETREAT_PAYMENT
+      : constants.EMAIL_TEMPLATE.COMPLETE_RETREAT_PAYMENT,
+    subject: isRishikesh
+      ? "Complete Your Registration – The Essence of Yoga Rishikesh Retreat 2027"
+      : "Complete Your Registration – The Essence of Yoga Retreat 2026",
   };
   sendMail.createContent(mailData);
 };
