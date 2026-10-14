@@ -1211,6 +1211,11 @@ module.exports = {
           pipeLine.splice(1, 0, { $match: monthMatch });
           pipeLineCount.splice(1, 0, { $match: monthMatch });
         }
+        if (reqBody.courseType) {
+          const courseTypeMatch = { courseType: reqBody.courseType };
+          pipeLine.splice(1, 0, { $match: courseTypeMatch });
+          pipeLineCount.splice(1, 0, { $match: courseTypeMatch });
+        }
         pipeLine.push({ $sort: { created: -1 } });
         pipeLine.push({
           $facet: {
