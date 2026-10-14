@@ -199,6 +199,41 @@ class PaymentTrackingService {
   }
 
   /**
+   * Track purchase event for Mysore TTC courses
+   */
+  async trackMysoreTTCPurchase(paymentData, userData) {
+    try {
+      const courseData = {
+        courseId: 'mysore_ttc',
+        courseName: 'Mysore Yoga Teacher Training Course',
+        courseType: 'mysore_ttc'
+      };
+
+      const eventId = 'mysore_ttc';
+
+      const purchaseData = {
+        transactionId: paymentData.paymentId,
+        paymentId: paymentData.paymentId,
+        eventId: eventId,
+        amount: userData.price,
+        currency: userData.currency,
+        clientIp: paymentData.clientIp,
+        userAgent: paymentData.userAgent
+      };
+
+      const userInfo = {
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        firstName: userData.name
+      };
+
+      await metaConversionsService.trackPurchase(purchaseData, userInfo, courseData);
+    } catch (error) {
+      console.error("PaymentTrackingService: Error tracking Mysore TTC purchase", error);
+    }
+  }
+
+  /**
    * Track purchase event for Live Classes
    */
   async trackLiveClassPurchase(paymentData, userData) {

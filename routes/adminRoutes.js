@@ -609,6 +609,22 @@ router.post(
   "/getStripePaymentResultRishikesh",
   paymentController.getStripePaymentResultRishikesh,
 );
+router.post(
+  "/checkoutRazorpayMysoreTTC",
+  paymentController.checkoutRazorpayMysoreTTC,
+);
+router.post(
+  "/getRazorPaymentResultMysoreTTC",
+  paymentController.getRazorPaymentResultMysoreTTC,
+);
+router.post(
+  "/checkoutStripeForMysoreTTC",
+  paymentController.checkoutStripeForMysoreTTC,
+);
+router.post(
+  "/getStripePaymentResultMysoreTTC",
+  paymentController.getStripePaymentResultMysoreTTC,
+);
 router.post("/checkoutStripeForBali", paymentController.checkoutStripeForBali);
 router.post(
   "/getStripePaymentResultBali",
@@ -739,6 +755,14 @@ router.post(
 router.post(
   "/getPaypalPaymentResultRishikesh",
   paymentController.getPaypalPaymentResultRishikesh,
+);
+router.post(
+  "/checkoutPaypalForMysoreTTC",
+  paymentController.checkoutPaypalForMysoreTTC,
+);
+router.post(
+  "/getPaypalPaymentResultMysoreTTC",
+  paymentController.getPaypalPaymentResultMysoreTTC,
 );
 router.post("/checkoutPaypalForBali", paymentController.checkoutPaypalForBali);
 router.post(

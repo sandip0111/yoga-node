@@ -62,7 +62,9 @@
     "RISHIKESH_RETREAT_PURCHASE_CONFIRMATION": "/emailTemplate/rishikeshRetreatCoursePurchase.html",
     "COMPLETE_RISHIKESH_RETREAT_PAYMENT": "/emailTemplate/completeRishikeshRetreatPayment.html",
     "PERSONAL_GUIDANCE_COURSE_PURCHASE": "/emailTemplate/personalGuidanceCoursePurchase.html",
-    "COMPLETE_PG_PAYMENT": "/emailTemplate/completePgPayment.html"
+    "COMPLETE_PG_PAYMENT": "/emailTemplate/completePgPayment.html",
+    "MYSORE_TTC_100": "/emailTemplate/mysoreTTC100.html",
+    "MYSORE_TTC_200": "/emailTemplate/mysoreTTC200.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",

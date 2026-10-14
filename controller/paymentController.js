@@ -350,6 +350,64 @@ async function getPaypalPaymentResultPranicPurificationII(req, res) {
   }
 }
 
+async function checkoutRazorpayMysoreTTC(req, res) {
+  try {
+    const result = await paymentService.checkoutRazorpayMysoreTTC(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+}
+async function getRazorPaymentResultMysoreTTC(req, res) {
+  try {
+    const result = await paymentService.getRazorPaymentResultMysoreTTC(
+      req.body,
+      req,
+    );
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+}
+async function checkoutStripeForMysoreTTC(req, res) {
+  try {
+    let result = await paymentService.checkoutStripeForMysoreTTC(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getStripePaymentResultMysoreTTC(req, res) {
+  try {
+    let result = await paymentService.getStripePaymentResultMysoreTTC(
+      req.body,
+      req,
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function checkoutPaypalForMysoreTTC(req, res) {
+  try {
+    let result = await paymentService.checkoutPaypalForMysoreTTC(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+async function getPaypalPaymentResultMysoreTTC(req, res) {
+  try {
+    let result = await paymentService.getPaypalPaymentResultMysoreTTC(
+      req.body,
+      req,
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
 module.exports = {
   getPaymentDetailsById,
   checkoutStripeForRishikesh,
@@ -387,4 +445,11 @@ module.exports = {
   getPaypalPaymentResultPranicPurification,
   checkoutPaypalForPranicPurificationII,
   getPaypalPaymentResultPranicPurificationII,
+  checkoutRazorpayMysoreTTC,
+  getRazorPaymentResultMysoreTTC,
+  checkoutStripeForMysoreTTC,
+  getStripePaymentResultMysoreTTC,
+  checkoutPaypalForMysoreTTC,
+  getPaypalPaymentResultMysoreTTC,
 };
+

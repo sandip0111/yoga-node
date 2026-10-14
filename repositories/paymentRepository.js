@@ -12,6 +12,7 @@ const pranicPurificationUsersIIModel = require("../models/pranicPurificationUser
 const pranayamaCertificationModel = require("../models/pranayamaCertificationModel");
 const retreatStudentModel = require("../models/retreatStudentModel");
 const personalGuidanceStudentModel = require("../models/personalGuidanceStudentModel");
+const mysoreTTCStudentModel = require("../models/mysoreTTCStudentModel");
 
 function createPranicUserData(userData) {
   return new Promise(async (resolve, reject) => {
@@ -810,6 +811,64 @@ function getPranicPurificationIIPaymentDetailsById(id) {
     }
   });
 }
+function createMysoreTTCData(userData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await mysoreTTCStudentModel.create(userData);
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function updateMysoreTTCStudentData(id, paymentId, isPaid) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user;
+      if (isPaid) {
+        user = await mysoreTTCStudentModel.findOneAndUpdate(
+          { _id: id },
+          {
+            paymentId: paymentId,
+            paymentStatus: "paid",
+          },
+          { new: true },
+        );
+      } else {
+        await mysoreTTCStudentModel.findOneAndUpdate(
+          { _id: id },
+          { paymentStatus: "pending" },
+        );
+      }
+      return resolve(user);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function mysoreTTCUpdateById(id, data) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pay = await mysoreTTCStudentModel.findOneAndUpdate(
+        { _id: id },
+        data,
+      );
+      return resolve(pay);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function getMysoreTTCPaymentDetailsById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await mysoreTTCStudentModel.findById(id).lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -865,4 +924,9 @@ module.exports = {
   updatePgStatusForcefully,
   getPranicPurificationPaymentDetailsById,
   getPranicPurificationIIPaymentDetailsById,
+  createMysoreTTCData,
+  updateMysoreTTCStudentData,
+  mysoreTTCUpdateById,
+  getMysoreTTCPaymentDetailsById,
 };
+

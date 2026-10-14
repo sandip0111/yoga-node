@@ -662,7 +662,11 @@ let sendRetreatPaymentEmail = async function (user) {
   };
   await sendMail.createContent(mailData);
 };
-let completeRetreatPaymentEmail = async function (nameOrUser, email, optionalSlug) {
+let completeRetreatPaymentEmail = async function (
+  nameOrUser,
+  email,
+  optionalSlug,
+) {
   let name = nameOrUser;
   let targetEmail = email;
   let isRishikesh = false;
@@ -674,7 +678,8 @@ let completeRetreatPaymentEmail = async function (nameOrUser, email, optionalSlu
       nameOrUser.slug === "rishikesh-retreat" ||
       nameOrUser.courseType === "rishikesh-retreat" ||
       (nameOrUser.month && nameOrUser.month.includes("2027")) ||
-      (nameOrUser.retreatName && nameOrUser.retreatName.toLowerCase().includes("rishikesh"));
+      (nameOrUser.retreatName &&
+        nameOrUser.retreatName.toLowerCase().includes("rishikesh"));
   } else {
     isRishikesh =
       optionalSlug === "rishikesh-retreat" ||
@@ -732,6 +737,34 @@ let completePgPaymentEmail = async function (obj) {
   };
   sendMail.createContent(mailData);
 };
+let sendMysoreTTCCourseEmail = async function (user) {
+  let mailData;
+  if (user.hour == 100) {
+    const fileName = constants.EMAIL_TEMPLATE.MYSORE_TTC_100;
+    mailData = {
+      replacements: {
+        NAME: user.name,
+        WLINK: constants.LINK["100_HOURS_RISHIKESH_OCTOBER"],
+        BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
+      },
+      mailTo: user.email,
+      contentPath: fileName,
+      subject: "🕉 Welcome to Your Yogic Journey – 100 Hrs TTC",
+    };
+  } else if (user.hour == 200) {
+    const fileName = constants.EMAIL_TEMPLATE.MYSORE_TTC_200;
+    mailData = {
+      replacements: {
+        NAME: user.name,
+        BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
+      },
+      mailTo: user.email,
+      contentPath: fileName,
+      subject: "🕉 Welcome to the Yoga Vidya Family!",
+    };
+  }
+  sendMail.createContent(mailData);
+};
 
 module.exports = {
   getTimeBefore,
@@ -773,4 +806,5 @@ module.exports = {
   completeRetreatPaymentEmail,
   sendPgPaymentEmail,
   completePgPaymentEmail,
+  sendMysoreTTCCourseEmail,
 };
