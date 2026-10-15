@@ -744,7 +744,6 @@ let sendMysoreTTCCourseEmail = async function (user) {
     mailData = {
       replacements: {
         NAME: user.name,
-        WLINK: constants.LINK["100_HOURS_RISHIKESH_OCTOBER"],
         BOOK_LINK: constants.LINK.RISHIKESH_BOOKS,
       },
       mailTo: user.email,
