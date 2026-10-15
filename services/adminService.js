@@ -1099,11 +1099,33 @@ function registerPranayamaCertificationUser(reqBody) {
 function registerRetreatYogaUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
+      const isRishikesh =
+        reqBody.courseType === "rishikesh-retreat" ||
+        reqBody.slug === "rishikesh-retreat" ||
+        (reqBody.month && reqBody.month.includes("2027")) ||
+        (reqBody.retreatName && reqBody.retreatName.toLowerCase().includes("rishikesh"));
+
+      const courseType = isRishikesh
+        ? "rishikesh-retreat"
+        : (reqBody.courseType || "mysore-retreat");
+      const month = isRishikesh
+        ? (reqBody.month || "March, 2027")
+        : (reqBody.month || "September, 2026");
+      const retreatName = isRishikesh
+        ? "The Essence of Yoga - Rishikesh Retreat"
+        : "The Essence of Yoga - Mysore Retreat";
+
       const savedUser = await paymentRepo.createRetreatData({
         name: reqBody.name,
         email: reqBody.email,
+        phoneNumber: reqBody.phone || reqBody.phoneNumber || "",
         paymentStatus: constant.PAYMENT_STATUS.PAID,
         paymentType: "admin",
+        isPaymentCheck: true,
+        month: month,
+        courseType: courseType,
+        slug: courseType,
+        retreatName: retreatName,
       });
       await helper.sendRetreatPaymentEmail(savedUser);
       return resolve({
