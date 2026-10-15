@@ -2840,6 +2840,16 @@ module.exports = {
       }
     }
   },
+  createMysoreTTCCustomer: async function (req, res) {
+    {
+      try {
+        const returnData = await adminService.createMysoreTTCCustomer(req.body);
+        res.status(returnData.status).json(returnData.data);
+      } catch (err) {
+        res.status(400).json({ err });
+      }
+    }
+  },
   sendMailToSubscribersForcefully: async function (req, res) {
     try {
       const emailSubject =

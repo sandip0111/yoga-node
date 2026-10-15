@@ -42,7 +42,7 @@ const mysoreTTCStudentchema = new mongoose.Schema({
   },
   paymentType: {
     type: String,
-    enum: ["razorpay", "stripe", "paypal"],
+    enum: ["razorpay", "stripe", "paypal", "admin"],
     required: false,
     default: null,
   },

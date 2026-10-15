@@ -847,5 +847,8 @@ router.post(
   "/getPaypalPaymentResultPranicPurificationII",
   paymentController.getPaypalPaymentResultPranicPurificationII,
 );
+router.post("/getMysoreTTCData", studentController.getMysoreTTCData);
+router.post("/removeMysoreTTCData", studentController.removeMysoreTTCData);
+router.post("/createMysoreTTCCustomer", adminController.createMysoreTTCCustomer);
 
 module.exports = router;

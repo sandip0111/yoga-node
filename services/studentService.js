@@ -1145,6 +1145,71 @@ module.exports = {
     });
     return 1;
   },
+  getMysoreTTCData: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const {
+          pageNo = 1,
+          size = 10,
+          searchText = "",
+          paymentStatus = "",
+          courseType,
+          month,
+          roomType,
+        } = reqBody;
+        const validPageNo = Math.max(1, parseInt(pageNo) || 1);
+        const validSize = Math.max(1, parseInt(size) || 10);
+        const skip = validSize * (validPageNo - 1);
+        const filter = { isDeleted: false };
+        if (searchText && searchText.trim()) {
+          filter.$or = [
+            { name: { $regex: searchText, $options: "i" } },
+            { email: { $regex: searchText, $options: "i" } },
+            { phoneNumber: { $regex: searchText, $options: "i" } },
+          ];
+        }
+        if (paymentStatus && paymentStatus.trim()) {
+          filter.paymentStatus = paymentStatus.toLowerCase();
+        }
+        if (month) {
+          filter.month = month;
+        }
+        if (
+          courseType !== undefined &&
+          courseType !== null &&
+          String(courseType).trim() !== ""
+        ) {
+          const hourValue = Number(courseType);
+          if (!isNaN(hourValue)) {
+            filter.hour = hourValue;
+          } else {
+            filter.hour = courseType;
+          }
+        }
+        if (roomType && String(roomType).trim() !== "") {
+          filter.room = { $regex: String(roomType).trim(), $options: "i" };
+        }
+        const result = await studentRepo.getMysoreTTCDataWithFilters(
+          filter,
+          skip,
+          validSize,
+        );
+        return resolve({
+          studentList: result.data,
+          studentTotal: result.totalRecords || 0,
+        });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  removeMysoreTTCData: async function (studentId) {
+    await studentRepo.updateMysoreTTCStudent({
+      isDeleted: true,
+      _id: studentId,
+    });
+    return 1;
+  },
   removeSubscribeData: async function (studentId) {
     await studentRepo.updateSubscribeStudent({
       isDeleted: true,

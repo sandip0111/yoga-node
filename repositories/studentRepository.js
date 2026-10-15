@@ -18,6 +18,7 @@ const pranayamaCertificationModel = require("../models/pranayamaCertificationMod
 const subscribeModel = require("../models/subscribeModel");
 const retreatStudentModel = require("../models/retreatStudentModel");
 const personalGuidanceStudentModel = require("../models/personalGuidanceStudentModel");
+const mysoreTTCStudentModel = require("../models/mysoreTTCStudentModel");
 
 module.exports = {
   getStudentCountFilter: function (pipeline) {
@@ -643,6 +644,35 @@ module.exports = {
       try {
         const result = await personalGuidanceStudentModel.aggregate(pipeline);
         return resolve(result);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  getMysoreTTCDataWithFilters: function (filter, skip, limit) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const totalRecords = await mysoreTTCStudentModel.countDocuments(filter);
+        const data = await mysoreTTCStudentModel
+          .find(filter)
+          .sort({ created: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean();
+        return resolve({ data, totalRecords });
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
+  updateMysoreTTCStudent: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const student = await mysoreTTCStudentModel.findOneAndUpdate(
+          { _id: reqBody._id },
+          reqBody,
+        );
+        return resolve(student);
       } catch (error) {
         return reject(error);
       }

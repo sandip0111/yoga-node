@@ -1064,6 +1064,37 @@ function createBaliCustomer(reqBody) {
     }
   });
 }
+function createMysoreTTCCustomer(reqBody) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const paymentData = {
+        name: reqBody.name,
+        email: reqBody.email,
+        phoneNumber: reqBody.phone || reqBody.phoneNumber,
+        hour: reqBody.hour,
+        paymentStatus: "paid",
+        paymentType: "admin",
+        isPaymentCheck: true,
+        month: reqBody.month || "October, 2026",
+      };
+      await paymentRepo.createMysoreTTCData(paymentData);
+      await helper.sendMysoreTTCCourseEmail({
+        name: reqBody.name,
+        email: reqBody.email,
+        hour: reqBody.hour,
+      });
+      return resolve({
+        data: {
+          status: "ok",
+          message: "User registered successfully!",
+        },
+        status: 200,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 function registerPranayamaCertificationUser(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -1260,4 +1291,5 @@ module.exports = {
   registerPranayamaCertificationUser,
   sendBulkEmailToFreeWebinarUsersForcefully,
   registerRetreatYogaUser,
+  createMysoreTTCCustomer,
 };

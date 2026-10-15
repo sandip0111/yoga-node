@@ -558,6 +558,17 @@ module.exports = {
       res.status(500).json({ status: "error", msg: err.message });
     }
   },
+  getMysoreTTCData: async function (req, res) {
+    try {
+      const result = await studentService.getMysoreTTCData(req.body);
+      res
+        .status(200)
+        .json({ data: result.studentList, total: result.studentTotal });
+    } catch (err) {
+      console.error("Error fetching Mysore TTC data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
   removePranaArambhData: async function (req, res) {
     try {
       await studentService.removePranaArambhData(req.body.studentId);
@@ -636,6 +647,15 @@ module.exports = {
       res.status(200).json({ msg: "Data removed successfully" });
     } catch (err) {
       console.error("Error removing Bali data:", err);
+      res.status(500).json({ status: "error", msg: err.message });
+    }
+  },
+  removeMysoreTTCData: async function (req, res) {
+    try {
+      await studentService.removeMysoreTTCData(req.body.studentId);
+      res.status(200).json({ msg: "Data removed successfully" });
+    } catch (err) {
+      console.error("Error removing Mysore TTC data:", err);
       res.status(500).json({ status: "error", msg: err.message });
     }
   },
