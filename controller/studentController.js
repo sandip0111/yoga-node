@@ -526,6 +526,14 @@ module.exports = {
       res.status(404).json({ status: "error", msg: err.message });
     }
   },
+  sendMailToShivamJi: async function (req, res) {
+    try {
+      const result = await studentService.sendMailToShivamJi(req.body);
+      res.status(200).json({ data: result });
+    } catch (err) {
+      res.status(404).json({ status: "error", msg: err.message });
+    }
+  },
   sendMailToPrashantJi: async function (req, res) {
     try {
       const result = await studentService.sendMailToPrashantJi(req.body);

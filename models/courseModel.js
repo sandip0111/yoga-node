@@ -73,6 +73,9 @@ const courseSchema = new mongoose.Schema({
   wistiaProjectIntroVideoId: {
     type: String,
   },
+  teachersData: {
+    type: Array,
+  },
   isActive: Boolean,
   created: {
     type: Date,

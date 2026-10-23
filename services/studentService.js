@@ -927,6 +927,31 @@ module.exports = {
       }
     });
   },
+  sendMailToShivamJi: function (reqBody) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const fileName = constants.EMAIL_TEMPLATE.ONLINE_SHIVAM;
+        let mailData = {
+          replacements: {
+            NAME: reqBody.name,
+            ZOOM: reqBody.zoomLink || "https://bit.ly/NovHathaProps",
+            WHATSAPP: reqBody.whatsappLink || "https://chat.whatsapp.com/K4QVSkqtJuoBoROdZ3qXUj",
+            USER: reqBody.email,
+            PASS: reqBody.password || "",
+            CDAYS: reqBody.date || "Monday to Thursday",
+            CTIME: reqBody.time || "6:00–7:00 PM IST",
+          },
+          mailTo: reqBody.email,
+          contentPath: fileName,
+          subject: "[Hatha Yoga with props] Thank you for joining!",
+        };
+        sendMail.createContent(mailData);
+        return resolve(1);
+      } catch (error) {
+        return reject(error);
+      }
+    });
+  },
   sendMailToPrashantJi: function (reqBody) {
     return new Promise(async (resolve, reject) => {
       try {

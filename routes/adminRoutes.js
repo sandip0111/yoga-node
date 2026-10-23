@@ -631,6 +631,7 @@ router.post(
   paymentController.getStripePaymentResultBali,
 );
 router.post("/sendMailToPrashantJi", studentController.sendMailToPrashantJi);
+router.post("/sendMailToShivamJi", studentController.sendMailToShivamJi);
 router.post(
   "/createLiveCourseCustomer",
   adminController.createLiveCourseCustomer,
