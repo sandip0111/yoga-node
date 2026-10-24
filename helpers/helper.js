@@ -326,8 +326,14 @@ let completeOnlineSadhanaEmail = async function (student) {
       NAME: student.name,
     },
     mailTo: student.email,
-    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_ONLINE_SADHANA,
-    subject: "Complete your journey with Yoga Vidya School",
+    contentPath:
+      student.courses[0].id == 2
+        ? constants.EMAIL_TEMPLATE.COMPLETE_ONLINE_SADHANA_SHIBAM
+        : constants.EMAIL_TEMPLATE.COMPLETE_ONLINE_SADHANA,
+    subject:
+      student.courses[0].id == 2
+        ? "Assistance with Your Hatha Yoga with Props Registration"
+        : "Complete your journey with Yoga Vidya School",
   };
   sendMail.createContent(mailData);
 };

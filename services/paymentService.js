@@ -2081,7 +2081,7 @@ function updateOnlineSadhanaPaymentStatusForcefully() {
       const mentors = await courseRepo.getCourseBySlug("online-yoga-classes");
       const now = new Date();
       const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
-      const tenMinutesAhead = new Date(now.getTime() - 10 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 60 * 60 * 1000);
       const paymentData =
         await paymentRepo.updateOnlineSadhanaPaymentStatusForcefully(
           tenMinutesAhead.toISOString(),

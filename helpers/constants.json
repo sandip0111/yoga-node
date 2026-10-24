@@ -35,6 +35,7 @@
     "COMPLETE_200_TTC_PAYMENT": "/emailTemplate/complete200ttcPayment.html",
     "COMPLETE_SWARA_SADHANA": "/emailTemplate/completeSwaraSadhana.html",
     "COMPLETE_ONLINE_SADHANA": "/emailTemplate/completeOnlineSadhana.html",
+    "COMPLETE_ONLINE_SADHANA_SHIBAM": "/emailTemplate/completeHathaYogaWithProps.html",
     "FREE_WEBINAR_CONFIRMATION": "/emailTemplate/freeWebinnerAutomaticMail.html",
     "COMPLETE_PRANA_ARAMBH": "/emailTemplate/completePranaArambhPayment.html",
     "BULK_FREE_WEB": "/emailTemplate/freeWebinerBulkMail.html",
