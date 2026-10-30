@@ -2805,6 +2805,104 @@ function updateRishikeshStatusForcefully() {
     }
   });
 }
+function updateMysoreStatusForcefully() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const now = new Date();
+      const fiveMinutesAhead = new Date(now.getTime() - 1 * 60 * 1000);
+      const tenMinutesAhead = new Date(now.getTime() - 50 * 60 * 1000);
+      const paymentData = await paymentRepo.updateMysoreStatusForcefully(
+        tenMinutesAhead.toISOString(),
+        fiveMinutesAhead.toISOString(),
+      );
+      for (const obj of paymentData) {
+        if (obj.paymentType == "stripe") {
+          const session = await stripe.checkout.sessions.retrieve(
+            obj.paymentId,
+          );
+          if (session.payment_status == "paid") {
+            await paymentRepo.mysoreTTCUpdateById(obj._id, {
+              paymentStatus: "paid",
+              isPaymentCheck: true,
+            });
+            helper.sendMysoreTTCCourseEmail(obj);
+            if (paymentTrackingService.trackMysoreTTCPurchase) {
+              paymentTrackingService.trackMysoreTTCPurchase(
+                {
+                  paymentId: session.payment_intent,
+                  clientIp: "",
+                  userAgent: "",
+                  fbc: "",
+                  fbp: "",
+                },
+                {
+                  email: obj.email,
+                  phoneNumber: obj.phoneNumber,
+                  name: obj.name,
+                  price: obj.price,
+                  currency: obj.currency,
+                },
+              );
+            }
+          } else {
+            await paymentRepo.mysoreTTCUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeMysoreTTCEmail(obj);
+          }
+        } else {
+          const payments = await razorpay.orders.fetchPayments(obj.paymentId);
+          if (payments.items && payments.items.length > 0) {
+            const payment = payments.items[0];
+            if (payment.status === "captured") {
+              const generatedSignature = crypto
+                .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                .update(obj.paymentId + "|" + payment.id)
+                .digest("hex");
+              if (
+                generatedSignature === payment.signature ||
+                !payment.signature
+              ) {
+                await paymentRepo.mysoreTTCUpdateById(obj._id, {
+                  paymentStatus: "paid",
+                  isPaymentCheck: true,
+                });
+                helper.sendMysoreTTCCourseEmail(obj);
+                if (paymentTrackingService.trackMysoreTTCPurchase) {
+                  paymentTrackingService.trackMysoreTTCPurchase(
+                    {
+                      paymentId: obj.paymentId,
+                      clientIp: "",
+                      userAgent: "",
+                      fbc: "",
+                      fbp: "",
+                    },
+                    {
+                      email: obj.email,
+                      phoneNumber: obj.phoneNumber,
+                      name: obj.name,
+                      price: obj.price,
+                      currency: obj.currency,
+                    },
+                  );
+                }
+              }
+            }
+          } else {
+            await paymentRepo.mysoreTTCUpdateById(obj._id, {
+              isPaymentCheck: true,
+            });
+            await helper.completeMysoreTTCEmail(obj);
+          }
+        }
+      }
+      resolve(1);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
 function checkoutStripeForBali(reqBody) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -5626,5 +5724,6 @@ module.exports = {
   getStripePaymentResultMysoreTTC,
   checkoutPaypalForMysoreTTC,
   getPaypalPaymentResultMysoreTTC,
+  updateMysoreStatusForcefully,
 };
 

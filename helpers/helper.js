@@ -770,6 +770,24 @@ let sendMysoreTTCCourseEmail = async function (user) {
   }
   sendMail.createContent(mailData);
 };
+let completeMysoreTTCEmail = async function (student) {
+  let link = "";
+  if (student.hour == 100) {
+    link = constants.LINK["MYSORE_100_HRS_CHECKOUT"];
+  } else {
+    link = constants.LINK["MYSORE_200_HRS_CHECKOUT"];
+  }
+  const mailData = {
+    replacements: {
+      NAME: student.name,
+      LINK: link,
+    },
+    mailTo: student.email,
+    contentPath: constants.EMAIL_TEMPLATE.COMPLETE_MYSORE_TTC,
+    subject: "Complete your journey with Yoga Vidya School",
+  };
+  sendMail.createContent(mailData);
+};
 
 module.exports = {
   getTimeBefore,
@@ -812,4 +830,5 @@ module.exports = {
   sendPgPaymentEmail,
   completePgPaymentEmail,
   sendMysoreTTCCourseEmail,
+  completeMysoreTTCEmail,
 };

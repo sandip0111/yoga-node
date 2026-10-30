@@ -66,7 +66,8 @@
     "PERSONAL_GUIDANCE_COURSE_PURCHASE": "/emailTemplate/personalGuidanceCoursePurchase.html",
     "COMPLETE_PG_PAYMENT": "/emailTemplate/completePgPayment.html",
     "MYSORE_TTC_100": "/emailTemplate/mysoreTTC100.html",
-    "MYSORE_TTC_200": "/emailTemplate/mysoreTTC200.html"
+    "MYSORE_TTC_200": "/emailTemplate/mysoreTTC200.html",
+    "COMPLETE_MYSORE_TTC": "/emailTemplate/completeMysoreTTC.html"
   },
   "LINK": {
     "WHATSAPP": "https://chat.whatsapp.com/HGbJ7GrmClK4QTf4P77MXA",
@@ -84,7 +85,9 @@
     "RISHIKESH_200_HRS_MARCH_CHECKOUT": "https://www.yogavidyaschool.com/checkout/200-hours-yoga-teacher-training-in-rishikesh?month=March,%202026",
     "RISHIKESH_200_HRS_OCTOBER_CHECKOUT": "https://www.yogavidyaschool.com/checkout/200-hours-yoga-teacher-training-in-rishikesh?month=October,%202026",
     "RISHIKESH_300_HRS_MARCH_CHECKOUT": "https://www.yogavidyaschool.com/checkout/300-hours-yoga-teacher-training-in-rishikesh?month=March,%202026",
-    "RISHIKESH_300_HRS_OCTOBER_CHECKOUT": "https://www.yogavidyaschool.com/checkout/300-hours-yoga-teacher-training-in-rishikesh?month=October,%202026"
+    "RISHIKESH_300_HRS_OCTOBER_CHECKOUT": "https://www.yogavidyaschool.com/checkout/300-hours-yoga-teacher-training-in-rishikesh?month=October,%202026",
+    "MYSORE_100_HRS_CHECKOUT": "https://www.yogavidyaschool.com/checkout/100-hours-yoga-teacher-training-in-mysore?month=October,%202027",
+    "MYSORE_200_HRS_CHECKOUT": "https://www.yogavidyaschool.com/checkout/200-hours-yoga-teacher-training-in-mysore?month=October,%202027"
   },
   "SLUG": {
     "PRANA_ARAMBH": "pranayama-course-online-pranarambha",

@@ -50,6 +50,7 @@ cron.schedule("*/1 * * * *", async function () {
   // paymentService.updatePranicPurificationStatusForcefully();
   // paymentService.updatePranicPurificationIIStatusForcefully();
   // paymentService.updateRishikeshStatusForcefully();
+  paymentService.updateMysoreStatusForcefully();
   // paymentService.updateBaliStatusForcefully();
   // paymentService.updateRetreatStatusForcefully();
   // paymentService.updatePgStatusForcefully();

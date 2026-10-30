@@ -869,6 +869,25 @@ function getMysoreTTCPaymentDetailsById(id) {
     }
   });
 }
+function updateMysoreStatusForcefully(startDate, endDate) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await mysoreTTCStudentModel
+        .find({
+          created: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+          paymentStatus: { $ne: "paid" },
+          isPaymentCheck: false,
+        })
+        .lean();
+      return resolve(data);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
 module.exports = {
   createPranicUserData,
   updatePranicUserData,
@@ -928,5 +947,6 @@ module.exports = {
   updateMysoreTTCStudentData,
   mysoreTTCUpdateById,
   getMysoreTTCPaymentDetailsById,
+  updateMysoreStatusForcefully,
 };
 
