@@ -2993,7 +2993,7 @@ module.exports = {
             return;
           }
 
-          // Run email sending in background using Brevo SMTP campaign runner
+          // Run email sending in background using Twilio SendGrid SMTP campaign runner
           sendCampaignInBackground(
             validUsers,
             {

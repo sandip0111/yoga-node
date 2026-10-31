@@ -1244,7 +1244,7 @@ function sendBulkEmailToFreeWebinarUsersForcefully(
         });
       }
 
-      // Trigger the background send using Brevo SMTP
+      // Trigger the background send using Twilio SendGrid SMTP
       sendMail.sendCampaignInBackground(validCustomers, {
         subject: emailSubject,
         templatePath: constant.EMAIL_TEMPLATE.FREEWEBINAR_EMAIL_FORCEFULLY,

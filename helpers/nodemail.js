@@ -29,16 +29,16 @@ const transporter = nodemailer.createTransport({
   debug: true,
 });
 
-const brevoTransporter = nodemailer.createTransport({
+const twilioTransporter = nodemailer.createTransport({
   pool: true,
   maxConnections: 10,
   maxMessages: 100,
-  host: process.env.BREVO_SMTP_HOST || "smtp-relay.brevo.com",
-  port: parseInt(process.env.BREVO_SMTP_PORT) || 587,
+  host: process.env.TWILIO_SMTP_HOST || "smtp.sendgrid.net",
+  port: parseInt(process.env.TWILIO_SMTP_PORT) || 587,
   secure: false,
   auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS,
+    user: process.env.TWILIO_SMTP_USER,
+    pass: process.env.TWILIO_SMTP_PASS,
   },
   logger: false,
   debug: false,
@@ -97,7 +97,7 @@ function createCampaignContent(mailData) {
         html: htmlToSend,
       };
       
-      brevoTransporter.sendMail(mailOptions, (err, result) => {
+      twilioTransporter.sendMail(mailOptions, (err, result) => {
         if (err) {
           console.error(`Failed to send campaign mail to ${mailData.mailTo}:`, err);
           return reject(err);
@@ -236,7 +236,7 @@ module.exports = {
   createContent,
   createWhatsAppContent,
   transporter,
-  brevoTransporter,
+  twilioTransporter,
   createCampaignContent,
   sendCampaignInBackground,
   EMAIL_CONFIG,
