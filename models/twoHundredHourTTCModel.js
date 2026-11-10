@@ -69,7 +69,7 @@ const twoHundredHourTTCSchema = new mongoose.Schema({
   },
   month: {
     type: String,
-    default: () => "November, 2026",
+    default: () => "November, 2027",
   },
   isAdminMailSend: {
     type: Boolean,
