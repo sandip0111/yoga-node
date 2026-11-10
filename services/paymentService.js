@@ -1135,6 +1135,10 @@ function savePranaArambhOn200TTC(user, reqBody) {
 function secondInstallmentPaymentMail() {
   return new Promise(async (resolve, reject) => {
     try {
+      // 2nd installment reminder emails for 200 TTC are disabled.
+      // Remove this early return to re-enable them.
+      return resolve(0);
+      // eslint-disable-next-line no-unreachable
       const today = new Date();
       const Fortnight = new Date();
       Fortnight.setDate(today.getDate() - 14);
