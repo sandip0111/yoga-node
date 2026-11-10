@@ -1135,6 +1135,10 @@ function savePranaArambhOn200TTC(user, reqBody) {
 function secondInstallmentPaymentMail() {
   return new Promise(async (resolve, reject) => {
     try {
+      // 2nd installment reminder emails for 200 TTC are disabled.
+      // Remove this early return to re-enable them.
+      return resolve(0);
+      // eslint-disable-next-line no-unreachable
       const today = new Date();
       const Fortnight = new Date();
       Fortnight.setDate(today.getDate() - 14);
@@ -2755,6 +2759,50 @@ function updateRishikeshStatusForcefully() {
             });
             await helper.completeRishikeshEmail(obj);
           }
+        } else if (obj.paymentType == "paypal") {
+          try {
+            if (!obj.paymentId) {
+              await paymentRepo.rishikeshUpdateById(obj._id, {
+                isPaymentCheck: true,
+              });
+              await helper.completeRishikeshEmail(obj);
+            } else {
+              const reqBody = {
+                payDbId: obj._id,
+                paypalOrderId: obj.paymentId,
+              };
+              const order = await getPayPalOrder(obj.paymentId);
+              if (order.status === "APPROVED") {
+                const capturedOrder = await capturePayPalOrder(
+                  obj.paymentId,
+                  obj._id,
+                );
+                await completePayPalRishikeshPayment(
+                  capturedOrder,
+                  reqBody,
+                  null,
+                );
+                await paymentRepo.rishikeshUpdateById(obj._id, {
+                  isPaymentCheck: true,
+                });
+              } else if (order.status === "COMPLETED") {
+                await completePayPalRishikeshPayment(order, reqBody, null);
+                await paymentRepo.rishikeshUpdateById(obj._id, {
+                  isPaymentCheck: true,
+                });
+              } else {
+                await paymentRepo.rishikeshUpdateById(obj._id, {
+                  isPaymentCheck: true,
+                });
+                await helper.completeRishikeshEmail(obj);
+              }
+            }
+          } catch (err) {
+            console.error(
+              "Error in updateRishikeshStatusForcefully PayPal:",
+              err,
+            );
+          }
         } else {
           const payments = await razorpay.orders.fetchPayments(obj.paymentId);
           if (payments.items && payments.items.length > 0) {
@@ -2849,6 +2897,50 @@ function updateMysoreStatusForcefully() {
               isPaymentCheck: true,
             });
             await helper.completeMysoreTTCEmail(obj);
+          }
+        } else if (obj.paymentType == "paypal") {
+          try {
+            if (!obj.paymentId) {
+              await paymentRepo.mysoreTTCUpdateById(obj._id, {
+                isPaymentCheck: true,
+              });
+              await helper.completeMysoreTTCEmail(obj);
+            } else {
+              const reqBody = {
+                payDbId: obj._id,
+                paypalOrderId: obj.paymentId,
+              };
+              const order = await getPayPalOrder(obj.paymentId);
+              if (order.status === "APPROVED") {
+                const capturedOrder = await capturePayPalOrder(
+                  obj.paymentId,
+                  obj._id,
+                );
+                await completePayPalMysoreTTCPayment(
+                  capturedOrder,
+                  reqBody,
+                  null,
+                );
+                await paymentRepo.mysoreTTCUpdateById(obj._id, {
+                  isPaymentCheck: true,
+                });
+              } else if (order.status === "COMPLETED") {
+                await completePayPalMysoreTTCPayment(order, reqBody, null);
+                await paymentRepo.mysoreTTCUpdateById(obj._id, {
+                  isPaymentCheck: true,
+                });
+              } else {
+                await paymentRepo.mysoreTTCUpdateById(obj._id, {
+                  isPaymentCheck: true,
+                });
+                await helper.completeMysoreTTCEmail(obj);
+              }
+            }
+          } catch (err) {
+            console.error(
+              "Error in updateMysoreStatusForcefully PayPal:",
+              err,
+            );
           }
         } else {
           const payments = await razorpay.orders.fetchPayments(obj.paymentId);
@@ -3157,6 +3249,47 @@ function updateBaliStatusForcefully() {
               isPaymentCheck: true,
             });
             await helper.completeBaliEmail(obj);
+          }
+        } else if (obj.paymentType == "paypal") {
+          try {
+            if (!obj.paymentId) {
+              await paymentRepo.baliUpdateById(obj._id, {
+                isPaymentCheck: true,
+              });
+              await helper.completeBaliEmail(obj);
+            } else {
+              const reqBody = {
+                payDbId: obj._id,
+                paypalOrderId: obj.paymentId,
+              };
+              const order = await getPayPalOrder(obj.paymentId);
+              if (order.status === "APPROVED") {
+                const capturedOrder = await capturePayPalOrder(
+                  obj.paymentId,
+                  obj._id,
+                );
+                await completePayPalBaliPayment(
+                  capturedOrder,
+                  reqBody,
+                  null,
+                );
+                await paymentRepo.baliUpdateById(obj._id, {
+                  isPaymentCheck: true,
+                });
+              } else if (order.status === "COMPLETED") {
+                await completePayPalBaliPayment(order, reqBody, null);
+                await paymentRepo.baliUpdateById(obj._id, {
+                  isPaymentCheck: true,
+                });
+              } else {
+                await paymentRepo.baliUpdateById(obj._id, {
+                  isPaymentCheck: true,
+                });
+                await helper.completeBaliEmail(obj);
+              }
+            }
+          } catch (err) {
+            console.error("Error in updateBaliStatusForcefully PayPal:", err);
           }
         }
       }
