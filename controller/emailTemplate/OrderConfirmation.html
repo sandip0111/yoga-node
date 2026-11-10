@@ -1,248 +1,508 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>Confirmation Email</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+  <meta name="color-scheme" content="light" />
+  <meta name="supported-color-schemes" content="light" />
+  <title>Purchase Confirmation - Yoga Vidya School</title>
+  <!--[if mso]>
+    <noscript>
+      <xml>
+        <o:OfficeDocumentSettings>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+      </xml>
+    </noscript>
+    <style>
+      table, td, div, p, a, span { font-family: Arial, Helvetica, sans-serif !important; }
+    </style>
+  <![endif]-->
   <style>
-    @media only screen and (max-width: 620px) {
-      table.body h1 {
-        font-size: 28px !important;
-        margin-bottom: 10px !important;
-      }
-
-      table.body p,
-      table.body ul,
-      table.body ol,
-      table.body td,
-      table.body span,
-      table.body a {
-        font-size: 16px !important;
-      }
-
-      table.body .wrapper,
-      table.body .article {
-        padding: 10px !important;
-      }
-
-      table.body .content {
-        padding: 0 !important;
-      }
-
-      table.body .container {
-        padding: 0 !important;
-        width: 100% !important;
-      }
-
-      table.body .main {
-        border-left-width: 0 !important;
-        border-radius: 0 !important;
-        border-right-width: 0 !important;
-      }
-
-      table.body .btn table {
-        width: 100% !important;
-      }
-
-      table.body .btn a {
-        width: 100% !important;
-      }
-
-      table.body .img-responsive {
-        height: auto !important;
-        max-width: 100% !important;
-        width: auto !important;
-      }
+    html,
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
     }
 
-    @media all {
-      .ExternalClass {
-        width: 100%;
+    * {
+      -ms-text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    table,
+    td {
+      mso-table-lspace: 0pt !important;
+      mso-table-rspace: 0pt !important;
+    }
+
+    table {
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    img {
+      -ms-interpolation-mode: bicubic;
+      border: 0;
+      outline: none;
+      text-decoration: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    a[x-apple-data-detectors] {
+      color: inherit !important;
+      text-decoration: none !important;
+      font-size: inherit !important;
+      font-family: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+    }
+
+    u + #body a {
+      color: inherit;
+      text-decoration: none;
+      font-size: inherit;
+      font-family: inherit;
+      font-weight: inherit;
+      line-height: inherit;
+    }
+
+    #MessageViewBody a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .btn-cta:hover {
+      background-color: #d9600f !important;
+    }
+
+    .btn-outline:hover {
+      background-color: #fff3e8 !important;
+    }
+
+    @media only screen and (max-width: 620px) {
+      .container {
+        width: 100% !important;
+        max-width: 100% !important;
       }
 
-      .ExternalClass,
-      .ExternalClass p,
-      .ExternalClass span,
-      .ExternalClass font,
-      .ExternalClass td,
-      .ExternalClass div {
-        line-height: 100%;
+      .px {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
       }
 
-      .apple-link a {
-        color: inherit !important;
-        font-family: inherit !important;
-        font-size: inherit !important;
-        font-weight: inherit !important;
-        line-height: inherit !important;
-        text-decoration: none !important;
+      .h1 {
+        font-size: 24px !important;
+        line-height: 32px !important;
       }
 
-      #MessageViewBody a {
-        color: inherit;
-        text-decoration: none;
-        font-size: inherit;
-        font-family: inherit;
-        font-weight: inherit;
-        line-height: inherit;
+      .h2 {
+        font-size: 20px !important;
+        line-height: 28px !important;
       }
 
-      .btn-primary table td:hover {
-        background-color: #34495e !important;
+      .stack {
+        display: block !important;
+        width: 100% !important;
       }
 
-      .btn-primary a:hover {
-        background-color: #34495e !important;
-        border-color: #34495e !important;
+      .label-col {
+        padding-bottom: 2px !important;
+      }
+
+      .btn-full,
+      .btn-full a {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box;
       }
     }
   </style>
 </head>
 
-<body style="
-      background-color: #f6f6f6;
-      font-family: sans-serif;
-      -webkit-font-smoothing: antialiased;
-      font-size: 14px;
-      line-height: 1.4;
-      margin: 0;
-      padding: 0;
-      -ms-text-size-adjust: 100%;
-      -webkit-text-size-adjust: 100%;
-    ">
-  <span class="preheader" style="
-        color: transparent;
-        display: none;
-        height: 0;
-        max-height: 0;
-        max-width: 0;
-        opacity: 0;
-        overflow: hidden;
-        mso-hide: all;
-        visibility: hidden;
-        width: 0;
-      ">
-    {{user}}</span>
-  <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body" style="
-        border-collapse: separate;
-        mso-table-lspace: 0pt;
-        mso-table-rspace: 0pt;
-        background-color: #f6f6f6;
-        width: 100%;
-      " width="100%" bgcolor="#f6f6f6">
+<body id="body" style="margin: 0; padding: 0; background-color: #f4efe9; word-spacing: normal;">
+
+  <!-- Preheader (inbox preview text) -->
+  <div style="display: none; font-size: 1px; line-height: 1px; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; color: #f4efe9;">
+    Thank you for your recent purchase of the {{course}}. Your login details are inside.
+    &#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;
+  </div>
+
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f4efe9"
+    style="background-color: #f4efe9; width: 100%;">
     <tr>
-      <td style="font-family: sans-serif; font-size: 14px; vertical-align: top" valign="top">
-        &nbsp;
-      </td>
-      <td class="container" style="
-            font-family: sans-serif;
-            font-size: 14px;
-            vertical-align: top;
-            display: block;
-            max-width: 580px;
-            padding: 10px;
-            width: 580px;
-            margin: 0 auto;
-          " width="580" valign="top">
-        <div class="content" style="
-              box-sizing: border-box;
-              display: block;
-              margin: 0 auto;
-              max-width: 580px;
-              padding: 10px;
-            ">
-          <table role="presentation" class="main" style="
-                border-collapse: separate;
-                mso-table-lspace: 0pt;
-                mso-table-rspace: 0pt;
-                background: #ffffff;
-                border-radius: 3px;
-                width: 100%;
-              " width="100%">
-            <tr>
-              <td class="wrapper" style="
-                    font-family: sans-serif;
-                    font-size: 14px;
-                    vertical-align: top;
-                    box-sizing: border-box;
-                    padding: 20px;
-                  " valign="top">
-                <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="
-                      border-collapse: separate;
-                      mso-table-lspace: 0pt;
-                      mso-table-rspace: 0pt;
-                      width: 100%;
-                    " width="100%">
-                  <tr>
-                    <td style="
-                          font-family: sans-serif;
-                          font-size: 14px;
-                          vertical-align: top;
-                        " valign="top">
-                      <p style="
-                            font-family: sans-serif;
-                            font-size: 14px;
-                            font-weight: normal;
-                            margin: 0;
-                            margin-bottom: 10px;
-                          "></p>
-                      <p>
-                        Dear {{name}},<br /><br />Thank you for your recent
-                        purchase of the {{course}}.
-                      </p>
-                      <p>
-                        We're thrilled to have you on board! This email serves
-                        as a confirmation of your purchase and includes the
-                        details of your transaction.
-                      </p>
-                      <p><strong>Please review the information below:</strong></p>
-                      <p><strong>Course:</strong> {{course}}</p>
-                      <p><strong>Price:</strong> {{price}}</p>
-                      <p><strong>Date of Purchase:</strong> {{date}}</p>
-                      <p>
-                        We've received your payment, and you can now access
-                        the course materials and resources.
-                      </p>
-                      <p>
-                        Visit our website and login :
-                        <a href="https://www.yogavidyaschool.com/login">https://www.yogavidyaschool.com/login</a>
-                      </p><br />
-                      Below are the Login Details: <br />
-                      Email: {{email}} <br> Password: {{password}} <br />
-                      <p><br />
-                      <p>
-                        Join our WhatsApp group to stay updated: <a
-                          href="https://chat.whatsapp.com/G7ASJJCiiVlB1W317yZvQM">https://chat.whatsapp.com/G7ASJJCiiVlB1W317yZvQM</a>
-                      </p>
-                      <p>
-                        To receive all updates related to Prashant Ji's programs and Yoga Vidya School’s online/offline offerings, please join our official whatsapp community here: 
-                        <br/>
-                        <span>👉 </span><a target="_blank"
-                          href="https://chat.whatsapp.com/J6rltqcGq82LIIAra1ggvS">https://chat.whatsapp.com/J6rltqcGq82LIIAra1ggvS</a>
-                      </p>
-                      <p>
-                        💬 For practice-related discussions, connect with fellow Sadhaks and teachers on our Facebook Community:
-                        <br/>
-                        <span>👉 </span><a target="_blank"
-                          href="https://www.facebook.com/groups/808369497430769/?ref=share&mibextid=NSMWBT">https://www.facebook.com/groups/808369497430769/?ref=share&mibextid=NSMWBT</a>
-                      </p>
-                      Once again, thank you for choosing {{course}}. We wish
-                      you all the best in your learning endeavors!
-                      </p>
-                      <p>Best regards,</p>
-                      <p>Yoga Vidya School</p>
-                      
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-        </div>
-      </td>
-      <td style="font-family: sans-serif; font-size: 14px; vertical-align: top" valign="top">
-        &nbsp;
+      <td align="center" style="padding: 24px 12px;">
+
+        <!--[if mso]><table role="presentation" align="center" border="0" cellpadding="0" cellspacing="0" width="600"><tr><td><![endif]-->
+        <table role="presentation" class="container" border="0" cellpadding="0" cellspacing="0" width="600"
+          style="width: 600px; max-width: 600px;">
+
+          <!-- ============ Brand header ============ -->
+          <tr>
+            <td align="center" style="padding: 8px 0 20px 0;">
+              <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 22px; line-height: 28px; font-weight: bold; color: #2c2c2c; letter-spacing: 3px; text-transform: uppercase;">
+                Yoga Vidya School
+              </div>
+            </td>
+          </tr>
+
+          <!-- ============ Main card ============ -->
+          <tr>
+            <td style="background-color: #ffffff; border-radius: 10px; border: 1px solid #eadfd2;" bgcolor="#ffffff">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100%;">
+
+                <!-- Accent bar -->
+                <tr>
+                  <td height="5" bgcolor="#f47019" style="height: 5px; font-size: 0; line-height: 0; background-color: #f47019; border-radius: 10px 10px 0 0;">&nbsp;</td>
+                </tr>
+
+                <!-- Greeting + intro -->
+                <tr>
+                  <td class="px" style="padding: 36px 40px 8px 40px; font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 26px; color: #3a3a3a;">
+                    <p class="h1" style="margin: 0 0 18px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; line-height: 34px; font-weight: bold; color: #2c2c2c;">
+                      Dear {{name}},
+                    </p>
+                    <p style="margin: 0 0 16px 0;">
+                      Thank you for your recent purchase of the {{course}}.
+                    </p>
+                    <p style="margin: 0 0 8px 0;">
+                      We're thrilled to have you on board! This email serves as a confirmation of your purchase and
+                      includes the details of your transaction.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Order summary -->
+                <tr>
+                  <td class="px" style="padding: 20px 40px 8px 40px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+                      style="width: 100%; background-color: #fffaf5; border: 1px solid #f3dcc7; border-radius: 8px;" bgcolor="#fffaf5">
+                      <tr>
+                        <td style="padding: 18px 22px 6px 22px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; font-weight: bold; color: #2c2c2c;">
+                          Please review the information below:
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 4px 22px 16px 22px;">
+                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100%;">
+                            <tr>
+                              <td class="stack label-col" width="150" valign="top" style="width: 150px; padding: 10px 0; border-top: 1px solid #f3dcc7; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 22px; font-weight: bold; color: #7a5c3e;">
+                                Course:
+                              </td>
+                              <td class="stack" valign="top" style="padding: 10px 0; border-top: 1px solid #f3dcc7; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; color: #2c2c2c;">
+                                {{course}}
+                              </td>
+                            </tr>
+                            {{#if price}}
+                            <tr>
+                              <td class="stack label-col" width="150" valign="top" style="width: 150px; padding: 10px 0; border-top: 1px solid #f3dcc7; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 22px; font-weight: bold; color: #7a5c3e;">
+                                Price:
+                              </td>
+                              <td class="stack" valign="top" style="padding: 10px 0; border-top: 1px solid #f3dcc7; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; color: #2c2c2c;">
+                                {{price}}
+                              </td>
+                            </tr>
+                            {{/if}}
+                            <tr>
+                              <td class="stack label-col" width="150" valign="top" style="width: 150px; padding: 10px 0 0 0; border-top: 1px solid #f3dcc7; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 22px; font-weight: bold; color: #7a5c3e;">
+                                Date of Purchase:
+                              </td>
+                              <td class="stack" valign="top" style="padding: 10px 0 0 0; border-top: 1px solid #f3dcc7; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; color: #2c2c2c;">
+                                {{date}}
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Payment received + login -->
+                <tr>
+                  <td class="px" style="padding: 20px 40px 0 40px; font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 26px; color: #3a3a3a;">
+                    <p style="margin: 0 0 20px 0;">
+                      We've received your payment, and you can now access the course materials and resources.
+                    </p>
+                    <p style="margin: 0 0 18px 0;">
+                      Visit our website and login :
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Login button -->
+                <tr>
+                  <td class="px" align="left" style="padding: 0 40px 22px 40px;">
+                    <table role="presentation" class="btn-full" border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" bgcolor="#f47019" class="btn-cta" style="background-color: #f47019; border-radius: 6px; padding: 0;">
+                          <a href="https://www.yogavidyaschool.com/login" target="_blank"
+                            style="display: inline-block; padding: 14px 32px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 20px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 6px;">Login</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Login details -->
+                <tr>
+                  <td class="px" style="padding: 0 40px 8px 40px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+                      style="width: 100%; background-color: #faf7f3; border: 1px solid #e6dccf; border-left: 4px solid #f47019; border-radius: 6px;" bgcolor="#faf7f3">
+                      <tr>
+                        <td style="padding: 16px 20px 6px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; font-weight: bold; color: #2c2c2c;">
+                          Below are the Login Details:
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 0 20px 16px 20px;">
+                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100%;">
+                            <tr>
+                              <td class="stack label-col" width="90" valign="top" style="width: 90px; padding: 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 22px; font-weight: bold; color: #7a5c3e;">
+                                Email:
+                              </td>
+                              <td class="stack" valign="top" style="padding: 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; color: #2c2c2c; word-break: break-word; overflow-wrap: anywhere;">
+                                {{email}}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="stack label-col" width="90" valign="top" style="width: 90px; padding: 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 22px; font-weight: bold; color: #7a5c3e;">
+                                Password:
+                              </td>
+                              <td class="stack" valign="top" style="padding: 6px 0; font-family: 'Courier New', Courier, monospace; font-size: 16px; line-height: 22px; font-weight: bold; color: #2c2c2c; letter-spacing: 0.5px; word-break: break-word; overflow-wrap: anywhere;">
+                                {{password}}
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- ===== Pranic Path section (Prana Arambha only) ===== -->
+                <tr>
+                  <td class="px" style="padding: 28px 40px 8px 40px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+                      style="width: 100%; background-color: #fffaf5; border: 1px solid #f3dcc7; border-radius: 8px;" bgcolor="#fffaf5">
+                      <tr>
+                        <td height="4" bgcolor="#f47019" style="height: 4px; font-size: 0; line-height: 0; background-color: #f47019; border-radius: 8px 8px 0 0;">&nbsp;</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 26px 26px 6px 26px; font-family: Arial, Helvetica, sans-serif;">
+                          <div style="font-size: 11px; line-height: 16px; letter-spacing: 2px; text-transform: uppercase; color: #d9600f; font-weight: bold; margin: 0 0 8px 0;">
+                            The Pranic Path
+                          </div>
+                          <div class="h2" style="font-family: Georgia, 'Times New Roman', serif; font-size: 22px; line-height: 30px; font-weight: bold; color: #2c2c2c; margin: 0 0 14px 0;">
+                            Your Journey Through the Pranic Path
+                          </div>
+                          <p style="font-size: 15px; line-height: 25px; color: #444444; margin: 0 0 12px 0;">
+                            At Yoga Vidya School, we have designed a progressive learning journey called the
+                            <strong>Pranic Path</strong>. It is a structured progression that takes you from the
+                            foundations of breath awareness to our most advanced Pranayama Certification:
+                            <strong>Pranic Bodh</strong>.
+                          </p>
+                          <p style="font-size: 15px; line-height: 25px; color: #444444; margin: 0 0 12px 0;">
+                            The Pranic Path is divided into different stages, and each one builds upon the previous
+                            one. As you progress, the practices become more subtle and advanced, requiring a strong
+                            foundation in both knowledge and personal experience.
+                          </p>
+                          <p style="font-size: 15px; line-height: 25px; color: #444444; margin: 0 0 18px 0;">
+                            This is why following the recommended progression is important: each course prepares
+                            you for the next, allowing you to deepen your understanding and develop your personal
+                            practice step by step.
+                          </p>
+                        </td>
+                      </tr>
+
+                      <!-- Progression tracker -->
+                      <tr>
+                        <td style="padding: 0 26px 10px 26px;">
+                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100%;">
+                            <tr>
+                              <td width="40" valign="middle" style="width: 40px; padding: 0 0 12px 0;">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate;"><tr>
+                                  <td width="28" height="28" align="center" valign="middle" bgcolor="#e8d9c8" style="width: 28px; height: 28px; border-radius: 14px; background-color: #e8d9c8; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 28px; color: #7a5c3e;">&#9679;</td>
+                                </tr></table>
+                              </td>
+                              <td valign="middle" style="padding: 0 0 12px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; font-weight: bold; color: #2c2c2c;">
+                                Breath Detox <span style="font-weight: normal; color: #8a8a8a;">&middot; Foundation (recommended)</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td width="40" valign="middle" style="width: 40px; padding: 0 0 12px 0;">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate;"><tr>
+                                  <td width="28" height="28" align="center" valign="middle" bgcolor="#f47019" style="width: 28px; height: 28px; border-radius: 14px; background-color: #f47019; font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 28px; font-weight: bold; color: #ffffff;">2</td>
+                                </tr></table>
+                              </td>
+                              <td valign="middle" style="padding: 0 0 12px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; font-weight: bold; color: #d9600f;">
+                                Prana Arambha <span style="font-weight: normal; color: #8a8a8a;">&middot; Step 2 &mdash; you are here</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td width="40" valign="middle" style="width: 40px; padding: 0 0 12px 0;">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate;"><tr>
+                                  <td width="24" height="24" align="center" valign="middle" style="width: 24px; height: 24px; border-radius: 14px; border: 2px dashed #d9b99a; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 24px; color: #b08358;">&#9675;</td>
+                                </tr></table>
+                              </td>
+                              <td valign="middle" style="padding: 0 0 12px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; font-weight: bold; color: #2c2c2c;">
+                                Pranic Purification <span style="font-weight: normal; color: #8a8a8a;">&middot; Next stage</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td width="40" valign="middle" style="width: 40px; padding: 0;">
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate;"><tr>
+                                  <td width="24" height="24" align="center" valign="middle" style="width: 24px; height: 24px; border-radius: 14px; border: 2px dashed #d9b99a; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 24px; color: #b08358;">&#9675;</td>
+                                </tr></table>
+                              </td>
+                              <td valign="middle" style="padding: 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 22px; font-weight: bold; color: #2c2c2c;">
+                                Pranic Bodh <span style="font-weight: normal; color: #8a8a8a;">&middot; Pranayama Certification</span>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+
+                      <!-- Breath Detox recommendation -->
+                      <tr>
+                        <td style="padding: 18px 26px 4px 26px; font-family: Arial, Helvetica, sans-serif;">
+                          <p style="font-size: 15px; line-height: 25px; color: #444444; margin: 0 0 16px 0;">
+                            <strong>Prana Arambha is Step 2 of this journey.</strong> If you haven't completed
+                            Breath Detox yet, we recommend taking it before starting Prana Arambha, as it provides
+                            a helpful foundation. However, you can also complete Breath Detox after Prana Arambha.
+                          </p>
+                          <p style="font-size: 15px; line-height: 25px; color: #444444; margin: 0 0 12px 0;">
+                            Kindly join Breath Detox Yoga here:
+                          </p>
+                          <table role="presentation" class="btn-full" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 22px 0;">
+                            <tr>
+                              <td align="center" bgcolor="#f47019" class="btn-cta" style="background-color: #f47019; border-radius: 6px; padding: 0;">
+                                <a href="https://www.yogavidyaschool.com/breath-detox-yoga" target="_blank"
+                                  style="display: inline-block; padding: 13px 28px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 20px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 6px;">Join Breath Detox Yoga</a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+
+                      <!-- What's next -->
+                      <tr>
+                        <td style="padding: 0 26px 26px 26px;">
+                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+                            style="width: 100%; background-color: #ffffff; border: 1px solid #f3dcc7; border-left: 4px solid #f47019; border-radius: 4px;" bgcolor="#ffffff">
+                            <tr>
+                              <td style="padding: 18px 20px; font-family: Arial, Helvetica, sans-serif;">
+                                <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 18px; line-height: 26px; font-weight: bold; color: #2c2c2c; margin: 0 0 10px 0;">What's Next?</div>
+                                <p style="font-size: 15px; line-height: 25px; color: #444444; margin: 0 0 10px 0;">
+                                  The next stage is <strong>Pranic Purification</strong>, an advanced programme
+                                  offered only once a year.
+                                </p>
+                                <p style="font-size: 15px; line-height: 25px; color: #444444; margin: 0 0 10px 0;">
+                                  Please note that <strong>only students who have completed Prana Arambha are
+                                  eligible</strong> to enrol in Pranic Purification.
+                                </p>
+                                <p style="font-size: 15px; line-height: 25px; color: #444444; margin: 0;">
+                                  All information about the next stages of the Pranic Path, including enrolment
+                                  details and upcoming opportunities, will be communicated exclusively by email.
+                                  Make sure to keep an eye on your inbox so you don't miss the next step in your
+                                  journey.
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <!-- ===== End Pranic Path section ===== -->
+
+                <!-- Community links -->
+                <tr>
+                  <td class="px" style="padding: 24px 40px 0 40px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100%;">
+                      <tr>
+                        <td style="border-top: 1px solid #eadfd2; padding: 22px 0 0 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 25px; color: #3a3a3a;">
+                          <p style="margin: 0 0 12px 0;">
+                            Join our WhatsApp group to stay updated:
+                          </p>
+                          <table role="presentation" class="btn-full" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0;">
+                            <tr>
+                              <td align="center" bgcolor="#ffffff" class="btn-outline" style="background-color: #ffffff; border: 2px solid #f47019; border-radius: 6px; padding: 0;">
+                                <a href="https://chat.whatsapp.com/G7ASJJCiiVlB1W317yZvQM" target="_blank"
+                                  style="display: inline-block; padding: 11px 26px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 20px; font-weight: bold; color: #d9600f; text-decoration: none; border-radius: 6px;">Join WhatsApp Group</a>
+                              </td>
+                            </tr>
+                          </table>
+                          <p style="margin: 0 0 12px 0;">
+                            To receive all updates related to Prashant Ji's programs and Yoga Vidya School’s online/offline
+                            offerings, please join our official whatsapp community here:
+                          </p>
+                          <table role="presentation" class="btn-full" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0;">
+                            <tr>
+                              <td align="center" bgcolor="#ffffff" class="btn-outline" style="background-color: #ffffff; border: 2px solid #f47019; border-radius: 6px; padding: 0;">
+                                <a href="https://chat.whatsapp.com/J6rltqcGq82LIIAra1ggvS" target="_blank"
+                                  style="display: inline-block; padding: 11px 26px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 20px; font-weight: bold; color: #d9600f; text-decoration: none; border-radius: 6px;">Join WhatsApp Community</a>
+                              </td>
+                            </tr>
+                          </table>
+                          <p style="margin: 0 0 12px 0;">
+                            &#128172; For practice-related discussions, connect with fellow Sadhaks and teachers on our
+                            Facebook Community:
+                          </p>
+                          <table role="presentation" class="btn-full" border="0" cellpadding="0" cellspacing="0" style="margin: 0 0 8px 0;">
+                            <tr>
+                              <td align="center" bgcolor="#ffffff" class="btn-outline" style="background-color: #ffffff; border: 2px solid #f47019; border-radius: 6px; padding: 0;">
+                                <a href="https://www.facebook.com/groups/808369497430769/?ref=share&amp;mibextid=NSMWBT" target="_blank"
+                                  style="display: inline-block; padding: 11px 26px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 20px; font-weight: bold; color: #d9600f; text-decoration: none; border-radius: 6px;">Join Facebook Community</a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Closing -->
+                <tr>
+                  <td class="px" style="padding: 12px 40px 36px 40px; font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 26px; color: #3a3a3a;">
+                    <p style="margin: 0 0 20px 0;">
+                      Once again, thank you for choosing {{course}}. We wish you all the best in your learning
+                      endeavors!
+                    </p>
+                    <p style="margin: 0;">Best regards,</p>
+                    <p style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-weight: bold; color: #2c2c2c;">Yoga Vidya School</p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+          <!-- ============ Footer ============ -->
+          <tr>
+            <td align="center" style="padding: 22px 20px 8px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 20px; color: #8a7f73;">
+              Yoga Vidya School<br />
+              <a href="https://www.yogavidyaschool.com" target="_blank" style="color: #8a7f73; text-decoration: underline;">www.yogavidyaschool.com</a>
+              &nbsp;&middot;&nbsp;
+              <a href="mailto:info@yogavidyaschool.com" style="color: #8a7f73; text-decoration: underline;">info@yogavidyaschool.com</a>
+            </td>
+          </tr>
+
+        </table>
+        <!--[if mso]></td></tr></table><![endif]-->
+
       </td>
     </tr>
   </table>
