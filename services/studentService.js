@@ -711,6 +711,31 @@ module.exports = {
         let pipeLine = [
           { $match: { isDeleted: false } },
           {
+            $addFields: {
+              sourcePattern: {
+                $concat: [
+                  "200TTC_",
+                  { $toString: "$_id" },
+                  "_",
+                  "$month",
+                ],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "students",
+              localField: "sourcePattern",
+              foreignField: "source",
+              as: "studentData",
+            },
+          },
+          {
+            $addFields: {
+              studentData: { $arrayElemAt: ["$studentData", 0] },
+            },
+          },
+          {
             $project: {
               _id: 1,
               name: 1,
@@ -724,6 +749,7 @@ module.exports = {
               month: 1,
               room: 1,
               package: 1,
+              password: "$studentData.password",
             },
           },
         ];
