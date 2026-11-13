@@ -173,9 +173,7 @@ async function completePayPal200TTCPayment(order, reqBody, req) {
     reqBody.installment,
     reqBody.dueAmnt,
   );
-  if (reqBody.installment == "2nd") {
-    await savePranaArambhOn200TTC(user, reqBody);
-  }
+  await savePranaArambhOn200TTC(user, reqBody);
   await helper.send200TTCInstalmentEmail(user, reqBody);
   const clientData = req ? extractClientData(req) : {};
   paymentTrackingService.track200TTCPurchase(
@@ -838,9 +836,7 @@ function getRazorPaymentResult200TTC(reqBody, req = null) {
           reqBody.installment,
           reqBody.dueAmnt,
         );
-        if (reqBody.installment == "2nd") {
-          await savePranaArambhOn200TTC(user, reqBody);
-        }
+        await savePranaArambhOn200TTC(user, reqBody);
         await helper.send200TTCInstalmentEmail(user, reqBody);
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.track200TTCPurchase(
@@ -1055,9 +1051,7 @@ function getStripePaymentResult200TTC(reqBody, req = null) {
           reqBody.installment,
           reqBody.dueAmnt,
         );
-        if (reqBody.installment == "2nd") {
-          await savePranaArambhOn200TTC(user, reqBody);
-        }
+        await savePranaArambhOn200TTC(user, reqBody);
         await helper.send200TTCInstalmentEmail(user, reqBody);
         const clientData = req ? extractClientData(req) : {};
         paymentTrackingService.track200TTCPurchase(
@@ -1095,6 +1089,21 @@ function savePranaArambhOn200TTC(user, reqBody) {
   return new Promise(async (resolve, reject) => {
     let studentData;
     try {
+      // A 30% deposit now creates the login, so the balance payment must not
+      // create a second one: reuse it and mail the password they already have.
+      const existingStudent = await studentRepo.getStudentBy200TTCOnline(
+        user.email,
+        user.name,
+      );
+      if (
+        existingStudent &&
+        existingStudent.password &&
+        existingStudent.isActive &&
+        !existingStudent.isDeleted
+      ) {
+        reqBody.password = existingStudent.password;
+        return resolve(1);
+      }
       if (user.phoneNumber == "N/A") {
         studentData = {
           email: user.email,
