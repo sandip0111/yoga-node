@@ -2804,7 +2804,8 @@ module.exports = {
         );
         res.status(200).json(returnData);
       } catch (err) {
-        res.status(400).json({ err });
+        console.error("upload-video failed:", err);
+        res.status(400).json({ err, message: err && err.message });
       }
     }
   },

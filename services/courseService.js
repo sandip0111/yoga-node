@@ -37,18 +37,24 @@ function uploadCourseVideo(reqFile, reqBody) {
       const fs = require("fs");
       const fileStream = fs.createReadStream(reqFile.path);
 
-      const result = await s3Service.uploadVideoToS3(
-        fileStream,
-        reqFile.originalname,
-        reqBody.selectedCourse,
-        reqFile.mimetype,
-        reqFile.size
-      );
-
-      // Remove temp file from disk after uploading to S3
-      fs.unlink(reqFile.path, (err) => {
-        if (err) console.error("Error deleting temp video file:", err);
-      });
+      let result;
+      try {
+        result = await s3Service.uploadVideoToS3(
+          fileStream,
+          reqFile.originalname,
+          reqBody.selectedCourse,
+          reqFile.mimetype,
+          reqFile.size
+        );
+      } finally {
+        // Always remove the temp file (success OR failure). Previously a failed
+        // S3 upload left the full 1+ GB file in public/video, so retries could
+        // fill the disk and make later uploads fail.
+        fileStream.destroy();
+        fs.unlink(reqFile.path, (err) => {
+          if (err) console.error("Error deleting temp video file:", err);
+        });
+      }
 
       const lastUploadedVideo = await courseRepo.getLastCourseVideo(
         reqBody.selectedCourse,
