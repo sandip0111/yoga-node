@@ -668,6 +668,46 @@ module.exports = {
     }
   },
   removeSubscribeData: async function (req, res) {
+    // Opened from the email's Unsubscribe button. Deletes nothing itself: the page
+    // POSTs to this same url, so link scanners that only fetch it remove nobody.
+    if (req.method !== "POST") {
+      return res.status(200).type("html").send(`<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Unsubscribe | Yoga Vidya School</title>
+  </head>
+  <body style="margin: 0; padding: 60px 16px; background: #f7f4f1; font-family: Arial, sans-serif; color: #2c2c2c; text-align: center;">
+    <div style="max-width: 480px; margin: 0 auto; padding: 40px 24px; background: #ffffff; border-top: 5px solid #f9751e; border-radius: 8px;">
+      <p style="margin: 0 0 16px; color: #f9751e; font-weight: bold; letter-spacing: 2px;">YOGA VIDYA SCHOOL</p>
+      <p id="msg" style="margin: 0; font-size: 18px; line-height: 1.6;">Unsubscribing...</p>
+      <noscript>Please enable JavaScript, or write to info@yogavidyaschool.com to unsubscribe.</noscript>
+    </div>
+    <script>
+      var msg = document.getElementById("msg");
+      var id = new URLSearchParams(location.search).get("studentId") || "";
+      var failed = "We could not unsubscribe you. Please open the link from your email again, or write to info@yogavidyaschool.com.";
+      if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+        msg.textContent = failed;
+      } else {
+        fetch(location.pathname, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ studentId: id }),
+        })
+          .then(function (r) {
+            msg.textContent = r.ok ? "You have been unsubscribed. You will no longer receive our newsletter emails." : failed;
+          })
+          .catch(function () {
+            msg.textContent = failed;
+          });
+      }
+    </script>
+  </body>
+</html>`);
+    }
     try {
       await studentService.removeSubscribeData(req.body.studentId);
       res.status(200).json({ msg: "Data removed successfully" });

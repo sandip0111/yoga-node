@@ -2855,8 +2855,8 @@ module.exports = {
     try {
       const emailSubject =
         req.body.emailSubject?.trim() ||
-        "Inscriptions to our 2027 TTCs are now open!";
-      const limit = parseInt(req.body.limit) || 500;
+        "Who Is the Real Father of Yoga?";
+      const limit = parseInt(req.body.limit) || 0;
 
       const subscriberRepo = require("../repositories/subscriberRepository");
       const subscribers = await subscriberRepo.getFilteredSubscribers(

@@ -27,6 +27,7 @@ async function getFilteredSubscribers(emailSubject, limit = 500) {
   try {
     const subscribers = await subscribeModel
       .find({
+        isDeleted: { $ne: true },
         $or: [
           // Case 1: emailSubject not in emailHistory at all
           { "emailHistory.emailSubject": { $ne: emailSubject } },

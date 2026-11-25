@@ -57,7 +57,10 @@ async function sendBulkEmailToSubscribers(
       {
         subject: emailSubject,
         templatePath: sendMail.EMAIL_CONFIG.DEFAULT_TEMPLATE,
-        replacementsFn: (sub) => ({ NAME: sub.name }),
+        replacementsFn: (sub) => ({
+          NAME: sub.name,
+          SUBSCRIBER_ID: String(sub._id),
+        }),
         onResult: async (sub, success, lastError) => {
           emailHistoryUpdates.push({
             subscriberId: sub._id,

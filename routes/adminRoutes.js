@@ -699,7 +699,10 @@ router.post(
 );
 router.post("/removeRishikeshData", studentController.removeRishikeshData);
 router.post("/removeBaliData", studentController.removeBaliData);
-router.post("/removeSubscribeData", studentController.removeSubscribeData);
+router
+  .route("/removeSubscribeData")
+  .get(studentController.removeSubscribeData)
+  .post(studentController.removeSubscribeData);
 
 router.post(
   "/checkoutRazorpayForPranayamaCertification",
